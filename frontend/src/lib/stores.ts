@@ -1,21 +1,30 @@
 import { writable } from 'svelte/store';
-
-type Metadata = {
-    title: string;
-    artist: string;
-    album: string;
-    albumArt: string;
-};
+import type { FriendlyTrack } from './db';
 
 type Audio = {
     id: string;
-    metadata?: Metadata;
+    track: FriendlyTrack;
     src: string;
-    paused: boolean;
-    volume: number;
-    muted: boolean;
     currentTime: number;
     duration: number;
+};
+
+type Player = {
+    muted: boolean;
+    volume: number;
+    paused: boolean;
+    repeat: false | 'one' | 'all';
+};
+
+type Queue = {
+    tracks: FriendlyTrack[];
+    index: number;
+};
+
+type Task = {
+    id: string;
+    title: string;
+    message?: string;
 };
 
 export const INITIAL_AUDIO = {
@@ -34,3 +43,17 @@ export const INITIAL_AUDIO = {
 };
 
 export const audio = writable<Audio | null>(null);
+
+export const player = writable<Player>({
+    muted: false,
+    volume: 1,
+    paused: false,
+    repeat: false
+});
+
+export const queue = writable<Queue>({
+    tracks: [],
+    index: 0
+});
+
+export const tasks = writable<Task[]>([]);

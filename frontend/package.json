@@ -36,6 +36,7 @@
     },
     "type": "module",
     "dependencies": {
+        "dexie": "3.2.4",
         "lucide-svelte": "^0.288.0",
         "music-metadata-browser": "^2.5.10"
     }

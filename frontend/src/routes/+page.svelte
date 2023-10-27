@@ -10,7 +10,7 @@
         GetOrCreateConfig()
             .then((config) => {
                 if (config.setup_done) {
-                    return (window.location.href = '/home');
+                    return (window.location.href = '/settings');
                 }
 
                 loading = false;

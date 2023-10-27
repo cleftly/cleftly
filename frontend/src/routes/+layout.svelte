@@ -33,10 +33,6 @@
 
     import type { ComponentEvents } from 'svelte';
 
-    function scrollHandler(event: ComponentEvents<AppShell>['scroll']) {
-        console.log(event.currentTarget.scrollTop);
-    }
-
     function goBack() {
         window.history.back();
     }
@@ -53,7 +49,7 @@
 
 <Toast />
 
-<AppShell on:scroll={scrollHandler} scrollbarGutter="auto">
+<AppShell scrollbarGutter="auto">
     <svelte:fragment slot="header">
         <nav
             class="px-[4.75rem] navbar h-11 bg-neutral-900 flex w-full"
@@ -82,7 +78,7 @@
             <nav class="list-nav text-sm">
                 <ul>
                     <li><a href="/home"><Home class="mr-2" /> Home</a></li>
-                    <li><a href="/">Settings</a></li>
+                    <li><a href="/settings">Settings</a></li>
                 </ul>
             </nav>
         </div>

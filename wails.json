@@ -1,6 +1,6 @@
 {
   "$schema": "https://wails.io/schemas/config.v2.json",
-  "name": "pulseflow",
+  "name": "PulseFlow",
   "wailsjsdir": "./frontend/src/lib",
   "outputfilename": "pulseflow",
   "frontend:install": "pnpm install",
