@@ -1,0 +1,30 @@
+site_name: PulseFlow Docs
+theme:
+    name: material
+    palette:
+        scheme: slate
+        primary: custom
+        accent: red
+    features:
+        - navigation.instant
+        - navigation.instant.progress
+        - navigation.tracking
+        - navigation.top
+        - search.suggest
+        - search.highlight
+        - content.action.edit
+    icon:
+        repo: fontawesome/brands/github
+
+plugins:
+    - search
+
+repo_url: https://github.com/wxllow/pulseflow
+repo_name: wxllow/pulseflow
+edit_uri: edit/main/docs/docs/
+
+extra_css:
+    - _stylesheets/extra.css
+
+markdown_extensions:
+    - pymdownx.snippets

@@ -1,0 +1,43 @@
+[package]
+name = "app"
+version = "0.1.0"
+description = "A Tauri App"
+authors = ["wxllow"]
+license = "MIT"
+repository = ""
+default-run = "app"
+edition = "2021"
+rust-version = "1.60"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[build-dependencies]
+tauri-build = { version = "1.5.0", features = [] }
+
+[dependencies]
+serde_json = "1.0"
+serde = { version = "1.0", features = ["derive"] }
+tauri = { version = "1.5.2", features = [ "window-maximize", "window-unminimize", "window-start-dragging", "window-request-user-attention", "window-unmaximize", "window-show", "window-set-title", "window-minimize", "window-hide",
+    "updater",
+    "os-all",
+    "protocol-all",
+    "dialog-all",
+    "http-all",
+    "path-all",
+    "fs-all",
+    "shell-open",
+    "linux-protocol-headers",
+] }
+tauri-plugin-persisted-scope = { git = "https://github.com/tauri-apps/plugins-workspace", branch = "v1" }
+percent-encoding = "2.3.0"
+mime_guess = "2.0.4"
+rodio = { version = "0.17.3", features = ["symphonia-aac", "symphonia-isomp4"] }
+rand = "0.8.5"
+symphonia = { version = "0.5.3", features = ["symphonia-codec-alac"] }
+discord-rpc-client = "0.4.0"
+
+[features]
+# this feature is used for production builds or when `devPath` points to the filesystem and the built-in dev server is disabled.
+# If you use cargo directly instead of tauri's cli you can use this feature flag to switch between tauri's `dev` and `build` modes.
+# DO NOT REMOVE!!
+custom-protocol = ["tauri/custom-protocol"]

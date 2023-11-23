@@ -1,0 +1,122 @@
+{
+    "$schema": "../node_modules/@tauri-apps/cli/schema.json",
+    "build": {
+        "beforeBuildCommand": "bun run build",
+        "beforeDevCommand": "bun run dev",
+        "devPath": "http://localhost:3009",
+        "distDir": "../public"
+    },
+    "package": {
+        "productName": "Cleftly",
+        "version": "0.0.1"
+    },
+    "tauri": {
+        "allowlist": {
+            "all": false,
+            "os": {
+                "all": true
+            },
+            "shell": {
+                "all": false,
+                "open": true
+            },
+            "fs": {
+                "all": true,
+                "scope": [
+                    "$APPCONFIG",
+                    "$APPCONFIG/*",
+                    "$APPCACHE",
+                    "$APPCACHE/*"
+                ]
+            },
+            "path": {
+                "all": true
+            },
+            "http": {
+                "all": true,
+                "request": true,
+                "scope": ["https://*"]
+            },
+            "dialog": {
+                "all": true
+            },
+            "protocol": {
+                "all": true
+            },
+            "window": {
+                "all": false,
+                "hide": true,
+                "maximize": true,
+                "minimize": true,
+                "print": false,
+                "requestUserAttention": true,
+                "setTitle": true,
+                "show": true,
+                "startDragging": true,
+                "unmaximize": true,
+                "unminimize": true
+            }
+        },
+        "bundle": {
+            "active": true,
+            "category": "DeveloperTool",
+            "copyright": "",
+            "deb": {
+                "depends": []
+            },
+            "externalBin": [],
+            "icon": [
+                "icons/32x32.png",
+                "icons/128x128.png",
+                "icons/128x128@2x.png",
+                "icons/icon.icns",
+                "icons/icon.ico"
+            ],
+            "identifier": "com.cleftly",
+            "longDescription": "",
+            "macOS": {
+                "entitlements": null,
+                "exceptionDomain": "",
+                "frameworks": [],
+                "providerShortName": null,
+                "signingIdentity": null
+            },
+            "resources": [],
+            "shortDescription": "",
+            "targets": "all",
+            "windows": {
+                "certificateThumbprint": null,
+                "digestAlgorithm": "sha256",
+                "timestampUrl": ""
+            }
+        },
+        "security": {
+            "csp": "default-src 'self'; connect-src stream: https://stream.localhost http://localhost:3009"
+        },
+        "updater": {
+            "active": true,
+            "endpoints": [
+                "https://cdn.jsdelivr.net/gh/wxllow/cleftly@latest/updates.json"
+            ],
+            "windows": {
+                "installMode": "basicUi"
+            },
+            "dialog": true,
+            "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDVCQTc1M0JBREM4QjQwMzgKUldRNFFJdmN1bE9uV3gxcDVYTmRmRWxHYnlUWEpta2JNUjNEenVDN21SdS91aGNnaHhZbE0xR2wK"
+        },
+        "windows": [
+            {
+                "fullscreen": false,
+                "height": 600,
+                "resizable": true,
+                "title": "Cleftly",
+                "width": 800,
+                "titleBarStyle": "Overlay",
+                "hiddenTitle": true,
+                "theme": "Dark",
+                "minWidth": 400,
+                "minHeight": 200
+            }
+        ]
+    }
+}

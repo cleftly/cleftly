@@ -1,0 +1,16 @@
+[tool.poetry]
+name = "docs"
+version = "1.0.0"
+description = "PulseFlow Documentation with Material for MkDocs"
+authors = ["Your Name <you@example.com>"]
+license = "MIT"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+mkdocs-material = "^9.4.7"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
