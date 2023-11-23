@@ -24,7 +24,7 @@ Please use the following format for your commit messages:
 {details}
 ```
 
-*Fields with `{}` are optional.*
+_Fields with `{}` are optional._
 
 Also ensure that all lines are no longer than 72 characters. Please wrap body lines at 72 characters.
 
@@ -33,7 +33,7 @@ Also ensure that all lines are no longer than 72 characters. Please wrap body li
 ```plaintext
 [core] feat: rick roll easter egg
 
-This commit adds an easter egg which will never give you up or 
+This commit adds an easter egg which will never give you up or
 let you down
 ```
 
@@ -45,7 +45,7 @@ let you down
 
 ### Types
 
-(*Not applicable for docs*)
+(_Not applicable for docs_)
 
 - `feat`: A new feature
 - `fix`: A bug fix

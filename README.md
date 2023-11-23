@@ -4,8 +4,8 @@ TODO
 
 ## Prerequisites
 
--   Rust
--   Bun
+- Rust
+- Bun
 
 See <https://tauri.app/v1/guides/getting-started/prerequisites/> for more information.
 
