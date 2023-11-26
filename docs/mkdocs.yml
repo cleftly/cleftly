@@ -1,4 +1,4 @@
-site_name: PulseFlow Docs
+site_name: Cleftly Docs
 theme:
     name: material
     palette:
@@ -19,8 +19,8 @@ theme:
 plugins:
     - search
 
-repo_url: https://github.com/wxllow/pulseflow
-repo_name: wxllow/pulseflow
+repo_url: https://github.com/wxllow/cleftly
+repo_name: wxllow/cleftly
 edit_uri: edit/main/docs/docs/
 
 extra_css:

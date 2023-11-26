@@ -1,8 +1,8 @@
 [tool.poetry]
 name = "docs"
 version = "1.0.0"
-description = "PulseFlow Documentation with Material for MkDocs"
-authors = ["Your Name <you@example.com>"]
+description = "Cleftly Documentation with Material for MkDocs"
+authors = ["wxllow <willow@wxllow.dev>"]
 license = "MIT"
 readme = "README.md"
 
