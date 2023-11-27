@@ -1,23 +1,31 @@
 # Cleftly
 
-TODO
+A simple music player focused on aesthetics, speed, and extensibility.
 
-## Prerequisites
+## Features
 
-- Rust
-- Bun
+- Live Lyrics
+- Last.FM Integration
+- Discord Rich Presence
+- Plugins (Coming Soon)
+- Themeing (Coming Soon)
 
-See <https://tauri.app/v1/guides/getting-started/prerequisites/> for more information.
+## Installation
 
-### 1. Install dependencies
+Download the [latest release](https://github.com/wxllow/cleftly/releases/latest) and run it.
 
-```bash
-bun i
-```
+### Supported Platforms
 
-### 2. Run
+- Windows 7+ (AMD64/AARCH64)
+- macOS 12+ (AMD64/AARCH64)
+- Linux (AMD64/AARCH64)
 
-```bash
-bun tauri dev
-``
-```
+Older versions of these platforms are not officially supported but may work (with some issues).
+
+## Contributing
+
+Read the [docs](https://docs.cleftly.com/contributing/)
+
+## Building
+
+Read the [docs](https://docs.cleftly.com/building/)
