@@ -22,7 +22,7 @@ If you do not wish to or are unable to add the proper metadata to your files, th
 
 For the best compatibility and encoding, we recommend using the following audio formats for your music library. These formats are supported on all platforms we officially support.
 
-#### Loseless audio
+#### Lossless audio
 
 - **[FLAC](https://xiph.org/flac/)**
 
