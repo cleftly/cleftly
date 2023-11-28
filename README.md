@@ -8,7 +8,7 @@ A simple music player focused on aesthetics, speed, and extensibility.
 - Last.FM Integration
 - Discord Rich Presence
 - Plugins (Coming Soon)
-- Themeing (Coming Soon)
+- Theming (Coming Soon)
 
 ## Installation
 
