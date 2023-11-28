@@ -1,17 +1,11 @@
 <script lang="ts">
-    import {
-        Avatar,
-        getModalStore,
-        popup,
-        type PopupSettings
-    } from '@skeletonlabs/skeleton';
-    import { MoreHorizontal, Play, Trash } from 'lucide-svelte';
+    import { Avatar } from '@skeletonlabs/skeleton';
+    import { Play } from 'lucide-svelte';
 
     import type { FriendlyTrack } from '$lib/db';
     import { playTrack } from '$lib/player';
-    import { audio, playlists } from '$lib/stores';
+    import { audio } from '$lib/stores';
     import { getTimestamp } from '$lib/utils';
-    import db from '$lib/db';
 
     export let tracks: FriendlyTrack[] = [];
     export let mode: 'number' | 'albumArt' = 'number';

@@ -1,9 +1,5 @@
 <script lang="ts">
-    import {
-        Avatar,
-        getModalStore,
-        type PopupSettings
-    } from '@skeletonlabs/skeleton';
+    import { Avatar } from '@skeletonlabs/skeleton';
     import type { FriendlyPlaylist } from '$lib/db';
 
     export let playlist: FriendlyPlaylist;

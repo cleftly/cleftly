@@ -1,6 +1,6 @@
 <script lang="ts">
     import { popup, type PopupSettings } from '@skeletonlabs/skeleton';
-    import { Bell, ListMusic, Loader, Loader2 } from 'lucide-svelte';
+    import { Bell, Loader2 } from 'lucide-svelte';
     import { progress } from '$lib/stores';
 
     const progressPopup: PopupSettings = {
@@ -27,7 +27,8 @@
     data-popup="progressPopup"
 >
     <ul class="list-nav text-sm">
-        {#each $progress as [id, status]}
+        <!-- eslint-disable-next-line @typescript-eslint/no-unused-vars -->
+        {#each $progress as [_, status]}
             <li>
                 <button class="w-full">
                     <span>
