@@ -4,7 +4,7 @@
 
 ### Metadata
 
-The best way to make sure your music library is properly organised is to simply add proper metadata to all of your files. There are several programs to help you achieve this, such as [MusicBrainz Picard](https://picard.musicbrainz.org/). We plan to add built-in metadata scanning in the future.
+The best way to make sure your music library is properly organized is to simply add proper metadata to all of your files. There are several programs to help you achieve this, such as [MusicBrainz Picard](https://picard.musicbrainz.org/). We plan to add built-in metadata scanning in the future.
 
 ### Folder structure
 
