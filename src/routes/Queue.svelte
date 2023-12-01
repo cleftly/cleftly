@@ -1,10 +1,9 @@
 <script lang="ts">
     import { popup, type PopupSettings } from '@skeletonlabs/skeleton';
-    import { ListMusic, TextSelect } from 'lucide-svelte';
-    import { parse } from '$lib/lrcutils';
+    import { ListMusic } from 'lucide-svelte';
+    import { _ } from 'svelte-i18n';
     import { queue } from '$lib/stores';
     import TrackList from '$components/TrackList.svelte';
-    import { _ } from 'svelte-i18n';
 
     const queuePopup: PopupSettings = {
         event: 'click',

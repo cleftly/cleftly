@@ -9,6 +9,7 @@ import { nowPlaying } from './integrations/lastfm';
 import { getLyrics } from './lyrics';
 import { getStreamUrl } from './utils';
 import { getOrCreateConfig } from './config';
+import { fireEvent } from './plugins';
 import { INITIAL_AUDIO, audio, queue } from '$lib/stores';
 
 async function play(
@@ -18,13 +19,16 @@ async function play(
     queueIndex?: number,
     backend: 'native' | 'web' = 'native'
 ) {
+    console.log('playing', src);
+
     if (backend == 'native') {
         console.log(src);
         await invoke('play_audio', {
             filePath: src
-        }).catch((e) => {
+        }).catch(() => {
             const toastStore = getToastStore();
 
+            // TODO: i18n
             toastStore.trigger({
                 message: `<h1 class="text-lg">Failed to play track</h1> <p class="text-sm">Could not play track at ${src}</p>`,
                 background: 'variant-filled-error'
@@ -79,6 +83,13 @@ async function play(
             console.error(e);
             console.error('Last.FM: Failed to update now playing');
         });
+
+    fireEvent('on_track_change', track)
+        .then(() => {})
+        .catch((err) => {
+            console.error(err);
+            console.error('Failed to fire event on_track_change');
+        });
 }
 
 export function parseMMMetadata(
@@ -102,7 +113,7 @@ export function parseMMMetadata(
         duration: metadata.format.duration || 0,
         format: {
             bitrate: metadata.format.bitrate || 0,
-            loseless: metadata.format.lossless || false,
+            lossless: metadata.format.lossless || false,
             codec: metadata.format.codec,
             codecProfile: metadata.format.codecProfile
         }

@@ -1,6 +1,6 @@
 import { open, save } from '@tauri-apps/api/dialog';
 import { readTextFile, writeTextFile } from '@tauri-apps/api/fs';
-import type { FriendlyPlaylist, Playlist } from './db';
+import type { FriendlyPlaylist } from './db';
 import db from './db';
 import { getAlbumId, getOrCreateArtist, idify } from './library';
 

@@ -1,6 +1,5 @@
 <script lang="ts">
     import '../app.css';
-    import { _ } from 'svelte-i18n';
     import {
         computePosition,
         autoUpdate,
@@ -16,28 +15,19 @@
         initializeStores,
         storePopup
     } from '@skeletonlabs/skeleton';
-    import {
-        Disc3,
-        GalleryVerticalEnd,
-        Home,
-        ListMusic,
-        RotateCw,
-        Settings,
-        Users2
-    } from 'lucide-svelte';
+    import { RotateCw } from 'lucide-svelte';
     import type { AfterNavigate } from '@sveltejs/kit';
     import { onMount } from 'svelte';
     import Player from './Player.svelte';
+    import Sidebar from './Sidebar.svelte';
+    import MobileNav from './MobileNav.svelte';
     import { afterNavigate, onNavigate } from '$app/navigation';
     import db from '$lib/db';
-    import { audio, playlists } from '$lib/stores';
-    import CreatePlaylist from '$components/CreatePlaylist.svelte';
+    import { playlists } from '$lib/stores';
     import Search from '$components/Search.svelte';
     import Progress from '$components/Progress.svelte';
     import i18n_init from '$lib/i18n';
-    import Sidebar from './Sidebar.svelte';
-    import MobileNav from './MobileNav.svelte';
-    import DiscordRPC from '$lib/plugins/discordrpc';
+    import { loadPlugins } from '$lib/plugins';
     // Locales
 
     i18n_init();
@@ -66,10 +56,8 @@
             await db.playlists.orderBy('updatedAt').reverse().toArray()
         );
 
-        new DiscordRPC({
-            stores: {
-                audio: audio
-            }
+        loadPlugins().then(() => {
+            console.log('Plugins loaded');
         });
     });
 

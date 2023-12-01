@@ -2,6 +2,7 @@ import { writable } from 'svelte/store';
 
 import type { FriendlyTrack, Playlist } from './db';
 import { scrobble } from './integrations/lastfm';
+import type { Plugin } from './plugins';
 
 export type Lyrics = {
     format: 'lrc' | 'plain' | 'richsync';
@@ -76,6 +77,8 @@ export const tasks = writable<Task[]>([]);
 export const playlists = writable<Playlist[]>([]);
 
 export const progress = writable<Map<string, ProgressItem>>(new Map());
+
+export const plugins = writable<Map<string, Plugin>>(new Map());
 
 audio.subscribe((a) => {
     if (!a) return;

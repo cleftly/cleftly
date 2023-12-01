@@ -4,8 +4,7 @@
         GalleryVerticalEnd,
         Home,
         ListMusic,
-        Settings,
-        Users2
+        Settings
     } from 'lucide-svelte';
 </script>
 

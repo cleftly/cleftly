@@ -21,6 +21,7 @@ export type Config = {
     audio_backend: 'native' | 'web';
     lyrics_save: boolean;
     locale: string | null;
+    enabled_plugins: string[];
 };
 
 const DEFAULT_CONFIG = {
@@ -30,7 +31,8 @@ const DEFAULT_CONFIG = {
     lastfm_token: '',
     audio_backend: 'web',
     lyrics_save: false,
-    locale: null
+    locale: null,
+    enabled_plugins: ['com.cleftly.discordrpc']
 };
 
 export async function getOrCreateConfig() {
