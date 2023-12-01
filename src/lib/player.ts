@@ -3,6 +3,7 @@ import type * as mm from 'music-metadata-browser';
 import { get } from 'svelte/store';
 import { invoke } from '@tauri-apps/api';
 import { getToastStore } from '@skeletonlabs/skeleton';
+import { _ } from 'svelte-i18n';
 import type { FriendlyTrack } from './db';
 
 import { nowPlaying } from './integrations/lastfm';
@@ -30,7 +31,11 @@ async function play(
 
             // TODO: i18n
             toastStore.trigger({
-                message: `<h1 class="text-lg">Failed to play track</h1> <p class="text-sm">Could not play track at ${src}</p>`,
+                message: `<h1 class="text-lg">${get(_)(
+                    'track_play_failure'
+                )}</h1> <p class="text-sm">${get(_)('track_play_failure_at', {
+                    values: { path: src }
+                })}</p>`,
                 background: 'variant-filled-error'
             });
         });
