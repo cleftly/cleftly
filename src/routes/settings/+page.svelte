@@ -9,6 +9,7 @@
     import { onMount } from 'svelte';
 
     import { open } from '@tauri-apps/api/dialog';
+    import { _ } from 'svelte-i18n';
     import LastFmLogin from './LastFmLogin.svelte';
     import db from '$lib/db';
     import { getOrCreateConfig, saveConfig, type Config } from '$lib/config';
@@ -17,7 +18,6 @@
         selectAndImportPlaylists
     } from '$lib/playlists';
     import { playlists } from '$lib/stores';
-    import { _ } from 'svelte-i18n';
 
     const toastStore = getToastStore();
     const modalStore = getModalStore();
@@ -58,7 +58,7 @@
             .catch((err) => {
                 console.error(err);
                 toastStore.trigger({
-                    message: 'Failed to load config',
+                    message: $_('config_load_fail'),
                     background: 'variant-filled-error'
                 });
             });
@@ -95,14 +95,14 @@
         saveConfig(config)
             .then(() => {
                 toastStore.trigger({
-                    message: 'Changes saved',
+                    message: $_('changes_saved'),
                     background: 'variant-filled-success'
                 });
             })
             .catch((err) => {
                 console.error(err);
                 toastStore.trigger({
-                    message: 'Failed to save changes',
+                    message: $_('changes_save_fail'),
                     background: 'variant-filled-error'
                 });
             });
@@ -118,7 +118,7 @@
         await db.playlists.bulkAdd(pls);
 
         toastStore.trigger({
-            message: 'Database reset',
+            message: $_('database_was_reset'),
             background: 'variant-filled-success'
         });
     }
@@ -126,8 +126,8 @@
     const modal: ModalSettings = {
         type: 'confirm',
         // Data
-        title: 'Reset database',
-        body: 'Are you sure you wish to reset the database?\nYour playlists will be kept intact.',
+        title: $_('reset_database'),
+        body: $_('reset_database_confirmation'),
         response: (r: boolean) => {
             if (!r) return;
 
@@ -137,7 +137,9 @@
                 console.error(err);
 
                 toastStore.trigger({
-                    message: `<h1 class="text-lg">Failed to reset database</h1><p class="text-sm">${err}</p>`,
+                    message: `<h1 class="text-lg">${$_(
+                        'reset_database_fail'
+                    )}</h1><p class="text-sm">${err}</p>`,
                     background: 'variant-filled-error'
                 });
             });

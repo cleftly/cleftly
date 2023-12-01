@@ -2,12 +2,12 @@
     import { getToastStore } from '@skeletonlabs/skeleton';
     import { Loader2 } from 'lucide-svelte';
     import { onMount } from 'svelte';
+    import { _ } from 'svelte-i18n';
     import db, { type FriendlyAlbum, type FriendlyTrack } from '$lib/db';
     import { friendlyLibrary, updateLibrary } from '$lib/library';
     import CreatePlaylist from '$components/CreatePlaylist.svelte';
     import Album from '$components/Album.svelte';
     import Track from '$components/Track.svelte';
-    import { _ } from 'svelte-i18n';
 
     const toastStore = getToastStore();
     let albums: FriendlyAlbum[] = [];
@@ -37,7 +37,9 @@
             loading = false;
         } catch (e) {
             toastStore.trigger({
-                message: `<h1 class="text-lg">Failed to load library</h1><p class="text-sm">${e}</p>`,
+                message: `<h1 class="text-lg">${$_(
+                    'library_load_fail'
+                )}</h1><p class="text-sm">${e}</p>`,
                 background: 'variant-filled-error',
                 autohide: false
             });

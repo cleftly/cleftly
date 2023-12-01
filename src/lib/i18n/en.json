@@ -48,7 +48,10 @@
     "no_playlists": "No playlists found",
     "setup_done": "Setup complete",
     "config_load_fail": "Failed to load config",
+    "library_load_fail": "Failed to load library",
     "config_save_fail": "Failed to save config",
+    "changes_saved": "Changes saved",
+    "changes_save_fail": "Failed to save changes",
     "recently_played": "Recently Played",
     "recently_added": "Recently Added",
     "updating_your_library": "Updating your library",
@@ -58,9 +61,12 @@
     "having_issues": "Having issues?",
     "reset_database_description": "Resetting the database is the fastest way to fix any issues. Your playlists will be kept intact.",
     "reset_database": "Reset Database",
+    "reset_database_fail": "Failed to reset database",
+    "database_was_reset": "Database was reset",
     "integrations": "Integrations",
     "musixmatch_details_p1": "Musixmatch is used to retrieve lyrics.",
     "musixmatch_details_p2": "If you are having issues loading lyrics, try disabling your VPN or waiting a few minutes",
     "discord_rpc": "Discord Rich Presence",
-    "discord_rpc_details": " Let your friends know what you're listening to"
+    "discord_rpc_details": " Let your friends know what you're listening to",
+    "reset_database_confirmation": "Are you sure you wish to reset the database?\nYour playlists will be kept intact."
 }
