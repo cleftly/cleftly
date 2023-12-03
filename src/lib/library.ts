@@ -4,7 +4,7 @@ Access and management of user library (Music directories, playlists, etc.)
 import * as mm from 'music-metadata-browser';
 import { BaseDirectory, writeBinaryFile } from '@tauri-apps/api/fs';
 import { convertFileSrc } from '@tauri-apps/api/tauri';
-import { join } from '@tauri-apps/api/path';
+const { join } = await import('@tauri-apps/api/path');
 import { get } from 'svelte/store';
 import db, { type FriendlyTrack, type Track } from './db';
 import { parseMMMetadata } from './player';
@@ -151,14 +151,15 @@ export async function updateLibrary() {
         }
 
         const title =
-            metadata?.title || removeExtension(splitPath(file).slice(-1)[0]);
+            metadata?.title ||
+            removeExtension((await splitPath(file)).slice(-1)[0]);
         const album =
             metadata?.album ||
             splitPath(file).reverse()[1] ||
-            removeExtension(splitPath(file).reverse()[1]);
+            removeExtension((await splitPath(file)).reverse()[1]);
         const artist =
             metadata?.artist ||
-            splitPath(file).reverse()[2] ||
+            (await splitPath(file)).reverse()[2] ||
             'Unknown Artist';
         const totalTracks = metadata?.totalTracks || 1;
         const artistId = await getOrCreateArtist(artist);
