@@ -9,5 +9,8 @@ export default defineConfig({
         port: 3009,
         strictPort: true
     },
+    build: {
+        target: 'esnext'
+    },
     envPrefix: ['VITE_', 'PUBLIC_']
 });
