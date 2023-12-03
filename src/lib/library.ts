@@ -155,7 +155,7 @@ export async function updateLibrary() {
             removeExtension((await splitPath(file)).slice(-1)[0]);
         const album =
             metadata?.album ||
-            splitPath(file).reverse()[1] ||
+            (await splitPath(file)).reverse()[1] ||
             removeExtension((await splitPath(file)).reverse()[1]);
         const artist =
             metadata?.artist ||
