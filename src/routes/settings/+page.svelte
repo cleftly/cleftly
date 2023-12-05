@@ -27,14 +27,13 @@
 
     const SETTINGS = {
         music_directories: {
-            name: 'Music Directories',
-            description: 'Select your music directories.',
+            name: $_('setting_music_dir'),
+            description: $_('setting_music_dir_desc'),
             type: 'dirs'
         },
         lyrics_save: {
-            name: 'Save Lyric Files',
-            description:
-                'Save lyric files (.lrc and .txt) automatically. This will clutter your music directories and take up a small amount of disk space, but will reduce network usage, work offline, and prevent rate limiting.',
+            name: $_('setting_lyrics_auto_save'),
+            description: $_('setting_lyrics_auto_save_desc'),
             type: 'bool'
         }
         // audio_backend: {

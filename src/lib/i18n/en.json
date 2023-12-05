@@ -68,5 +68,9 @@
     "unknown": "Unknown",
     "updating_library": "Updating library",
     "updating_your_library": "Updating your library",
-    "you": "You"
+    "you": "You",
+    "setting_music_dir": "Music Directories",
+    "setting_music_dir_desc": "Select the directories where your music is stored.",
+    "setting_lyrics_auto_save": "Save Lyric Files",
+    "setting_lyrics_auto_save_desc": "Save lyric files (.lrc and .txt) automatically. This will clutter your music directories and take up a small amount of disk space, but will reduce network usage, work offline, and prevent rate limiting."
 }
