@@ -1,4 +1,10 @@
 import {
+    sep,
+    BaseDirectory,
+    appConfigDir,
+    appCacheDir
+} from '@tauri-apps/api/path';
+import {
     readDir,
     readTextFile,
     writeTextFile,
@@ -30,10 +36,6 @@ const DEFAULT_CONFIG = {
 };
 
 export async function getOrCreateConfig() {
-    const { BaseDirectory, appConfigDir } = await import(
-        '@tauri-apps/api/path'
-    );
-
     // Make sure config dir and file exist
     if (!(await exists('config.json', { dir: BaseDirectory.AppConfig }))) {
         if (!(await exists(await appConfigDir()))) {
@@ -65,15 +67,12 @@ export async function getOrCreateConfig() {
 }
 
 export async function saveConfig(config: Config) {
-    const { BaseDirectory } = await import('@tauri-apps/api/path');
-
     await writeTextFile('config.json', JSON.stringify(config), {
         dir: BaseDirectory.AppConfig
     });
 }
 
-export async function splitPath(path: string) {
-    const { sep } = await import('@tauri-apps/api/path');
+export function splitPath(path: string) {
     return path.split(sep);
 }
 
@@ -100,8 +99,6 @@ export async function walkDir(path: string) {
 }
 
 export async function getOrCreateCacheDir() {
-    const { BaseDirectory, appCacheDir } = await import('@tauri-apps/api/path');
-
     const dir = await appCacheDir();
 
     // Make sure config dir and file exist

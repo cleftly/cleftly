@@ -96,7 +96,7 @@
         "updater": {
             "active": true,
             "endpoints": [
-                "https://cdn.jsdelivr.net/gh/wxllow/cleftly@latest/updates.json"
+                "https://cdn.jsdelivr.net/gh/wxllow/cleftly@main/assets/updates.json"
             ],
             "windows": {
                 "installMode": "basicUi"

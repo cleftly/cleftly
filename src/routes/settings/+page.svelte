@@ -12,12 +12,13 @@
     import { _ } from 'svelte-i18n';
     import LastFmLogin from './LastFmLogin.svelte';
     import db from '$lib/db';
-    import { getOrCreateConfig, saveConfig, type Config } from '$lib/config';
+    import { getOrCreateConfig, type Config } from '$lib/config';
     import {
         exportAndSaveAllPlaylists,
         selectAndImportPlaylists
     } from '$lib/playlists';
     import { playlists } from '$lib/stores';
+    import { goto } from '$app/navigation';
 
     const toastStore = getToastStore();
     const modalStore = getModalStore();
@@ -53,6 +54,8 @@
     };
 
     onMount(async () => {
+        const { getOrCreateConfig } = await import('$lib/config');
+
         getOrCreateConfig()
             .then((res) => (config = res))
             .catch((err) => {
@@ -88,10 +91,12 @@
 
     async function cancelChanges() {
         config = await getOrCreateConfig();
-        window.location.href = '/';
+        goto('/');
     }
 
     async function saveChanges() {
+        const { saveConfig } = await import('$lib/config');
+
         saveConfig(config)
             .then(() => {
                 toastStore.trigger({

@@ -1,13 +1,14 @@
 <script lang="ts">
     import { getToastStore } from '@skeletonlabs/skeleton';
     import { onMount } from 'svelte';
-    import { getOrCreateConfig, saveConfig } from '$lib/config';
     import { _ } from 'svelte-i18n';
 
     const toastStore = getToastStore();
     let loading = true;
 
     onMount(async () => {
+        const { getOrCreateConfig } = await import('$lib/config');
+
         getOrCreateConfig()
             .then((config) => {
                 if (config.setup_done) {
@@ -27,6 +28,8 @@
     });
 
     async function finish() {
+        const { getOrCreateConfig, saveConfig } = await import('$lib/config');
+
         saveConfig({
             ...(await getOrCreateConfig()),
             setup_done: true

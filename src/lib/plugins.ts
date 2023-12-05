@@ -65,10 +65,12 @@ export async function loadPluginFromFile(source: string) {
             tsconfig
         );
 
-        constr = (
-            await import(URL.createObjectURL(new Blob([script.outputText])))
-        ).default;
+        constr =
+            /* @vite-ignore */
+            (await import(URL.createObjectURL(new Blob([script.outputText]))))
+                .default;
     } else {
+        /* @vite-ignore */
         constr = (await import(src)).default;
     }
 

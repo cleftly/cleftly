@@ -4,7 +4,6 @@ Access and management of user library (Music directories, playlists, etc.)
 import * as mm from 'music-metadata-browser';
 import { BaseDirectory, writeBinaryFile } from '@tauri-apps/api/fs';
 import { convertFileSrc } from '@tauri-apps/api/tauri';
-const { join } = await import('@tauri-apps/api/path');
 import { get } from 'svelte/store';
 import db, { type FriendlyTrack, type Track } from './db';
 import { parseMMMetadata } from './player';
@@ -97,6 +96,8 @@ export async function saveArt(id: string, art: Blob | null) {
             dir: BaseDirectory.AppCache
         }
     );
+
+    const { join } = await import('@tauri-apps/api/path');
 
     return convertFileSrc(
         await join(await getOrCreateCacheDir(), `${id}.jpg`),
