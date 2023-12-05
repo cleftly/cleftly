@@ -1,6 +1,10 @@
-import db from '$lib/db';
+import { browser } from '$app/environment';
 
 export async function load() {
+    if (!browser) return;
+
+    const { default: db } = await import('$lib/db');
+
     const playlists = await Promise.all(
         (
             await db.playlists.orderBy('name').toArray()

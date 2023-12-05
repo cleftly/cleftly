@@ -1,8 +1,12 @@
 import { error } from '@sveltejs/kit';
-
-import db, { type Playlist } from '$lib/db';
+import { browser } from '$app/environment';
+import type { Playlist } from '$lib/db';
 
 export async function load({ url }) {
+    if (!browser) return;
+
+    const { default: db } = await import('$lib/db');
+
     const slug = url.searchParams.get('id');
 
     if (!slug) {

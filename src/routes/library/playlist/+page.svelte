@@ -1,17 +1,19 @@
 <script lang="ts">
     import { Play, Shuffle, Trash } from 'lucide-svelte';
 
+    import { _ } from 'svelte-i18n';
     import { goto } from '$app/navigation';
     import TrackList from '$components/TrackList.svelte';
     import db from '$lib/db';
     import { playTrack } from '$lib/player';
-    import { _ } from 'svelte-i18n';
 
     $: playlist = data.playlist;
 
     export let data;
 
     async function deletePlaylist() {
+        if (!playlist) return;
+
         await db.playlists.delete(playlist.id);
         goto('/home');
     }

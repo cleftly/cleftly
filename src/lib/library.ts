@@ -5,6 +5,7 @@ import * as mm from 'music-metadata-browser';
 import { BaseDirectory, writeBinaryFile } from '@tauri-apps/api/fs';
 import { convertFileSrc } from '@tauri-apps/api/tauri';
 import { get } from 'svelte/store';
+import { join } from '@tauri-apps/api/path';
 import db, { type FriendlyTrack, type Track } from './db';
 import { parseMMMetadata } from './player';
 import { getStreamUrl, removeExtension, supportedExtensions } from './utils';
@@ -96,8 +97,6 @@ export async function saveArt(id: string, art: Blob | null) {
             dir: BaseDirectory.AppCache
         }
     );
-
-    const { join } = await import('@tauri-apps/api/path');
 
     return convertFileSrc(
         await join(await getOrCreateCacheDir(), `${id}.jpg`),

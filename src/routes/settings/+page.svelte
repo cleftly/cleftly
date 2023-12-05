@@ -12,7 +12,7 @@
     import { _ } from 'svelte-i18n';
     import LastFmLogin from './LastFmLogin.svelte';
     import db from '$lib/db';
-    import { getOrCreateConfig, type Config } from '$lib/config';
+    import { getOrCreateConfig, saveConfig, type Config } from '$lib/config';
     import {
         exportAndSaveAllPlaylists,
         selectAndImportPlaylists
@@ -53,8 +53,6 @@
     };
 
     onMount(async () => {
-        const { getOrCreateConfig } = await import('$lib/config');
-
         getOrCreateConfig()
             .then((res) => (config = res))
             .catch((err) => {
@@ -94,8 +92,6 @@
     }
 
     async function saveChanges() {
-        const { saveConfig } = await import('$lib/config');
-
         saveConfig(config)
             .then(() => {
                 toastStore.trigger({

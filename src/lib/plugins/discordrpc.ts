@@ -13,20 +13,20 @@ export default class DiscordRPC {
     constructor(apis) {
         this._apis = apis;
 
-        this._apis.stores.audio.subscribe(async (value: { track } | null) => {
-            if (value) {
-                // @ts-ignore -- TODO
-                await window.__TAURI_INVOKE__('set_activity', {
-                    activity: {
-                        title: value.track.title,
-                        artist: value.track.title,
-                        album: value.track.title
-                    }
-                });
-            } else {
-                // @ts-ignore -- TODO
-                await window.__TAURI_INVOKE__('clear_activity');
-            }
-        });
+        // this._apis.stores.audio.subscribe(async (value: { track } | null) => {
+        //     if (value) {
+        //         // @ts-ignore -- TODO
+        //         await window.__TAURI_INVOKE__('set_activity', {
+        //             activity: {
+        //                 title: value.track.title,
+        //                 artist: value.track.title,
+        //                 album: value.track.title
+        //             }
+        //         });
+        //     } else {
+        //         // @ts-ignore -- TODO
+        //         await window.__TAURI_INVOKE__('clear_activity');
+        //     }
+        // });
     }
 }
