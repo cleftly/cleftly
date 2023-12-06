@@ -1,38 +1,43 @@
 <script lang="ts">
     import { popup, type PopupSettings } from '@skeletonlabs/skeleton';
     import { TextSelect } from 'lucide-svelte';
+    import { _ } from 'svelte-i18n';
     import { parse } from '$lib/lrcutils';
     import { audio } from '$lib/stores';
-    import { _ } from 'svelte-i18n';
 
     let lyricContainer: HTMLDivElement;
     let lyricRefs: { [key: number]: HTMLSpanElement } = {};
-    let lastScroll: number = 0; // Date in ms
+    let autoScroll = true;
+    let progScrolling = false;
+
+    let currentSong: Date | undefined;
 
     $: lyrics = $audio?.lyrics?.lyrics
         ? $audio.lyrics.format === 'lrc'
             ? parse($audio?.lyrics?.lyrics)
             : [{ timestamp: 0, content: $audio?.lyrics?.lyrics }]
         : null;
+
     $: lyricIndex = lyrics
         ? (() => {
               const currentTime = $audio?.currentTime || 0;
+
               for (let i = lyrics.length - 1; i >= 0; i--) {
                   if (currentTime >= lyrics[i].timestamp) {
-                      if (
-                          lyricIndex !== i &&
-                          lastScroll < new Date().getTime() - 5000
-                      ) {
-                          //   lyricRefs[lyricIndex + 1]?.scrollIntoView({
-                          //       behavior: 'smooth'
-                          //   });
+                      if (lyricIndex !== i && autoScroll) {
+                          progScrolling = true;
                           lyricContainer.scrollTo({
                               top: Math.max(
                                   0,
-                                  lyricRefs[lyricIndex + 1]?.offsetTop || 0 - 10
+                                  (lyricRefs[lyricIndex + 1]?.offsetTop || 0) -
+                                      20
                               ),
                               behavior: 'smooth'
                           });
+
+                          setTimeout(() => {
+                              progScrolling = false;
+                          }, 500);
                       }
 
                       return i;
@@ -44,7 +49,9 @@
         : 0;
 
     function scroll() {
-        lastScroll = new Date().getTime();
+        if (!progScrolling) {
+            autoScroll = false;
+        }
     }
 
     const lyricPopup: PopupSettings = {
@@ -52,14 +59,26 @@
         target: 'lyricPopup',
         placement: 'top-end'
     };
+
+    $: $audio?.track,
+        () => {
+            if (currentSong !== $audio?.playedAt) {
+                progScrolling = false;
+                autoScroll = true;
+            }
+
+            currentSong = $audio?.playedAt;
+        };
 </script>
 
 {#if $audio}
     <div
         data-popup="lyricPopup"
         class="w-72 h-[calc(100vh-4.75rem-3rem)] overflow-y-auto card p-4 variant-filled-primary"
+        on:scroll={scroll}
+        bind:this={lyricContainer}
     >
-        <div class="" bind:this={lyricContainer} on:scroll={scroll}>
+        <div class="">
             <div class="flex flex-col py-8">
                 {#if lyrics && lyrics.length > 0 && $audio?.lyrics}
                     {#each lyrics as lyric, i}
@@ -76,15 +95,35 @@
                                 bind:this={lyricRefs[i]}
                                 on:click={() => {
                                     $audio.currentTime = lyric.timestamp;
-                                    lyricRefs[i].scrollIntoView({
+                                    lyricContainer.scrollTo({
+                                        top: Math.max(
+                                            0,
+                                            (lyricRefs[lyricIndex + 1]
+                                                ?.offsetTop || 0) - 20
+                                        ),
                                         behavior: 'smooth'
                                     });
+
+                                    setTimeout(() => {
+                                        autoScroll = true;
+                                        progScrolling = false;
+                                    }, 500);
                                 }}
                                 on:keydown={() => {
                                     $audio.currentTime = lyric.timestamp;
-                                    lyricRefs[i].scrollIntoView({
+                                    lyricContainer.scrollTo({
+                                        top: Math.max(
+                                            0,
+                                            (lyricRefs[lyricIndex + 1]
+                                                ?.offsetTop || 0) - 20
+                                        ),
                                         behavior: 'smooth'
                                     });
+
+                                    setTimeout(() => {
+                                        autoScroll = true;
+                                        progScrolling = false;
+                                    }, 500);
                                 }}
                             >
                                 {lyric.content.trim() || '•••'}
@@ -93,7 +132,7 @@
                     {/each}
                     <p class="whitespace-pre-line">{$audio.lyrics.credits}</p>
                 {:else}
-                    <p class="text-xs">{$_('no_lyrics_found')}</p>
+                    <p class="text-xl">{$_('no_lyrics_found')}</p>
                 {/if}
             </div>
         </div>
