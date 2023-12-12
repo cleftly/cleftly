@@ -21,7 +21,11 @@ export interface Track {
     duration: number;
     trackNum: number;
     totalTracks: number;
+    discNum: number;
+    totalDiscs: number;
     createdAt: Date;
+
+    lastPlayedAt?: Date;
 }
 
 export interface Album {
@@ -77,7 +81,7 @@ export class Database extends Dexie {
     constructor() {
         super('cleftly', { autoOpen: true });
         this.version(0.1).stores({
-            tracks: 'id, title, artistId, albumId, albumArt, genres, duration, trackNum, totalTracks, type, createdAt',
+            tracks: 'id, title, artistId, albumId, albumArt, genres, duration, trackNum, totalTracks, type, createdAt, discNum, totalDiscs, lastPlayedAt',
             albums: 'id, name, genres, artist, albumArt, createdAt, year',
             artists: 'id, name, genres, createdAt',
             playlists: 'id, name, tracks, createdAt, updatedAt',

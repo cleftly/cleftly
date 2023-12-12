@@ -11,6 +11,7 @@ import { getLyrics } from './lyrics';
 import { getStreamUrl } from './utils';
 import { getOrCreateConfig } from './config';
 import { fireEvent } from './plugins';
+import db from './db';
 import { INITIAL_AUDIO, audio, queue } from '$lib/stores';
 
 async function play(
@@ -48,6 +49,7 @@ async function play(
         backend,
         playedAt: new Date()
     });
+
     queue.set({
         unshuffled: null,
         tracks: queued || [track],
@@ -95,6 +97,12 @@ async function play(
             console.error(err);
             console.error('Failed to fire event on_track_change');
         });
+
+    db.tracks
+        .update(track.id, {
+            lastPlayedAt: new Date()
+        })
+        .then(() => {});
 }
 
 export function parseMMMetadata(
@@ -115,6 +123,8 @@ export function parseMMMetadata(
         year: metadata.common.year,
         trackNum: metadata.common.track.no || 1,
         totalTracks: metadata.common.track.of || 1,
+        discNum: metadata.common.disk.no || 1,
+        totalDiscs: metadata.common.disk.of || 1,
         duration: metadata.format.duration || 0,
         format: {
             bitrate: metadata.format.bitrate || 0,

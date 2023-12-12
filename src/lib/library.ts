@@ -191,6 +191,8 @@ export async function updateLibrary() {
             duration: metadata?.duration || 0,
             trackNum: metadata?.trackNum || 1,
             totalTracks,
+            discNum: metadata?.discNum || 1,
+            totalDiscs: metadata?.totalDiscs || 1,
             createdAt: new Date()
         };
 
