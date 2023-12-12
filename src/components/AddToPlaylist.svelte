@@ -8,9 +8,9 @@
     } from '@skeletonlabs/skeleton';
     import { ListMusic, ListPlus, Plus } from 'lucide-svelte';
 
+    import { _ } from 'svelte-i18n';
     import db, { type FriendlyTrack, type Playlist } from '$lib/db';
     import { playlists } from '$lib/stores';
-    import { _ } from 'svelte-i18n';
 
     const modalStore = getModalStore();
     const toastStore = getToastStore();
@@ -95,7 +95,7 @@
 </script>
 
 <div
-    class="card p-2 w-[12rem] bg-neutral-900 h-72 shadow-xl overflow-y-auto"
+    class="card p-2 w-[12rem] bg-neutral-300 dark:bg-neutral-9000 h-72 shadow-xl overflow-y-auto"
     data-popup="addToPlaylist"
 >
     <ul class="list-nav text-sm">

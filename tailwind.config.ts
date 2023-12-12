@@ -1,7 +1,7 @@
 import { join } from 'path';
-
 import { skeleton } from '@skeletonlabs/tw-plugin';
 import type { Config } from 'tailwindcss';
+import { pinkTheme } from './themes/pink';
 
 // 1. Import the Skeleton plugin
 
@@ -22,7 +22,10 @@ const config = {
     plugins: [
         // 4. Append the Skeleton plugin (after other plugins)
         skeleton({
-            themes: { preset: ['crimson'] }
+            themes: {
+                preset: ['crimson', 'skeleton', 'modern', 'gold-nouveau'],
+                custom: [pinkTheme]
+            }
         })
     ]
 } satisfies Config;

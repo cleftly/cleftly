@@ -1,10 +1,7 @@
 <script lang="ts">
-    import { popup, type PopupSettings } from '@skeletonlabs/skeleton';
-    import { TextSelect } from 'lucide-svelte';
     import { _ } from 'svelte-i18n';
     import { parse } from '$lib/lrcutils';
-    import { audio } from '$lib/stores';
-
+    import { audio, front } from '$lib/stores';
     let lyricContainer: HTMLDivElement;
     let lyricRefs: { [key: number]: HTMLSpanElement } = {};
     let autoScroll = true;
@@ -22,10 +19,15 @@
         ? (() => {
               const currentTime = $audio?.currentTime || 0;
 
+              if (!lyricContainer) {
+                  return 0;
+              }
+
               for (let i = lyrics.length - 1; i >= 0; i--) {
                   if (currentTime >= lyrics[i].timestamp) {
                       if (lyricIndex !== i && autoScroll) {
                           progScrolling = true;
+
                           lyricContainer.scrollTo({
                               top: Math.max(
                                   0,
@@ -54,12 +56,6 @@
         }
     }
 
-    const lyricPopup: PopupSettings = {
-        event: 'click',
-        target: 'lyricPopup',
-        placement: 'top-end'
-    };
-
     $: $audio?.track,
         () => {
             if (currentSong !== $audio?.playedAt) {
@@ -71,12 +67,11 @@
         };
 </script>
 
-{#if $audio}
+{#if $audio && $front.modal === 'lyrics'}
     <div
-        data-popup="lyricPopup"
-        class="w-72 h-[calc(100vh-4.75rem-3rem)] overflow-y-auto card p-4 variant-filled-primary"
-        on:scroll={scroll}
+        class="overflow-y-auto p-4 bg-neutral-300 dark:bg-neutral-900 min-h-full"
         bind:this={lyricContainer}
+        on:scroll={scroll}
     >
         <div class="">
             <div class="flex flex-col py-8">
@@ -86,7 +81,9 @@
                             <!-- svelte-ignore a11y-no-static-element-interactions -->
                             <!-- Can't be button or popup will close on click -->
                             <span
-                                class="text-2xl mb-4 hover:brightness-90 cursor-pointer text-gray-400 whitespace-pre-line ${i ===
+                                class="{lyric.content.trim()
+                                    ? 'text-xl'
+                                    : 'text-2xl'} mb-4 hover:brightness-90 cursor-pointer text-gray-400 whitespace-pre-line ${i ===
                                 lyricIndex
                                     ? 'font-extrabold text-white'
                                     : ''} {!lyric.content.trim()
@@ -137,8 +134,4 @@
             </div>
         </div>
     </div>
-
-    <button class="btn btn-sm variant-soft w-6 h-6 p-0" use:popup={lyricPopup}>
-        <TextSelect />
-    </button>
 {/if}

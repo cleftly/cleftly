@@ -12,6 +12,10 @@ body {
     --theme-rounded-base: 0.75rem;
 }
 
-.dark body {
+body[data-theme='crimson'] {
+    background: #f1f1f1;
+}
+
+.dark body[data-theme='crimson'] {
     background: #121212;
 }

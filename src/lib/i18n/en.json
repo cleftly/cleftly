@@ -72,5 +72,18 @@
     "setting_music_dir": "Music Directories",
     "setting_music_dir_desc": "Select the directories where your music is stored.",
     "setting_lyrics_auto_save": "Save Lyric Files",
-    "setting_lyrics_auto_save_desc": "Save lyric files (.lrc and .txt) automatically. This will clutter your music directories and take up a small amount of disk space, but will reduce network usage, work offline, and prevent rate limiting."
+    "setting_lyrics_auto_save_desc": "Save lyric files (.lrc and .txt) automatically. This will clutter your music directories and take up a small amount of disk space, but will reduce network usage, work offline, and prevent rate limiting.",
+    "setting_theme": "Theme",
+    "setting_theme_desc": "Select your preferred theme.",
+    "thing_is_default": "{thing} (Default)",
+    "theme_crimson": "Crimson",
+    "theme_skeleton": "Skeleton",
+    "theme_gold_nouveau": "Gold Nouveau",
+    "theme_modern": "Modern",
+    "theme_pink": "Pink",
+    "no_recently_played": "Play some music to get started!",
+    "setting_color": "Color Mode",
+    "setting_color_desc": "Select your preferred color mode.",
+    "color_light": "Light",
+    "color_dark": "Dark"
 }

@@ -1,9 +1,8 @@
 <script lang="ts">
     import Fuse from 'fuse.js';
-    import { Avatar } from '@skeletonlabs/skeleton';
-    import db, { type FriendlyTrack } from '$lib/db';
-    import { playTrack } from '$lib/player';
     import { _ } from 'svelte-i18n';
+    import TrackList from './TrackList.svelte';
+    import db, { type FriendlyTrack } from '$lib/db';
 
     let inputRef: HTMLInputElement;
     let resRef: HTMLDivElement;
@@ -14,7 +13,11 @@
 
     function unfocused(e?: MouseEvent) {
         // If target is parent of inputRef or resRef, return
-        if (e && (inputRef.contains(e.target) || resRef.contains(e.target)))
+        if (
+            inputRef &&
+            e &&
+            (inputRef.contains(e.target) || resRef.contains(e.target))
+        )
             return;
 
         active = false;
@@ -76,30 +79,8 @@
             style="top: {inputRef.clientHeight + 16}px;"
             bind:this={resRef}
         >
-            <ul class="list-nav text-sm">
-                {#each res as item}
-                    <button
-                        on:click={async () => {
-                            unfocused();
-                            await playTrack(item);
-                        }}
-                        class="w-full"
-                    >
-                        <Avatar
-                            src={item.album.albumArt}
-                            class="p-0 m-0 w-8 h-8 rounded-lg"
-                            initials={item.album.name.slice(0, 2)}
-                        />
-                        <div>
-                            <p class="line-clamp-1">
-                                {item.title}
-                            </p>
-                            <p class="line-clamp-1">
-                                {item.artist.name}
-                            </p>
-                        </div>
-                    </button>
-                {/each}
+            <ul class="list-nav text-sm w-full">
+                <TrackList tracks={res} mode="albumArt" playMode="click" />
             </ul>
         </div>
     {/if}

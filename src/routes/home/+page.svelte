@@ -11,6 +11,7 @@
 
     const toastStore = getToastStore();
     let albums: FriendlyAlbum[] = [];
+    let recentlyPlayed: FriendlyTrack[] = [];
     let recentlyAdded: FriendlyTrack[] = [];
     let loading = true;
 
@@ -20,6 +21,13 @@
             recentlyAdded = await friendlyLibrary(
                 await db.tracks
                     .orderBy('createdAt')
+                    .reverse()
+                    .limit(16)
+                    .toArray()
+            );
+            recentlyPlayed = await friendlyLibrary(
+                await db.tracks
+                    .orderBy('lastPlayedAt')
                     .reverse()
                     .limit(16)
                     .toArray()
@@ -49,12 +57,29 @@
 
 <div>
     <div class="flex justify-between">
-        <h1 class="text-3xl mt-4 mb-8 justify-start">{$_('good_evening')}</h1>
+        <h1 class="text-3xl mt-4 mb-8 justify-start">
+            {new Date().getHours() < 12
+                ? $_('good_morning')
+                : new Date().getHours() < 18
+                ? $_('good_afternoon')
+                : $_('good_evening')}
+        </h1>
         <CreatePlaylist />
     </div>
     <div class="space-y-4">
         <h2 class="text-xl">{$_('recently_played')}</h2>
-
+        <div class="flex space-x-4 {!loading ? 'overflow-y-auto' : ''}">
+            {#if loading}
+                <Loader2 class="animate-spin " />
+                <p>{$_('updating_your_library')}...</p>
+            {/if}
+            {#each recentlyPlayed as track}
+                <Track {track} titleClamp={1} view="artist" />
+            {/each}
+            {#if !loading && recentlyPlayed.length === 0}
+                <p>{$_('no_recently_played')}</p>
+            {/if}
+        </div>
         <h2 class="text-xl">{$_('recently_added')}</h2>
         <div class="flex space-x-4 {!loading ? 'overflow-y-auto' : ''}">
             {#if loading}

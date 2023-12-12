@@ -22,6 +22,8 @@ export type Config = {
     lyrics_save: boolean;
     locale: string | null;
     enabled_plugins: string[];
+    theme: string;
+    color: 'light' | 'dark';
 };
 
 const DEFAULT_CONFIG = {
@@ -32,7 +34,9 @@ const DEFAULT_CONFIG = {
     audio_backend: 'web',
     lyrics_save: false,
     locale: null,
-    enabled_plugins: ['com.cleftly.discordrpc']
+    enabled_plugins: ['com.cleftly.discordrpc'],
+    theme: 'crimson',
+    color: 'dark'
 };
 
 export async function getOrCreateConfig() {

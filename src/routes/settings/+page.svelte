@@ -17,7 +17,7 @@
         exportAndSaveAllPlaylists,
         selectAndImportPlaylists
     } from '$lib/playlists';
-    import { playlists } from '$lib/stores';
+    import { front, playlists } from '$lib/stores';
     import { goto } from '$app/navigation';
 
     const toastStore = getToastStore();
@@ -26,6 +26,52 @@
     let config: Config | null = null;
 
     const SETTINGS = {
+        color: {
+            name: $_('setting_color'),
+            description: $_('setting_color_desc'),
+            type: 'enum',
+            options: [
+                {
+                    label: $_('color_light'),
+                    value: 'light'
+                },
+                {
+                    label: $_('color_dark'),
+                    value: 'dark'
+                }
+            ]
+        },
+        theme: {
+            name: $_('setting_theme'),
+            description: $_('setting_theme_desc'),
+            type: 'enum',
+            options: [
+                {
+                    label: $_('thing_is_default', {
+                        values: {
+                            thing: $_('theme_crimson')
+                        }
+                    }),
+                    value: 'crimson'
+                },
+                {
+                    label: $_('theme_skeleton'),
+                    value: 'skeleton'
+                },
+                {
+                    label: $_('theme_gold_nouveau'),
+                    value: 'gold-nouveau'
+                },
+                {
+                    label: $_('theme_modern'),
+                    value: 'modern'
+                },
+                {
+                    label: $_('theme_pink'),
+                    value: 'pink'
+                }
+            ]
+        },
         music_directories: {
             name: $_('setting_music_dir'),
             description: $_('setting_music_dir_desc'),
@@ -36,6 +82,7 @@
             description: $_('setting_lyrics_auto_save_desc'),
             type: 'bool'
         }
+
         // audio_backend: {
         //     name: 'Audio Backend',
         //     type: 'enum',
@@ -92,11 +139,21 @@
     }
 
     async function saveChanges() {
+        if (!config) return;
+
         saveConfig(config)
             .then(() => {
                 toastStore.trigger({
                     message: $_('changes_saved'),
                     background: 'variant-filled-success'
+                });
+
+                if (!config) return;
+
+                front.set({
+                    ...$front,
+                    theme: config.theme,
+                    color: config.color
                 });
             })
             .catch((err) => {

@@ -23,7 +23,7 @@
 </script>
 
 <div
-    class="card p-2 w-[12rem] bg-neutral-900 h-72 shadow-xl overflow-y-auto"
+    class="card p-2 w-[12rem] bg-neutral-300 dark:bg-neutral-900 h-72 shadow-xl overflow-y-auto"
     data-popup="progressPopup"
 >
     <ul class="list-nav text-sm">

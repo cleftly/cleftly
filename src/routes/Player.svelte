@@ -7,16 +7,16 @@
         StepForward,
         Repeat,
         Play,
-        Repeat1
+        Repeat1,
+        TextSelect,
+        ListMusic
     } from 'lucide-svelte';
 
-    import Lyrics from './Lyrics.svelte';
+    import { _ } from 'svelte-i18n';
     import { playTrack } from '$lib/player';
-    import { audio, player, queue } from '$lib/stores';
+    import { audio, front, player, queue } from '$lib/stores';
     import { getTimestamp } from '$lib/utils';
     import AddToPlaylist from '$components/AddToPlaylist.svelte';
-    import Queue from './Queue.svelte';
-    import { _ } from 'svelte-i18n';
 
     const toastStore = getToastStore();
 
@@ -104,7 +104,12 @@
         queue.set({
             ...$queue,
             unshuffled: $queue.tracks,
-            tracks: [$queue.tracks[$queue.index], ...shuffled]
+            index: 0,
+            tracks: [
+                $queue.tracks[$queue.index],
+                ...shuffled,
+                ...$queue.tracks.slice(0, $queue.index)
+            ]
         });
     }
 
@@ -143,7 +148,9 @@
         />
     {/if}
 
-    <div class="flex bg-neutral-900 h-[5.5rem] overflow-hidden w-full">
+    <div
+        class="flex bg-neutral-300 dark:bg-neutral-900 h-[5.5rem] overflow-hidden w-full"
+    >
         <div class="w-1/4 flex items-center space-x-2 ml-2">
             <img
                 src={$audio.track.album.albumArt}
@@ -194,17 +201,15 @@
             </div>
             <div class="flex items-center space-x-2">
                 <button
-                    class="btn btn-sm variant-soft w-4 h-4 p-0 {$queue.unshuffled
-                        ? 'stroke-red-400'
-                        : ''}"
+                    class="btn btn-sm variant-soft w-4 h-4 p-0"
                     on:click={() => {
                         if ($queue.unshuffled) {
                             queue.set({
                                 ...$queue,
                                 index: Math.max(
                                     0,
-                                    $queue.tracks
-                                        ? $queue.tracks.findIndex(
+                                    $queue.unshuffled
+                                        ? $queue.unshuffled.findIndex(
                                               (t) => t.id === $audio?.track.id
                                           )
                                         : -1
@@ -217,7 +222,9 @@
                         }
                     }}
                 >
-                    <Shuffle />
+                    <Shuffle
+                        class={$queue.unshuffled ? 'stroke-primary-500' : ''}
+                    />
                 </button>
                 <button
                     class="btn btn-sm variant-soft w-6 h-6 p-0"
@@ -258,10 +265,10 @@
                     }}
                 >
                     {#if $player.repeat === 'one'}
-                        <Repeat1 class="stroke-red-400" />
+                        <Repeat1 class="stroke-primary-500" />
                     {:else}
                         <Repeat
-                            class={$player.repeat ? 'stroke-red-400' : ''}
+                            class={$player.repeat ? 'stroke-primary-500' : ''}
                         />
                     {/if}
                 </button>
@@ -275,8 +282,30 @@
                 max={1}
                 step={0.01}
             />
-            <Queue />
-            <Lyrics />
+            <button
+                class="btn btn-sm variant-soft w-6 h-6 p-0"
+                on:click={() => {
+                    $front.modal = $front.modal === 'queue' ? null : 'queue';
+                }}
+            >
+                <ListMusic
+                    class={$front.modal === 'queue'
+                        ? 'stroke-primary-500'
+                        : undefined}
+                />
+            </button>
+            <button
+                class="btn btn-sm variant-soft w-6 h-6 p-0"
+                on:click={() => {
+                    $front.modal = $front.modal === 'lyrics' ? null : 'lyrics';
+                }}
+            >
+                <TextSelect
+                    class={$front.modal === 'lyrics'
+                        ? 'stroke-primary-500'
+                        : undefined}
+                />
+            </button>
         </div>
     </div>
 {/if}

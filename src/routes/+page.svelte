@@ -3,6 +3,7 @@
     import { onMount } from 'svelte';
     import { _ } from 'svelte-i18n';
     import { getOrCreateConfig, saveConfig } from '$lib/config';
+    import { goto } from '$app/navigation';
 
     const toastStore = getToastStore();
     let loading = true;
@@ -11,7 +12,7 @@
         getOrCreateConfig()
             .then((config) => {
                 if (config.setup_done) {
-                    return window.location.replace('/home');
+                    return goto('/home', { replaceState: true });
                 }
 
                 loading = false;
@@ -37,7 +38,7 @@
                     background: 'variant-filled-success'
                 });
 
-                window.location.replace('/home');
+                return goto('/home', { replaceState: true });
             })
             .catch((error) => {
                 console.error(error);

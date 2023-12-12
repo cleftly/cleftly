@@ -21,8 +21,6 @@ async function play(
     queueIndex?: number,
     backend: 'native' | 'web' = 'native'
 ) {
-    console.log('playing', src);
-
     if (backend == 'native') {
         console.log(src);
         await invoke('play_audio', {

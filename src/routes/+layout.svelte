@@ -21,13 +21,16 @@
     import Player from './Player.svelte';
     import Sidebar from './Sidebar.svelte';
     import MobileNav from './MobileNav.svelte';
+    import Lyrics from './Lyrics.svelte';
+    import Queue from './Queue.svelte';
     import { afterNavigate, onNavigate } from '$app/navigation';
     import db from '$lib/db';
-    import { playlists } from '$lib/stores';
+    import { front, playlists } from '$lib/stores';
     import Search from '$components/Search.svelte';
     import Progress from '$components/Progress.svelte';
     import i18n_init from '$lib/i18n';
     import { loadPlugins } from '$lib/plugins';
+    import { getOrCreateConfig } from '$lib/config';
     // Locales
 
     i18n_init();
@@ -51,6 +54,14 @@
 
     initializeStores();
 
+    $: if (process.browser)
+        document.body.setAttribute('data-theme', $front.theme);
+    $: if (process.browser)
+        document.documentElement.classList.toggle(
+            'dark',
+            $front.color === 'dark'
+        );
+
     onMount(async () => {
         playlists.set(
             await db.playlists.orderBy('updatedAt').reverse().toArray()
@@ -58,6 +69,14 @@
 
         loadPlugins().then(() => {
             console.log('Plugins loaded');
+        });
+
+        const config = await getOrCreateConfig();
+
+        front.set({
+            ...$front,
+            theme: config.theme,
+            color: config.color
         });
     });
 
@@ -101,7 +120,7 @@
 <AppShell scrollbarGutter="auto">
     <svelte:fragment slot="header">
         <nav
-            class="px-[4.75rem] navbar h-11 bg-neutral-900 flex w-full select-none"
+            class="px-[4.75rem] navbar h-11 bg-neutral-300 dark:bg-neutral-900 flex w-full select-none"
             data-tauri-drag-region={true}
         >
             <div class="flex w-1/4">
@@ -120,7 +139,7 @@
         </nav>
     </svelte:fragment>
     <svelte:fragment slot="sidebarLeft">
-        <div class="xs:showme">
+        <div class="xs:showme h-full">
             <Sidebar />
         </div>
     </svelte:fragment>
@@ -130,6 +149,12 @@
             <slot />
         {/await}
     </div>
+    <svelte:fragment slot="sidebarRight">
+        <div class="max-w-[14rem] lg:max-w-[18rem] min-h-full">
+            <Lyrics />
+            <Queue />
+        </div>
+    </svelte:fragment>
     <svelte:fragment slot="footer">
         <Player />
         <div class="xs:hidden">

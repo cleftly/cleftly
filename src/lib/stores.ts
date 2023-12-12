@@ -47,12 +47,17 @@ type ProgressItem = {
     progress?: number; // number between 0 and 1
 };
 
+type Front = {
+    modal: 'lyrics' | 'queue' | null;
+    theme: string;
+    color: 'light' | 'dark';
+};
+
 export const INITIAL_AUDIO = {
     id: '',
     currentTime: 0,
     duration: 0,
     scrobbled: false,
-    playedAt: new Date(),
     lyrics: null,
     backend: 'web' as const
 };
@@ -80,6 +85,12 @@ export const progress = writable<Map<string, ProgressItem>>(new Map());
 
 export const plugins = writable<Map<string, Plugin>>(new Map());
 
+export const front = writable<Front>({
+    modal: null,
+    theme: 'crimson',
+    color: 'dark'
+});
+
 audio.subscribe((a) => {
     if (!a) return;
 
@@ -87,6 +98,7 @@ audio.subscribe((a) => {
 
     if (a.currentTime >= a.duration / 2) {
         a.scrobbled = true;
+
         scrobble(a.track, a.playedAt)
             .then((res) => {
                 if (res) {

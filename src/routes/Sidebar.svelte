@@ -1,6 +1,4 @@
 <script>
-    import CreatePlaylist from '$components/CreatePlaylist.svelte';
-    import { playlists } from '$lib/stores';
     import {
         Home,
         Disc3,
@@ -10,9 +8,13 @@
         Settings
     } from 'lucide-svelte';
     import { _ } from 'svelte-i18n';
+    import CreatePlaylist from '$components/CreatePlaylist.svelte';
+    import { playlists } from '$lib/stores';
 </script>
 
-<div class="bg-neutral-900 h-full w-[12rem] overflow-y-auto">
+<div
+    class="bg-neutral-300 dark:bg-neutral-900 h-full w-[12rem] overflow-y-auto"
+>
     <nav class="list-nav text-sm">
         <ul>
             <li>
