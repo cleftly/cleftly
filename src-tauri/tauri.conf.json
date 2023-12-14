@@ -4,7 +4,7 @@
         "beforeBuildCommand": "bun run build",
         "beforeDevCommand": "bun run dev",
         "devPath": "http://localhost:3009",
-        "distDir": "../public"
+        "distDir": "../build"
     },
     "package": {
         "productName": "Cleftly",
@@ -91,7 +91,8 @@
             }
         },
         "security": {
-            "csp": "default-src 'self'; connect-src stream: https://stream.localhost http://localhost:3009"
+            "csp": "default-src 'self'; connect-src stream: https://stream.localhost http://localhost:3009",
+            "devCsp": "default-src 'self'; connect-src stream: https://stream.localhost http://localhost:3009"
         },
         "updater": {
             "active": true,
@@ -102,7 +103,7 @@
                 "installMode": "basicUi"
             },
             "dialog": true,
-            "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDVCQTc1M0JBREM4QjQwMzgKUldRNFFJdmN1bE9uV3gxcDVYTmRmRWxHYnlUWEpta2JNUjNEenVDN21SdS91aGNnaHhZbE0xR2wK"
+            "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDI1ODg1OUVENjRFNThBQTQKUldTa2l1Vms3Vm1JSlR2OStyZ0VYQWFsOFNEY1NZL0s4aDhObmtaTzgxOVpaV0RsajRXUG9IVGgK"
         },
         "windows": [
             {

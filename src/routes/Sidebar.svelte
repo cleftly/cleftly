@@ -5,11 +5,31 @@
         GalleryVerticalEnd,
         Users2,
         ListMusic,
-        Settings
+        Settings,
+        Import
     } from 'lucide-svelte';
     import { _ } from 'svelte-i18n';
+    import { page } from '$app/stores';
     import CreatePlaylist from '$components/CreatePlaylist.svelte';
     import { playlists } from '$lib/stores';
+    import { selectAndImportPlaylist } from '$lib/playlists';
+
+    let pathname = $page.url.pathname;
+
+    $: pathname = $page.url.pathname;
+
+    const pages = [
+        { name: $_('home'), href: '/home', icon: Home },
+        { name: $_('songs'), href: '/library/tracks', icon: Disc3 },
+        {
+            name: $_('albums'),
+            href: '/library/albums',
+            icon: GalleryVerticalEnd
+        },
+        { name: $_('artists'), href: '/library/artists', icon: Users2 },
+        { name: $_('playlists'), href: '/library/playlists', icon: ListMusic },
+        { name: $_('settings'), href: '/settings', icon: Settings }
+    ];
 </script>
 
 <div
@@ -17,36 +37,23 @@
 >
     <nav class="list-nav text-sm">
         <ul>
-            <li>
-                <a href="/home"><Home class="mr-2" /> {$_('home')}</a>
-            </li>
-            <li>
-                <a href="/library/tracks"
-                    ><Disc3 class="mr-2" /> {$_('songs')}</a
-                >
-            </li>
-            <li>
-                <a href="/library/albums"
-                    ><GalleryVerticalEnd class="mr-2" />
-                    {$_('albums')}</a
-                >
-            </li>
-            <li>
-                <a href="/library/artists"
-                    ><Users2 class="mr-2" /> {$_('artists')}</a
-                >
-            </li>
-            <li>
-                <a href="/library/playlists"
-                    ><ListMusic class="mr-2" /> {$_('playlists')}</a
-                >
-            </li>
+            {#each pages as page}
+                <li>
+                    <a
+                        href={page.href}
+                        class={pathname === page.href
+                            ? 'bg-neutral-200 dark:bg-neutral-800'
+                            : ''}
+                    >
+                        <svelte:component
+                            this={page.icon}
+                            class="mr-2 p-[2px] stroke-primary-500 "
+                        />
+                        {page.name}
+                    </a>
+                </li>
+            {/each}
 
-            <li>
-                <a href="/settings"
-                    ><Settings class="mr-2" /> {$_('settings')}</a
-                >
-            </li>
             <hr class="m-4" />
             <h3 class="ml-4 text-lg">{$_('playlists')}</h3>
             <ul>
@@ -55,7 +62,16 @@
                     <li class="ml-4" />
                 {/if}
                 <li>
-                    <CreatePlaylist />
+                    <div class="space-y-1">
+                        <CreatePlaylist />
+                        <button
+                            class="btn btn-sm variant-soft"
+                            on:click={selectAndImportPlaylist}
+                        >
+                            <Import class="mr-2" />
+                            {$_('import')}
+                        </button>
+                    </div>
                 </li>
                 {#each $playlists as playlist}
                     <li>
@@ -64,7 +80,7 @@
                                 playlist.id
                             )}"
                         >
-                            <ListMusic class="mr-2" />
+                            <ListMusic class="p-[2px] stroke-primary-500" />
                             <span class="truncate">
                                 {playlist.name}
                             </span>

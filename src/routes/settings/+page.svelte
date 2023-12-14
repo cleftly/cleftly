@@ -18,11 +18,11 @@
         selectAndImportPlaylists
     } from '$lib/playlists';
     import { front, playlists } from '$lib/stores';
-    import { goto } from '$app/navigation';
 
     const toastStore = getToastStore();
     const modalStore = getModalStore();
 
+    let oldConfig: Config | null = null;
     let config: Config | null = null;
 
     const SETTINGS = {
@@ -38,6 +38,14 @@
                 {
                     label: $_('color_dark'),
                     value: 'dark'
+                },
+                {
+                    label: $_('thing_is_beta', {
+                        values: {
+                            thing: 'OLED' // TODO: Does this need i18n?,
+                        }
+                    }),
+                    value: 'oled'
                 }
             ]
         },
@@ -101,7 +109,10 @@
 
     onMount(async () => {
         getOrCreateConfig()
-            .then((res) => (config = res))
+            .then((res) => {
+                oldConfig = JSON.parse(JSON.stringify(res));
+                config = JSON.parse(JSON.stringify(res));
+            })
             .catch((err) => {
                 console.error(err);
                 toastStore.trigger({
@@ -135,7 +146,7 @@
 
     async function cancelChanges() {
         config = await getOrCreateConfig();
-        goto('/');
+        oldConfig = JSON.parse(JSON.stringify(config));
     }
 
     async function saveChanges() {
@@ -155,6 +166,8 @@
                     theme: config.theme,
                     color: config.color
                 });
+
+                oldConfig = JSON.parse(JSON.stringify(config));
             })
             .catch((err) => {
                 console.error(err);
@@ -205,6 +218,24 @@
 </script>
 
 <div class="space-y-2">
+    {#if config && oldConfig && JSON.stringify(config) !== JSON.stringify(oldConfig)}
+        <aside class="alert variant-filled-warning">
+            <div class="alert-message">
+                <h3 class="text-xl">{$_('unsaved_changes')}</h3>
+                <p>{$_('unsaved_changes_desc')}</p>
+            </div>
+
+            <div class="alert-actions">
+                <button class="btn variant-ghost" on:click={cancelChanges}
+                    >{$_('cancel')}</button
+                >
+                <button
+                    class="btn variant-filled-primary"
+                    on:click={saveChanges}>{$_('save_changes')}</button
+                >
+            </div>
+        </aside>
+    {/if}
     <h1 class="text-3xl">{$_('settings')}</h1>
     {#if config}
         {#each Object.entries(SETTINGS) as [k, i]}
@@ -271,12 +302,45 @@
             <h2 class="mt-8 mb-2 text-2xl">{$_('playlists')}</h2>
             <button
                 class="btn variant-ghost"
-                on:click={selectAndImportPlaylists}
-                >{$_('import_playlists')}</button
+                on:click={async () => {
+                    selectAndImportPlaylists()
+                        .then(() => {
+                            toastStore.trigger({
+                                message: $_('imported_playlists'),
+                                background: 'variant-filled-success'
+                            });
+                        })
+                        .catch((err) => {
+                            console.error(err);
+                            toastStore.trigger({
+                                message: `<h1 class="text-lg">${$_(
+                                    'imported_playlists_fail'
+                                )}</h1><p class="text-sm">${err}</p>`,
+                                background: 'variant-filled-error'
+                            });
+                        });
+                }}>{$_('import_playlists')}</button
             >
             <button
                 class="btn variant-ghost"
-                on:click={exportAndSaveAllPlaylists}
+                on:click={async () => {
+                    exportAndSaveAllPlaylists()
+                        .then(() => {
+                            toastStore.trigger({
+                                message: $_('exported_playlists'),
+                                background: 'variant-filled-success'
+                            });
+                        })
+                        .catch((err) => {
+                            console.error(err);
+                            toastStore.trigger({
+                                message: `<h1 class="text-lg">${$_(
+                                    'exported_playlists_fail'
+                                )}</h1><p class="text-sm">${err}</p>`,
+                                background: 'variant-filled-error'
+                            });
+                        });
+                }}
             >
                 {$_('export_playlists')}</button
             >

@@ -9,7 +9,8 @@
         Play,
         Repeat1,
         TextSelect,
-        ListMusic
+        ListMusic,
+        Settings
     } from 'lucide-svelte';
 
     import { _ } from 'svelte-i18n';
@@ -137,11 +138,13 @@
             src={$audio.src}
             class="hidden"
             autoplay
+            bind:this={$player.webAudioElement}
             bind:paused={$player.paused}
             bind:muted={$player.muted}
             bind:currentTime={$audio.currentTime}
             bind:duration={$audio.duration}
             bind:volume={$player.volume}
+            bind:playbackRate={$player.speed}
             on:ended={onEnd}
             on:error={error}
             loop={$player.repeat === 'one'}
@@ -282,6 +285,21 @@
                 max={1}
                 step={0.01}
             />
+            <button
+                class="btn btn-sm variant-soft w-6 h-6 p-0"
+                on:click={() => {
+                    $front.modal =
+                        $front.modal === 'playerSettings'
+                            ? null
+                            : 'playerSettings';
+                }}
+            >
+                <Settings
+                    class={$front.modal === 'playerSettings'
+                        ? 'stroke-primary-500'
+                        : undefined}
+                />
+            </button>
             <button
                 class="btn btn-sm variant-soft w-6 h-6 p-0"
                 on:click={() => {

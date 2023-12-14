@@ -17,7 +17,16 @@ tauri-build = { version = "1.5.0", features = [] }
 [dependencies]
 serde_json = "1.0"
 serde = { version = "1.0", features = ["derive"] }
-tauri = { version = "1.5.2", features = [ "window-maximize", "window-unminimize", "window-start-dragging", "window-request-user-attention", "window-unmaximize", "window-show", "window-set-title", "window-minimize", "window-hide",
+tauri = { version = "1.5.2", features = [
+    "window-maximize",
+    "window-unminimize",
+    "window-start-dragging",
+    "window-request-user-attention",
+    "window-unmaximize",
+    "window-show",
+    "window-set-title",
+    "window-minimize",
+    "window-hide",
     "updater",
     "os-all",
     "protocol-all",
@@ -27,6 +36,7 @@ tauri = { version = "1.5.2", features = [ "window-maximize", "window-unminimize"
     "fs-all",
     "shell-open",
     "linux-protocol-headers",
+    "devtools",
 ] }
 tauri-plugin-persisted-scope = { git = "https://github.com/tauri-apps/plugins-workspace", branch = "v1" }
 percent-encoding = "2.3.0"

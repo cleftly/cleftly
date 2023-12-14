@@ -1,9 +1,9 @@
 <script lang="ts">
     import { Avatar } from '@skeletonlabs/skeleton';
     import { Play, Shuffle } from 'lucide-svelte';
+    import { _ } from 'svelte-i18n';
     import TrackList from '$components/TrackList.svelte';
     import { playTrack } from '$lib/player';
-    import { _ } from 'svelte-i18n';
 
     $: album = data.album;
     $: tracks = data.tracks;

@@ -1,6 +1,7 @@
 <script lang="ts">
     import { Play } from 'lucide-svelte';
 
+    import Visualizer from './Visualizer.svelte';
     import type { FriendlyTrack } from '$lib/db';
     import { playTrack } from '$lib/player';
     import { audio } from '$lib/stores';
@@ -52,7 +53,9 @@
                         ? 'group-hover:hidden'
                         : ''} w-10 mr-2"
                 >
-                    {#if mode === 'number'}
+                    {#if track.id === $audio?.track.id}
+                        <Visualizer />
+                    {:else if mode === 'number'}
                         <p
                             class={track.id === $audio?.track.id
                                 ? 'animate-pulse'
@@ -64,10 +67,7 @@
                         <img
                             src={track.album.albumArt}
                             alt="Album Art"
-                            class="p-0 m-0 w-8 h-8 rounded-lg {track.id ===
-                            $audio?.track.id
-                                ? 'animate-pulse'
-                                : ''}"
+                            class="p-0 m-0 w-8 h-8 rounded-lg"
                         />
                     {/if}
                 </button>

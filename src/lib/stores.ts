@@ -27,6 +27,8 @@ type Player = {
     volume: number;
     paused: boolean;
     repeat: false | 'one' | 'all';
+    speed: number;
+    webAudioElement: HTMLMediaElement | null;
 };
 
 type Queue = {
@@ -48,9 +50,9 @@ type ProgressItem = {
 };
 
 type Front = {
-    modal: 'lyrics' | 'queue' | null;
+    modal: 'lyrics' | 'queue' | 'playerSettings' | null;
     theme: string;
-    color: 'light' | 'dark';
+    color: 'light' | 'dark' | 'oled';
 };
 
 export const INITIAL_AUDIO = {
@@ -68,7 +70,9 @@ export const player = writable<Player>({
     muted: false,
     volume: 1,
     paused: false,
-    repeat: false
+    repeat: false,
+    speed: 1,
+    webAudioElement: null
 });
 
 export const queue = writable<Queue>({

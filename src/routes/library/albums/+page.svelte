@@ -1,6 +1,6 @@
 <script lang="ts">
-    import Album from '$components/Album.svelte';
     import { _ } from 'svelte-i18n';
+    import Album from '$components/Album.svelte';
 
     $: albums = data.albums;
 

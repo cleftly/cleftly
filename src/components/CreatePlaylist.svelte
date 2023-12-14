@@ -1,15 +1,13 @@
 <script lang="ts">
     import type { ModalSettings } from '@skeletonlabs/skeleton';
-    import { getToastStore, getModalStore } from '@skeletonlabs/skeleton';
+    import { getModalStore, getToastStore } from '@skeletonlabs/skeleton';
     import { Plus } from 'lucide-svelte';
 
-    import db from '$lib/db';
     import { _ } from 'svelte-i18n';
+    import db from '$lib/db';
 
     const toastStore = getToastStore();
-    const modalStore = getModalStore();
-
-    const modal: ModalSettings = {
+    const createPlaylistModal: ModalSettings = {
         type: 'prompt',
         title: $_('create_playlist'),
         body: $_('enter_playlist_name'),
@@ -36,13 +34,15 @@
         }
     };
 
+    const modalStore = getModalStore();
+
     export async function openModal() {
-        modalStore.trigger(modal);
+        modalStore.trigger(createPlaylistModal);
     }
 
     export let classes = '';
 </script>
 
 <button class="btn btn-sm variant-soft {classes}" on:click={openModal}
-    ><Plus /> {$_('create_playlist')}</button
+    ><Plus class="mr-2" /> {$_('create_playlist')}</button
 >

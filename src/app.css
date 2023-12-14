@@ -19,3 +19,8 @@ body[data-theme='crimson'] {
 .dark body[data-theme='crimson'] {
     background: #121212;
 }
+
+.oled body {
+    background: #000000 !important;
+    --bg-neutral-900: #000000;
+}

@@ -3,14 +3,20 @@
     import { Loader2 } from 'lucide-svelte';
     import { onMount } from 'svelte';
     import { _ } from 'svelte-i18n';
-    import db, { type FriendlyAlbum, type FriendlyTrack } from '$lib/db';
+    import db, {
+        type FriendlyAlbum,
+        type FriendlyPlaylist,
+        type FriendlyTrack
+    } from '$lib/db';
     import { friendlyLibrary, updateLibrary } from '$lib/library';
     import CreatePlaylist from '$components/CreatePlaylist.svelte';
     import Album from '$components/Album.svelte';
     import Track from '$components/Track.svelte';
+    import Playlist from '$components/Playlist.svelte';
 
     const toastStore = getToastStore();
     let albums: FriendlyAlbum[] = [];
+    let playlists: FriendlyPlaylist = [];
     let recentlyPlayed: FriendlyTrack[] = [];
     let recentlyAdded: FriendlyTrack[] = [];
     let loading = true;
@@ -41,6 +47,15 @@
                         .limit(16)
                         .toArray()
                 ).map(async (album) => await db.friendlyAlbum(album))
+            );
+            playlists = await Promise.all(
+                (
+                    await db.playlists
+                        .orderBy('createdAt')
+                        .reverse()
+                        .limit(16)
+                        .toArray()
+                ).map(async (playlist) => await db.friendlyPlaylist(playlist))
             );
             loading = false;
         } catch (e) {
@@ -92,11 +107,24 @@
         </div>
         <h2 class="text-xl">{$_('albums')}</h2>
         <div class="flex space-x-4 {!loading ? 'overflow-y-auto' : ''}">
+            {#if loading}
+                <Loader2 class="animate-spin " />
+                <p>{$_('updating_your_library')}...</p>
+            {/if}
             {#each albums as album}
                 <Album titleClamp={1} {album} />
             {/each}
         </div>
         <h2 class="text-xl">{$_('playlists')}</h2>
+        <div class="flex space-x-4 {!loading ? 'overflow-y-auto' : ''}">
+            {#if loading}
+                <Loader2 class="animate-spin " />
+                <p>{$_('updating_your_library')}...</p>
+            {/if}
+            {#each playlists as playlist}
+                <Playlist titleClamp={1} {playlist} />
+            {/each}
+        </div>
 
         <h2 class="text-xl">{$_('artists')}</h2>
     </div>

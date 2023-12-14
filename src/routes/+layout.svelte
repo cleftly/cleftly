@@ -23,6 +23,7 @@
     import MobileNav from './MobileNav.svelte';
     import Lyrics from './Lyrics.svelte';
     import Queue from './Queue.svelte';
+    import PlayerSettings from './PlayerSettings.svelte';
     import { afterNavigate, onNavigate } from '$app/navigation';
     import db from '$lib/db';
     import { front, playlists } from '$lib/stores';
@@ -59,7 +60,12 @@
     $: if (process.browser)
         document.documentElement.classList.toggle(
             'dark',
-            $front.color === 'dark'
+            $front.color !== 'light'
+        );
+    $: if (process.browser)
+        document.documentElement.classList.toggle(
+            'oled',
+            $front.color === 'oled'
         );
 
     onMount(async () => {
@@ -153,6 +159,7 @@
         <div class="max-w-[14rem] lg:max-w-[18rem] min-h-full">
             <Lyrics />
             <Queue />
+            <PlayerSettings />
         </div>
     </svelte:fragment>
     <svelte:fragment slot="footer">

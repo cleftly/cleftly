@@ -1,11 +1,12 @@
 <script lang="ts">
-    import { Play, Shuffle, Trash } from 'lucide-svelte';
+    import { Download, Play, Shuffle, Trash } from 'lucide-svelte';
 
     import { _ } from 'svelte-i18n';
     import { goto } from '$app/navigation';
     import TrackList from '$components/TrackList.svelte';
     import db from '$lib/db';
     import { playTrack } from '$lib/player';
+    import { exportAndSavePlaylist } from '$lib/playlists.js';
 
     $: playlist = data.playlist;
 
@@ -63,8 +64,16 @@
                             class="btn btn-sm variant-filled-primary"
                             on:click={deletePlaylist}
                         >
-                            <Trash /></button
+                            <Trash />
+                        </button>
+                        <button
+                            class="btn btn-sm variant-filled-primary"
+                            on:click={async () => {
+                                await exportAndSavePlaylist(playlist);
+                            }}
                         >
+                            <Download />
+                        </button>
                     </div>
                     <!--TODO-->
                 </div>

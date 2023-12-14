@@ -15,16 +15,7 @@
     const modalStore = getModalStore();
     const toastStore = getToastStore();
 
-    const addToPlaylistPopup: PopupSettings = {
-        // Represents the type of event that opens/closed the popup
-        event: 'click',
-        // Matches the data-popup value on your popup element
-        target: 'addToPlaylist',
-        // Defines which side of your trigger the popup will appear
-        placement: 'bottom'
-    };
-
-    const modal: ModalSettings = {
+    const createPlaylistModal: ModalSettings = {
         type: 'prompt',
         title: $_('create_playlist'),
         body: $_('enter_playlist_name'),
@@ -51,8 +42,17 @@
         }
     };
 
+    const addToPlaylistPopup: PopupSettings = {
+        // Represents the type of event that opens/closed the popup
+        event: 'click',
+        // Matches the data-popup value on your popup element
+        target: 'addToPlaylist',
+        // Defines which side of your trigger the popup will appear
+        placement: 'bottom'
+    };
+
     export async function openModal() {
-        modalStore.trigger(modal);
+        modalStore.trigger(createPlaylistModal);
     }
 
     async function _add(playlist: Playlist) {

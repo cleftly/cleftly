@@ -23,7 +23,7 @@ export type Config = {
     locale: string | null;
     enabled_plugins: string[];
     theme: string;
-    color: 'light' | 'dark';
+    color: 'light' | 'dark' | 'oled';
 };
 
 const DEFAULT_CONFIG = {
