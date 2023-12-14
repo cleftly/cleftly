@@ -2,6 +2,8 @@
 
 A simple music player focused on aesthetics, speed, and extensibility.
 
+![Screenshot](/assets/screenshot1.png)
+
 ## Features
 
 - Live Lyrics
