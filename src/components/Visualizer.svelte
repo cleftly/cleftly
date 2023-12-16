@@ -1,4 +1,7 @@
-<!--This component visualizes audio for use in TrackList -->
+<!-- 
+    This component visualizes audio for use in TrackList
+    Currently not in use due to Safari bugs :(
+-->
 <script context="module" lang="ts">
     import { writable } from 'svelte/store';
 
@@ -56,6 +59,8 @@
         const barWidth = canvas.width / 8;
 
         function animate() {
+            if (!canvas?.width || !canvas?.height || !ctx) return;
+
             let x = 0;
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             analyser.getByteFrequencyData(dataArray);

@@ -86,7 +86,7 @@ export async function loadPlugins() {
 
     const enabled = [
         ...(await getOrCreateConfig()).enabled_plugins,
-        'com.cleftly.test1'
+        'com.cleftly.discordrpc'
     ];
 
     /* Load all plugins from config and all built-in plugins */
@@ -111,31 +111,4 @@ export async function loadPlugins() {
             .filter((id) => !Object.keys(BUILT_IN).includes(id))
             .map((id) => loadPluginFromFile(id))
     );
-}
-
-export async function fireEvent(event: string, data: unknown) {
-    // Fire events on all plugins
-
-    const loadedPlugins = get(plugins);
-
-    for (const plugin of loadedPlugins.values()) {
-        if (!plugins.subscribedTo || !plugins.subscribedTo.includes(event)) {
-            continue;
-        }
-
-        if (plugin.onEvent) {
-            try {
-                await plugin.onEvent(event, data);
-            } catch (err) {
-                console.error(err);
-                console.error(
-                    `Plugin ${plugin.id}: Failed to fire event ${event}`
-                );
-            }
-        } else {
-            console.warn(
-                `Plugin ${plugin.id}: Plugin does not have an onEvent function but is subscribed to ${event}`
-            );
-        }
-    }
 }

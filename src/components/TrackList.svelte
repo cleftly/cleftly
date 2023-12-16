@@ -1,7 +1,6 @@
 <script lang="ts">
     import { Play } from 'lucide-svelte';
 
-    import Visualizer from './Visualizer.svelte';
     import type { FriendlyTrack } from '$lib/db';
     import { playTrack } from '$lib/player';
     import { audio } from '$lib/stores';
@@ -54,7 +53,7 @@
                         : ''} w-10 mr-2"
                 >
                     {#if track.id === $audio?.track.id}
-                        <Visualizer />
+                        <!-- <Visualizer /> -->
                     {:else if mode === 'number'}
                         <p
                             class={track.id === $audio?.track.id

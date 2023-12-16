@@ -18,6 +18,7 @@
     import { audio, front, player, queue } from '$lib/stores';
     import { getTimestamp } from '$lib/utils';
     import AddToPlaylist from '$components/AddToPlaylist.svelte';
+    import { eventManager } from '$lib/events';
 
     const toastStore = getToastStore();
 
@@ -49,6 +50,14 @@
         navigator.mediaSession.setActionHandler('seekto', (e) => {
             if ($audio) {
                 $audio.currentTime = e.seekTime || 0;
+
+                eventManager
+                    .fireEvent('on_track_change', $audio)
+                    .then(() => {})
+                    .catch((err) => {
+                        console.error(err);
+                        console.error('Failed to fire event on_track_change');
+                    });
             }
         });
     });
@@ -140,6 +149,33 @@
             autoplay
             bind:this={$player.webAudioElement}
             bind:paused={$player.paused}
+            on:pause={() => {
+                eventManager
+                    .fireEvent('on_track_change', $audio)
+                    .then(() => {})
+                    .catch((err) => {
+                        console.error(err);
+                        console.error('Failed to fire event on_track_change');
+                    });
+            }}
+            on:play={() => {
+                eventManager
+                    .fireEvent('on_track_change', $audio)
+                    .then(() => {})
+                    .catch((err) => {
+                        console.error(err);
+                        console.error('Failed to fire event on_track_change');
+                    });
+            }}
+            on:seeked={() => {
+                eventManager
+                    .fireEvent('on_track_change', $audio)
+                    .then(() => {})
+                    .catch((err) => {
+                        console.error(err);
+                        console.error('Failed to fire event on_track_change');
+                    });
+            }}
             bind:muted={$player.muted}
             bind:currentTime={$audio.currentTime}
             bind:duration={$audio.duration}
@@ -154,7 +190,7 @@
     <div
         class="flex bg-neutral-300 dark:bg-neutral-900 h-[5.5rem] overflow-hidden w-full"
     >
-        <div class="w-1/4 flex items-center space-x-2 ml-2">
+        <div class="w-1/3 lg:w-1/4 flex items-center space-x-2 ml-2">
             <img
                 src={$audio.track.album.albumArt}
                 class="w-[4.5rem] h-[4.5rem] rounded-lg"
@@ -187,7 +223,7 @@
             <AddToPlaylist tracks={[$audio.track]} />
         </div>
         <div
-            class="w-2/4 flex flex-col items-center space-y-4 mx-4 justify-center"
+            class="w-1/3 lg:w-2/4 flex flex-col items-center space-y-4 mx-4 justify-center"
         >
             <div class="flex items-center space-x-4 w-full">
                 <p class="text-xs">{getTimestamp($audio.currentTime)}</p>
@@ -277,7 +313,9 @@
                 </button>
             </div>
         </div>
-        <div class="w-1/4 flex items-center space-x-4 mr-8 justify-end">
+        <div
+            class="w-1/3 lg:w-1/4 flex items-center space-x-4 mr-8 justify-end"
+        >
             <RangeSlider
                 name="volume"
                 bind:value={$player.volume}

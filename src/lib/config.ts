@@ -24,6 +24,7 @@ export type Config = {
     enabled_plugins: string[];
     theme: string;
     color: 'light' | 'dark' | 'oled';
+    [key: string]: unknown;
 };
 
 const DEFAULT_CONFIG = {

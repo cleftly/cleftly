@@ -16,47 +16,47 @@
 
     const toastStore = getToastStore();
     let albums: FriendlyAlbum[] = [];
-    let playlists: FriendlyPlaylist = [];
+    let playlists: FriendlyPlaylist[] = [];
     let recentlyPlayed: FriendlyTrack[] = [];
     let recentlyAdded: FriendlyTrack[] = [];
     let loading = true;
 
-    onMount(async () => {
-        try {
-            await updateLibrary();
-            recentlyAdded = await friendlyLibrary(
-                await db.tracks
+    async function getThings() {
+        recentlyAdded = await friendlyLibrary(
+            await db.tracks.orderBy('createdAt').reverse().limit(16).toArray()
+        );
+        recentlyPlayed = await friendlyLibrary(
+            await db.tracks
+                .orderBy('lastPlayedAt')
+                .reverse()
+                .limit(16)
+                .toArray()
+        );
+
+        albums = await Promise.all(
+            (
+                await db.albums
                     .orderBy('createdAt')
                     .reverse()
                     .limit(16)
                     .toArray()
-            );
-            recentlyPlayed = await friendlyLibrary(
-                await db.tracks
-                    .orderBy('lastPlayedAt')
+            ).map(async (album) => await db.friendlyAlbum(album))
+        );
+        playlists = await Promise.all(
+            (
+                await db.playlists
+                    .orderBy('createdAt')
                     .reverse()
                     .limit(16)
                     .toArray()
-            );
+            ).map(async (playlist) => await db.friendlyPlaylist(playlist))
+        );
+    }
 
-            albums = await Promise.all(
-                (
-                    await db.albums
-                        .orderBy('createdAt')
-                        .reverse()
-                        .limit(16)
-                        .toArray()
-                ).map(async (album) => await db.friendlyAlbum(album))
-            );
-            playlists = await Promise.all(
-                (
-                    await db.playlists
-                        .orderBy('createdAt')
-                        .reverse()
-                        .limit(16)
-                        .toArray()
-                ).map(async (playlist) => await db.friendlyPlaylist(playlist))
-            );
+    onMount(async () => {
+        try {
+            await updateLibrary();
+            await getThings();
             loading = false;
         } catch (e) {
             toastStore.trigger({

@@ -129,7 +129,7 @@
             class="px-[4.75rem] navbar h-11 bg-neutral-300 dark:bg-neutral-900 flex w-full select-none"
             data-tauri-drag-region={true}
         >
-            <div class="flex w-1/4">
+            <div class="flex w-1/4" data-tauri-drag-region={true}>
                 <button on:click={goBack} class="btn btn-sm variant-soft">
                     &lt;
                 </button>

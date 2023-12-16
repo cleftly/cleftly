@@ -110,8 +110,8 @@
     onMount(async () => {
         getOrCreateConfig()
             .then((res) => {
-                oldConfig = JSON.parse(JSON.stringify(res));
-                config = JSON.parse(JSON.stringify(res));
+                oldConfig = structuredClone(res);
+                config = structuredClone(res);
             })
             .catch((err) => {
                 console.error(err);
@@ -146,7 +146,7 @@
 
     async function cancelChanges() {
         config = await getOrCreateConfig();
-        oldConfig = JSON.parse(JSON.stringify(config));
+        oldConfig = structuredClone(config);
     }
 
     async function saveChanges() {
@@ -167,7 +167,7 @@
                     color: config.color
                 });
 
-                oldConfig = JSON.parse(JSON.stringify(config));
+                oldConfig = structuredClone(config);
             })
             .catch((err) => {
                 console.error(err);

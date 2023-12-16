@@ -10,9 +10,9 @@ import { nowPlaying } from './integrations/lastfm';
 import { getLyrics } from './lyrics';
 import { getStreamUrl } from './utils';
 import { getOrCreateConfig } from './config';
-import { fireEvent } from './plugins';
 import db from './db';
-import { INITIAL_AUDIO, audio, queue } from '$lib/stores';
+import { eventManager } from './events';
+import { INITIAL_AUDIO, audio, player, queue } from '$lib/stores';
 
 async function play(
     src: string,
@@ -28,7 +28,6 @@ async function play(
         }).catch(() => {
             const toastStore = getToastStore();
 
-            // TODO: i18n
             toastStore.trigger({
                 message: `<h1 class="text-lg">${get(_)(
                     'track_play_failure'
@@ -46,6 +45,11 @@ async function play(
         src: src,
         backend,
         playedAt: new Date()
+    });
+
+    player.set({
+        ...get(player),
+        paused: false
     });
 
     queue.set({
@@ -89,7 +93,8 @@ async function play(
             console.error('Last.FM: Failed to update now playing');
         });
 
-    fireEvent('on_track_change', track)
+    eventManager
+        .fireEvent('on_track_change', get(audio))
         .then(() => {})
         .catch((err) => {
             console.error(err);

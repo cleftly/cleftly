@@ -1,65 +1,109 @@
-use std::{sync::Mutex, thread, time};
+use declarative_discord_rich_presence::{
+    activity::{self, Assets, Button, Timestamps},
+    DeclarativeDiscordIpcClient,
+};
+use tauri::State;
 
-use discord_rpc_client::Client;
-
-pub struct RichPresence(pub Mutex<Option<Client>>);
-
-// TODO: Make this configurable
-const CLIENT_ID: u64 = 1175267910818742353;
-
-async fn get_client(state: tauri::State<'_, RichPresence>) -> Result<Client, String> {
-    let existing_client = state.0.lock().unwrap().clone();
-
-    if let Some(client) = existing_client {
-        return Ok(client);
-    } else {
-        let mut client = Client::new(CLIENT_ID);
-
-        client.on_error(|e| {
-            println!("RPC Client Error: {:#?}", e);
-        });
-
-        // TODO
-        // *state.0.lock().unwrap() = Some(client);
-
-        // Return *state.0.lock().unwrap() as a Result
-        Ok(client)
-    }
+#[derive(serde::Deserialize)]
+pub struct But {
+    pub label: String,
+    pub url: String,
 }
 
 #[derive(serde::Deserialize)]
-pub struct Activity {
-    title: String,
-    artist: String,
-    album: String,
+pub struct Activity<'a> {
+    pub state: Option<&'a str>,
+    pub details: Option<&'a str>,
+    pub large_image: Option<&'a str>,
+    pub small_image: Option<&'a str>,
+    pub large_text: Option<&'a str>,
+    pub small_text: Option<&'a str>,
+    pub start: Option<i64>,
+    pub end: Option<i64>,
+    pub buttons: Option<Vec<But>>,
 }
 
 #[tauri::command]
-pub async fn clear_activity(state: tauri::State<'_, RichPresence>) -> Result<(), String> {
-    let mut client = get_client(state).await.expect("Failed to get client");
+pub fn set_activity(
+    activity: Activity,
+    discord_ipc_client: State<'_, DeclarativeDiscordIpcClient>,
+) -> Result<(), String> {
+    let mut act = activity::Activity::new().state("Test");
 
-    client.clear_activity().expect("Failed to clear activity");
+    if let Some(state) = activity.state {
+        act = act.state(state);
+    }
 
-    println!("Cleared activity");
+    if let Some(details) = activity.details {
+        act = act.details(details);
+    }
+
+    if activity.start.is_some() || activity.end.is_some() {
+        let mut timestamp = Timestamps::new();
+
+        if let Some(start) = activity.start {
+            timestamp = timestamp.start(start);
+        }
+
+        if let Some(end) = activity.end {
+            timestamp = timestamp.end(end);
+        }
+
+        act = act.timestamps(timestamp);
+    }
+
+    if activity.large_image.is_some()
+        || activity.small_image.is_some()
+        || activity.large_text.is_some()
+        || activity.small_text.is_some()
+    {
+        let mut assets = Assets::new();
+
+        if let Some(large_image) = activity.large_image {
+            assets = assets.large_image(large_image);
+        }
+
+        if let Some(small_image) = activity.small_image {
+            assets = assets.small_image(small_image);
+        }
+
+        if let Some(large_text) = activity.large_text {
+            assets = assets.large_text(large_text);
+        }
+
+        if let Some(small_text) = activity.small_text {
+            assets = assets.small_text(small_text);
+        }
+
+        act = act.assets(assets);
+    }
+
+    if let Some(buttons) = activity.buttons {
+        // Vec of buttons
+        let buttons = buttons
+            .into_iter()
+            .map(|b| Button::new(b.label, b.url))
+            .collect();
+
+        act = act.buttons(buttons);
+    }
+
+    let _ = discord_ipc_client
+        .set_activity(act)
+        .map_err(|e| e.to_string());
+
+    println!("Finished :P");
+
     Ok(())
 }
 
 #[tauri::command]
-pub async fn set_activity(
-    state: tauri::State<'_, RichPresence>,
-    activity: Activity,
+pub fn clear_activity(
+    discord_ipc_client: State<'_, DeclarativeDiscordIpcClient>,
 ) -> Result<(), String> {
-    let mut client = get_client(state).await.expect("Failed to get client");
-
-    client.start();
-    client
-        .set_activity(|a| a.state(&activity.title))
-        .map_err(|e| format!("Failed to set activity: {}", e))?;
-
-    println!(
-        "Set activity: {} - {} - {}",
-        activity.title, activity.artist, activity.album
-    );
+    let _ = discord_ipc_client
+        .clear_activity()
+        .map_err(|e| e.to_string());
 
     Ok(())
 }

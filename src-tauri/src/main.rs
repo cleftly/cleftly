@@ -1,21 +1,48 @@
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
+#[cfg(target_os = "macos")]
+#[macro_use]
+extern crate objc;
+
 mod audio;
 mod discordrpc;
 mod stream;
+mod window_ext;
 use audio::Audio;
-use discordrpc::RichPresence;
+use declarative_discord_rich_presence::DeclarativeDiscordIpcClient;
 use rodio::{OutputStream, Sink};
 use std::sync::Mutex;
 use stream::handle_stream_request;
+use tauri::{Manager, WindowEvent};
+use window_ext::WindowExt;
+
+const DISCORD_RPC_CLIENT_ID: &str = "1175267910818742353";
 
 fn main() {
     let (_stream, stream_handle) = OutputStream::try_default().unwrap();
 
     tauri::Builder::default()
+        .setup(|app| {
+            let win = app.get_window("main").unwrap();
+            win.set_transparent_titlebar(true);
+            win.position_traffic_lights(25.0, 25.0);
+
+            let discord_ipc_client = DeclarativeDiscordIpcClient::new(DISCORD_RPC_CLIENT_ID);
+
+            discord_ipc_client.enable();
+
+            app.manage(discord_ipc_client);
+
+            Ok(())
+        })
+        .on_window_event(|e| {
+            if let WindowEvent::Resized(..) = e.event() {
+                let win = e.window();
+                win.position_traffic_lights(15.0, 20.0);
+            }
+        })
         .manage(Audio(Mutex::new(Sink::try_new(&stream_handle).unwrap())))
-        .manage(RichPresence(Mutex::new(None)))
         .plugin(tauri_plugin_persisted_scope::init())
         .register_uri_scheme_protocol("stream", |app, request| handle_stream_request(app, request))
         .invoke_handler(tauri::generate_handler![

@@ -207,7 +207,6 @@ export async function updateLibrary() {
     }
 
     await db.tracks.bulkPut(res);
-    console.timeEnd('Update library');
 
     progress.set(
         get(progress).set('updateLibrary', {
