@@ -24,6 +24,12 @@ jobs:
               with:
                   node-version: 20
 
+            - uses: pnpm/action-setup@v2
+              name: Install pnpm
+              with:
+                  version: 8
+                  run_install: false
+
             - name: install Rust stable
               uses: dtolnay/rust-toolchain@stable
 
@@ -39,6 +45,8 @@ jobs:
             - uses: tauri-apps/tauri-action@v0
               env:
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                  TAURI_PRIVATE_KEY: ${{ secrets.TAURI_PRIVATE_KEY }}
+                  TAURI_KEY_PASSWORD: ${{ secrets.TAURI_KEY_PASSWORD }}
               with:
                   tagName: app-v__VERSION__ # the action automatically replaces \_\_VERSION\_\_ with the app version
                   releaseName: 'App v__VERSION__'
