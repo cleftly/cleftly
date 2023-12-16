@@ -6,7 +6,8 @@
         Users2,
         ListMusic,
         Settings,
-        Import
+        Import,
+        Puzzle
     } from 'lucide-svelte';
     import { _ } from 'svelte-i18n';
     import { page } from '$app/stores';
@@ -28,7 +29,8 @@
         },
         { name: $_('artists'), href: '/library/artists', icon: Users2 },
         { name: $_('playlists'), href: '/library/playlists', icon: ListMusic },
-        { name: $_('settings'), href: '/settings', icon: Settings }
+        { name: $_('settings'), href: '/settings', icon: Settings },
+        { name: $_('plugins'), href: '/settings/plugins', icon: Puzzle }
     ];
 </script>
 

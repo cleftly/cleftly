@@ -2,15 +2,14 @@
     import {
         getModalStore,
         getToastStore,
-        SlideToggle,
         type ModalSettings
     } from '@skeletonlabs/skeleton';
-    import { Loader2, Trash } from 'lucide-svelte';
+    import { Loader2 } from 'lucide-svelte';
     import { onMount } from 'svelte';
 
-    import { open } from '@tauri-apps/api/dialog';
     import { _ } from 'svelte-i18n';
     import LastFmLogin from './LastFmLogin.svelte';
+    import Option from './Option.svelte';
     import db from '$lib/db';
     import { getOrCreateConfig, saveConfig, type Config } from '$lib/config';
     import {
@@ -122,28 +121,6 @@
             });
     });
 
-    async function importDirectory() {
-        const dir = await open({
-            multiple: true,
-            directory: true,
-            recursive: true
-        });
-
-        if (!dir) {
-            return;
-        }
-
-        const dirs = config['music_directories'];
-
-        if (Array.isArray(dir)) {
-            dirs.push(...dir);
-        } else {
-            dirs.push(dir);
-        }
-
-        config = { ...config, music_directories: dirs };
-    }
-
     async function cancelChanges() {
         config = await getOrCreateConfig();
         oldConfig = structuredClone(config);
@@ -239,56 +216,7 @@
     <h1 class="text-3xl">{$_('settings')}</h1>
     {#if config}
         {#each Object.entries(SETTINGS) as [k, i]}
-            <div class="space-y-1">
-                <h2 class="text-2xl">{i.name}</h2>
-                {#if i.description}
-                    <p class="text-slate-400 md:max-w-[75%]">{i.description}</p>
-                {/if}
-            </div>
-            {#if i.type === 'string'}
-                <input class="input p-1" type="text" bind:value={config[k]} />
-            {:else if i.type === 'number'}
-                <input class="input p-1" type="number" bind:value={config[k]} />
-            {:else if i.type === 'bool'}
-                <SlideToggle
-                    name={k}
-                    type="checkbox"
-                    active="bg-primary-500"
-                    bind:checked={config[k]}
-                />
-            {:else if i.type === 'dirs'}
-                {#each config[k] as item}
-                    <div class="flex flex-row">
-                        <p>{item}</p>
-                        <button
-                            class="btn variant-ghost-error"
-                            on:click={() => {
-                                const newConfig = { ...config };
-                                newConfig[k] = config[k].filter(
-                                    (i) => i !== item
-                                );
-                                config = newConfig;
-                            }}
-                        >
-                            <Trash />
-                        </button>
-                    </div>
-                {/each}
-                <button
-                    class="btn variant-ringed-primary"
-                    on:click={importDirectory}
-                >
-                    {$_('add_directory')}
-                </button>
-            {:else if i.type === 'enum'}
-                <select class="select w-full max-w-xs" bind:value={config[k]}>
-                    {#each i.options as option}
-                        <option value={option.value}>{option.label}</option>
-                    {/each}
-                </select>
-            {:else}
-                <p>{config[k]}</p>
-            {/if}
+            <Option key={k} bind:value={config[k]} {i} />
         {/each}
         <div>
             <button class="mt-4 btn variant-ghost" on:click={cancelChanges}>

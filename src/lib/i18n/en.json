@@ -97,5 +97,14 @@
     "color_dark": "Dark",
     "unsaved_changes": "Unsaved Changes",
     "unsaved_changes_desc": "You have unsaved changes.",
-    "speed": "Speed"
+    "speed": "Speed",
+    "plugins": "Plugins",
+    "plugin": "Plugin",
+    "enabled": "Enabled",
+    "enable": "Enable",
+    "disable": "Disable",
+    "disabled": "Disabled",
+    "built_in": "Built-in",
+    "custom": "Custom",
+    "third_party": "Third-party"
 }

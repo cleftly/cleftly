@@ -22,6 +22,8 @@ export interface PluginConstructor {
 }
 
 export async function loadPlugin(constr: PluginConstructor) {
+    console.info(`Initializing plugin '${constr.name}'...`);
+
     const plugin = new constr({
         stores: {
             audio,
@@ -35,6 +37,10 @@ export async function loadPlugin(constr: PluginConstructor) {
         val.set(plugin.id, plugin);
         return val;
     });
+
+    console.info(
+        `Loaded plugin ${plugin.name} v${plugin.version} by ${plugin.author} (${plugin.id})`
+    );
 
     return {
         id: plugin.id,
@@ -79,15 +85,12 @@ export async function loadPluginFromFile(source: string) {
 }
 
 export async function loadPlugins() {
-    const BUILT_IN = {
+    const BUILT_IN: { [key: string]: PluginConstructor } = {
         'com.cleftly.discordrpc': DiscordRPC,
         'com.cleftly.test1': Test1
     };
 
-    const enabled = [
-        ...(await getOrCreateConfig()).enabled_plugins,
-        'com.cleftly.discordrpc'
-    ];
+    const enabled = [...(await getOrCreateConfig()).enabled_plugins];
 
     /* Load all plugins from config and all built-in plugins */
     const loaded = get(plugins);
@@ -97,17 +100,14 @@ export async function loadPlugins() {
 
     // Load built-in plugins
     const builtIn = Object.keys(BUILT_IN)
-        .filter((id) => enabled.includes(id))
+        .filter((id) => toLoad.includes(id))
         .map((id) => BUILT_IN[id]);
 
-    // Load plugins
-    await Promise.all(
-        builtIn.concat(toLoad.map((id) => loadPlugin(BUILT_IN[id])))
-    );
+    await Promise.all(builtIn.map((id) => loadPlugin(id)));
 
     // Load external plugins
     await Promise.all(
-        enabled
+        toLoad
             .filter((id) => !Object.keys(BUILT_IN).includes(id))
             .map((id) => loadPluginFromFile(id))
     );

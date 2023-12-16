@@ -9,7 +9,6 @@ export default class Test1 {
     public description: string = "Do plugins work? Let's see"; // A short description
     public version: string = '1.0.0';
     public api_version: string = 'v1'; // Must be v1
-    public subscribed_to: string[] = []; // Subscribe to events: ["on_play", "on_pause", "on_unload", "on_track_change"]
 
     private _apis;
     private eventDestroyers: ReturnType<typeof eventManager.onEvent>[] = [];
