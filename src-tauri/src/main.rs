@@ -24,9 +24,12 @@ fn main() {
 
     tauri::Builder::default()
         .setup(|app| {
-            let win = app.get_window("main").unwrap();
-            win.set_transparent_titlebar(true);
-            win.position_traffic_lights(25.0, 25.0);
+            #[cfg(target_os = "macos")]
+            {
+                let win = app.get_window("main").unwrap();
+                win.set_transparent_titlebar(true);
+                win.position_traffic_lights(25.0, 25.0);
+            }
 
             let discord_ipc_client = DeclarativeDiscordIpcClient::new(DISCORD_RPC_CLIENT_ID);
 
@@ -37,9 +40,12 @@ fn main() {
             Ok(())
         })
         .on_window_event(|e| {
-            if let WindowEvent::Resized(..) = e.event() {
-                let win = e.window();
-                win.position_traffic_lights(15.0, 20.0);
+            #[cfg(target_os = "macos")]
+            {
+                if let WindowEvent::Resized(..) = e.event() {
+                    let win = e.window();
+                    win.position_traffic_lights(15.0, 20.0);
+                }
             }
         })
         .manage(Audio(Mutex::new(Sink::try_new(&stream_handle).unwrap())))
