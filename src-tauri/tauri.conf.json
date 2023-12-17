@@ -91,8 +91,8 @@
             }
         },
         "security": {
-            "csp": "default-src 'self'; connect-src stream: https://stream.localhost http://localhost:3009",
-            "devCsp": "default-src 'self'; connect-src stream: https://stream.localhost http://localhost:3009"
+            "csp": "default-src 'self' stream: https://stream.localhost http://localhost:3009;",
+            "devCsp": "default-src 'self' stream: https://stream.localhost http://localhost:3009;"
         },
         "updater": {
             "active": true,
