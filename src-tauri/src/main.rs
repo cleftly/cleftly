@@ -15,6 +15,8 @@ use rodio::{OutputStream, Sink};
 use std::sync::Mutex;
 use stream::handle_stream_request;
 use tauri::{Manager, WindowEvent};
+
+#[cfg(target_os = "macos")]
 use window_ext::WindowExt;
 
 const DISCORD_RPC_CLIENT_ID: &str = "1175267910818742353";
