@@ -9,7 +9,7 @@ mod audio;
 mod discordrpc;
 mod files;
 mod stream;
-mod window_ext;
+
 use audio::Audio;
 use declarative_discord_rich_presence::DeclarativeDiscordIpcClient;
 use rodio::{OutputStream, Sink};
@@ -17,6 +17,8 @@ use std::sync::Mutex;
 use stream::handle_stream_request;
 use tauri::{Manager, WindowEvent};
 
+#[cfg(target_os = "macos")]
+mod window_ext;
 #[cfg(target_os = "macos")]
 use window_ext::WindowExt;
 

@@ -1,13 +1,13 @@
 use tauri::{Runtime, Window};
 
+#[cfg(target_os = "macos")]
 pub trait WindowExt {
-    #[cfg(target_os = "macos")]
     fn set_transparent_titlebar(&self, transparent: bool);
     fn position_traffic_lights(&self, x: f64, y: f64);
 }
 
+#[cfg(target_os = "macos")]
 impl<R: Runtime> WindowExt for Window<R> {
-    #[cfg(target_os = "macos")]
     fn set_transparent_titlebar(&self, transparent: bool) {
         use cocoa::appkit::{NSWindow, NSWindowTitleVisibility};
 
