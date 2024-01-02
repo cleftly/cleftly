@@ -92,8 +92,6 @@ pub fn set_activity(
         .set_activity(act)
         .map_err(|e| e.to_string());
 
-    println!("Finished :P");
-
     Ok(())
 }
 

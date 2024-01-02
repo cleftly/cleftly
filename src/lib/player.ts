@@ -114,15 +114,15 @@ export function parseMMMetadata(
 ) {
     return {
         title: metadata.common.title || name,
-        artist: metadata.common.artist || 'Unknown Artist',
-        album: metadata.common.album || 'Unknown Album',
+        artist: metadata.common.artist,
+        album: metadata.common.album,
         albumArt:
             metadata.common.picture && metadata.common.picture.length > 0
                 ? new Blob([metadata.common.picture[0].data], {
                       type: metadata.common.picture[0].format
                   })
                 : '',
-        genres: metadata.common.genre || [],
+        genres: metadata.common.genre,
         year: metadata.common.year,
         trackNum: metadata.common.track.no || 1,
         totalTracks: metadata.common.track.of || 1,

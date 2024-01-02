@@ -3,9 +3,10 @@
 
 import { invoke } from '@tauri-apps/api';
 import { getClient } from '@tauri-apps/api/http';
+import { get } from 'svelte/store';
 import type { FriendlyTrack } from '$lib/db';
 import { eventManager } from '$lib/events';
-import { getOrCreateConfig, saveConfig } from '$lib/config';
+import { getConfig, saveConfig } from '$lib/api/config';
 
 type TrackData = {
     albumArtUrl: string | null;
@@ -20,18 +21,19 @@ interface DiscordRPCConfig {
     discordRpcSmallText: string;
     discordRpcExternal: boolean;
     discordRpcButtons: boolean;
+    discordRpcHideOnPause: boolean;
 }
 
 export default class DiscordRPC {
-    public readonly id: string = 'com.cleftly.discordrpc'; // Must be unique
-    public readonly name: string = 'Discord Rich Presence';
-    public readonly author: string = 'Cleftly'; // Anything you please, as long as it's true
-    public readonly description: string =
+    public static id: string = 'com.cleftly.discordrpc'; // Must be unique
+    public static name: string = 'Discord Rich Presence';
+    public static author: string = 'Cleftly'; // Anything you please, as long as it's true
+    public static description: string =
         'Let your friends know what you are listening to'; // A short description
-    public readonly version: string = '1.0.0';
-    public readonly api_version: string = 'v1'; // Must be v1
+    public static version: string = '1.0.0';
+    public static api_version: string = 'v1'; // Must be v1
 
-    public readonly config_settings = {
+    public static config_settings = {
         discordRpcDetails: { name: 'details', description: '', type: 'string' },
         discordRpcState: { name: 'state', description: '', type: 'string' },
         discordRpcShowElapsed: {
@@ -44,10 +46,21 @@ export default class DiscordRPC {
             description: '',
             type: 'string'
         },
+        discordRpcSmallText: {
+            name: 'Small Image Text',
+            description: '(Not currently in use)',
+            type: 'string'
+        },
         discordRpcExternal: {
             name: 'Fetch external info',
             description:
                 'Allows the plugin to fetch external track information, useful for things such as iTunes links :P',
+            type: 'bool'
+        },
+        discordRpcHideOnPause: {
+            name: 'Hide on pause',
+            description:
+                'Hide the Discord Rich Presence when the player is paused',
             type: 'bool'
         },
         discordRpcButtons: {
@@ -76,19 +89,20 @@ export default class DiscordRPC {
     }
 
     private async init() {
-        const conf = await getOrCreateConfig();
+        const conf = (await getConfig(DiscordRPC.id)) as DiscordRPCConfig;
         const updatedConf = {
             discordRpcDetails: conf.discordRpcDetails ?? '{track}',
             discordRpcState: conf.discordRpcState ?? '{album} - {artist}',
-            discordRpcShowElapsed: conf.discordRpcStart ?? true,
+            discordRpcShowElapsed: conf.discordRpcShowElapsed ?? true,
             discordRpcLargeText: conf.discordRpcLargeText ?? '{album}',
             discordRpcSmallText: conf.discordRpcSmallText ?? '',
             discordRpcExternal: conf.discordRpcExternal ?? true,
-            discordRpcButtons: conf.discordRpcButtons ?? true
+            discordRpcButtons: conf.discordRpcButtons ?? true,
+            discordRpcHideOnPause: conf.discordRpcHideOnPause ?? false
         };
 
         if (JSON.stringify(conf) !== JSON.stringify(updatedConf)) {
-            await saveConfig({
+            await saveConfig(DiscordRPC.id, {
                 ...conf,
                 ...updatedConf
             });
@@ -105,7 +119,7 @@ export default class DiscordRPC {
         track: FriendlyTrack;
         currentTime: number;
     }) => {
-        const conf = await getOrCreateConfig();
+        const conf = (await getConfig(DiscordRPC.id)) as DiscordRPCConfig;
         const externalInfo = await this.getExternalInfo(audio.track, conf);
 
         const vars = {
@@ -133,12 +147,22 @@ export default class DiscordRPC {
             externalInfo = this.cache.get(track.id)!;
         } else if (conf.discordRpcExternal) {
             await invoke('clear_activity');
-            const res = await (
-                await getClient()
-            ).get(`https://itunes.apple.com/search`, {
+
+            const normAlbumName = track.album.name
+                .toLowerCase()
+                .replace('(deluxe edition)', '')
+                .replace('(deluxe)', '')
+                .replace('(single)', '');
+
+            const client = await getClient();
+
+            const res = await client.get(`https://itunes.apple.com/search`, {
                 query: {
-                    term: `${track.title} ${track.artist.name} ${track.album.name}`,
-                    entity: 'musicTrack',
+                    term: `${track.title} ${track.artist.name} ${normAlbumName}`.replace(
+                        /[@~`!@#$%^&()_=+\\';:"/?>.<,-]/g,
+                        ''
+                    ),
+                    entity: 'song',
                     limit: '5'
                 }
             });
@@ -149,10 +173,46 @@ export default class DiscordRPC {
                 );
             }
 
-            const data = res.data as any;
+            let data = res.data as any;
+
+            if ((data.results?.length || 0) < 1) {
+                const res = await client.get(
+                    `https://itunes.apple.com/search`,
+                    {
+                        query: {
+                            term: `${normAlbumName} ${track.artist.name}`.replace(
+                                /[@~`!@#$%^&()_=+\\';:"/?>.<,-]/g,
+                                ''
+                            ),
+                            entity: 'song',
+                            limit: '5'
+                        }
+                    }
+                );
+
+                if (res.status !== 200) {
+                    console.error(
+                        `DiscordRPC: Failed to fetch external info: ${res.status}`
+                    );
+                }
+
+                data = res.data as any;
+            }
 
             if (data.resultCount) {
                 let result = data.results[0];
+
+                for (const res of data.results) {
+                    if (
+                        res.artistName.toLowerCase() ===
+                            track.artist.name.toLowerCase() &&
+                        res.trackName.toLowerCase() ===
+                            track.title.toLowerCase()
+                    ) {
+                        result = res;
+                        break;
+                    }
+                }
 
                 for (const res of data.results) {
                     if (
@@ -189,6 +249,13 @@ export default class DiscordRPC {
         externalInfo: TrackData,
         vars: { [key: string]: string }
     ) {
+        if (
+            conf.discordRpcHideOnPause &&
+            get(this._apis.stores.player).paused
+        ) {
+            await invoke('clear_activity');
+            return;
+        }
         await invoke('set_activity', {
             activity: {
                 details: this.substring(
@@ -212,11 +279,13 @@ export default class DiscordRPC {
                           vars
                       )
                     : undefined,
-                start: conf.discordRpcShowElapsed
-                    ? Math.round(
-                          new Date().getTime() / 1000 - audio.currentTime
-                      )
-                    : undefined,
+                start:
+                    conf.discordRpcShowElapsed &&
+                    !get(this._apis.stores.player).paused
+                        ? Math.round(
+                              new Date().getTime() / 1000 - audio.currentTime
+                          )
+                        : undefined,
                 buttons:
                     conf.discordRpcButtons && externalInfo.songLinkUrl
                         ? [{ label: 'Listen', url: externalInfo.songLinkUrl }]

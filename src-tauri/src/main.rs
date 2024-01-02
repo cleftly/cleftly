@@ -7,6 +7,7 @@ extern crate objc;
 
 mod audio;
 mod discordrpc;
+mod files;
 mod stream;
 mod window_ext;
 use audio::Audio;
@@ -52,13 +53,15 @@ fn main() {
         })
         .manage(Audio(Mutex::new(Sink::try_new(&stream_handle).unwrap())))
         .plugin(tauri_plugin_persisted_scope::init())
+        .plugin(tauri_plugin_context_menu::init())
         .register_uri_scheme_protocol("stream", |app, request| handle_stream_request(app, request))
         .invoke_handler(tauri::generate_handler![
             audio::play_audio,
             audio::get_info,
             audio::set_info,
             discordrpc::clear_activity,
-            discordrpc::set_activity
+            discordrpc::set_activity,
+            files::show_in_folder
         ])
         .run(tauri::generate_context!())
         .expect("Error while running application");

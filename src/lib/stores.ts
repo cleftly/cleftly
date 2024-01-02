@@ -70,7 +70,7 @@ export const player = writable<Player>({
     muted: false,
     volume: 1,
     paused: false,
-    repeat: false,
+    repeat: 'all',
     speed: 1,
     webAudioElement: null
 });

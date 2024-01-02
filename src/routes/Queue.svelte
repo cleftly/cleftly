@@ -13,6 +13,7 @@
             <TrackList
                 tracks={$queue.tracks.slice($queue.index)}
                 mode="albumArt"
+                resort={false}
             />
         {:else}
             <p class="text-slate-400">{$_('queue_empty')}</p>

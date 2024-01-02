@@ -80,7 +80,13 @@
             bind:this={resRef}
         >
             <ul class="list-nav text-sm w-full">
-                <TrackList tracks={res} mode="albumArt" playMode="click" />
+                <TrackList
+                    resort={false}
+                    queueTracks={false}
+                    tracks={res}
+                    mode="albumArt"
+                    playMode="click"
+                />
             </ul>
         </div>
     {/if}

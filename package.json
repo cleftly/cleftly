@@ -57,7 +57,8 @@
         "music-metadata-browser": "^2.5.10",
         "pino": "^8.17.1",
         "qs": "^6.11.2",
-        "svelte-i18n": "^4.0.0"
+        "svelte-i18n": "^4.0.0",
+        "tauri-plugin-context-menu": "^0.7.0"
     },
     "lint-staged": {
         "**/*.{js,ts,svelte}": [

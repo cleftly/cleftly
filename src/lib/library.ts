@@ -132,7 +132,9 @@ export async function updateLibrary() {
             return (
                 supportedExtensions.includes(
                     file.split('.').slice(-1)[0].toLowerCase()
-                ) && !library.some((item) => file === item.location)
+                ) &&
+                !library.some((item) => file === item.location) &&
+                !splitPath(file).slice(-1)[0].startsWith('._')
             );
         });
 
@@ -151,15 +153,15 @@ export async function updateLibrary() {
         }
 
         const title =
-            metadata?.title ||
-            removeExtension((await splitPath(file)).slice(-1)[0]);
+            metadata?.title || removeExtension(splitPath(file).slice(-1)[0]);
         const album =
             metadata?.album ||
-            (await splitPath(file)).reverse()[1] ||
-            removeExtension((await splitPath(file)).reverse()[1]);
+            splitPath(file).reverse()[1] ||
+            removeExtension(splitPath(file).reverse()[1]) ||
+            'Unknown Album';
         const artist =
             metadata?.artist ||
-            (await splitPath(file)).reverse()[2] ||
+            splitPath(file).reverse()[2] ||
             'Unknown Artist';
         const totalTracks = metadata?.totalTracks || 1;
         const artistId = await getOrCreateArtist(artist);

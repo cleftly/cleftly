@@ -1,5 +1,12 @@
 <script lang="ts">
-    import { RangeSlider, getToastStore } from '@skeletonlabs/skeleton';
+    /**
+     *
+     */
+    import {
+        RangeSlider,
+        getModalStore,
+        getToastStore
+    } from '@skeletonlabs/skeleton';
     import {
         Shuffle,
         StepBack,
@@ -17,9 +24,10 @@
     import { playTrack } from '$lib/player';
     import { audio, front, player, queue } from '$lib/stores';
     import { getTimestamp } from '$lib/utils';
-    import AddToPlaylist from '$components/AddToPlaylist.svelte';
     import { eventManager } from '$lib/events';
+    import { openTrackMenu } from '$lib/menus';
 
+    const modalStore = getModalStore();
     const toastStore = getToastStore();
 
     audio.subscribe(async (value) => {
@@ -51,13 +59,7 @@
             if ($audio) {
                 $audio.currentTime = e.seekTime || 0;
 
-                eventManager
-                    .fireEvent('on_track_change', $audio)
-                    .then(() => {})
-                    .catch((err) => {
-                        console.error(err);
-                        console.error('Failed to fire event on_track_change');
-                    });
+                fireTrackChange().then(() => {});
             }
         });
     });
@@ -139,6 +141,16 @@
             background: 'variant-filled-error'
         });
     }
+
+    async function fireTrackChange() {
+        eventManager
+            .fireEvent('on_track_change', $audio)
+            .then(() => {})
+            .catch((err) => {
+                console.error(err);
+                console.error('Failed to fire event on_track_change');
+            });
+    }
 </script>
 
 {#if $audio}
@@ -149,33 +161,11 @@
             autoplay
             bind:this={$player.webAudioElement}
             bind:paused={$player.paused}
-            on:pause={() => {
-                eventManager
-                    .fireEvent('on_track_change', $audio)
-                    .then(() => {})
-                    .catch((err) => {
-                        console.error(err);
-                        console.error('Failed to fire event on_track_change');
-                    });
+            on:pause={fireTrackChange}
+            on:play={async () => {
+                await fireTrackChange();
             }}
-            on:play={() => {
-                eventManager
-                    .fireEvent('on_track_change', $audio)
-                    .then(() => {})
-                    .catch((err) => {
-                        console.error(err);
-                        console.error('Failed to fire event on_track_change');
-                    });
-            }}
-            on:seeked={() => {
-                eventManager
-                    .fireEvent('on_track_change', $audio)
-                    .then(() => {})
-                    .catch((err) => {
-                        console.error(err);
-                        console.error('Failed to fire event on_track_change');
-                    });
-            }}
+            on:seeked={fireTrackChange}
             bind:muted={$player.muted}
             bind:currentTime={$audio.currentTime}
             bind:duration={$audio.duration}
@@ -190,7 +180,14 @@
     <div
         class="flex bg-neutral-300 dark:bg-neutral-900 h-[5.5rem] overflow-hidden w-full"
     >
-        <div class="w-1/3 lg:w-1/4 flex items-center space-x-2 ml-2">
+        <div
+            class="w-1/3 lg:w-1/4 flex items-center space-x-2 ml-2"
+            on:contextmenu={async (e) => {
+                await openTrackMenu(e, $audio.track, modalStore, toastStore);
+            }}
+            role="button"
+            tabindex="0"
+        >
             <img
                 src={$audio.track.album.albumArt}
                 class="w-[4.5rem] h-[4.5rem] rounded-lg"
@@ -220,7 +217,7 @@
                     >
                 </h2>
             </div>
-            <AddToPlaylist tracks={[$audio.track]} />
+            <!-- <AddToPlaylist tracks={[$audio.track]} /> -->
         </div>
         <div
             class="w-1/3 lg:w-2/4 flex flex-col items-center space-y-4 mx-4 justify-center"
@@ -233,10 +230,10 @@
                     accent="variant-filled-primary"
                     class="w-full"
                     bind:value={$audio.currentTime}
-                    max={Math.floor($audio.duration)}
+                    max={Math.floor($audio.track.duration)}
                     step={1}
                 />
-                <p class="text-xs">{getTimestamp($audio.duration)}</p>
+                <p class="text-xs">{getTimestamp($audio.track.duration)}</p>
             </div>
             <div class="flex items-center space-x-2">
                 <button

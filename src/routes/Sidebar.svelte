@@ -10,10 +10,14 @@
         Puzzle
     } from 'lucide-svelte';
     import { _ } from 'svelte-i18n';
+    import { getModalStore } from '@skeletonlabs/skeleton';
     import { page } from '$app/stores';
     import CreatePlaylist from '$components/CreatePlaylist.svelte';
     import { playlists } from '$lib/stores';
     import { selectAndImportPlaylist } from '$lib/playlists';
+    import { openPlaylistMenu } from '$lib/menus';
+
+    const modalStore = getModalStore();
 
     let pathname = $page.url.pathname;
 
@@ -76,7 +80,10 @@
                     </div>
                 </li>
                 {#each $playlists as playlist}
-                    <li>
+                    <li
+                        on:contextmenu={async (e) =>
+                            await openPlaylistMenu(e, playlist, modalStore)}
+                    >
                         <a
                             href="/library/playlist?id={encodeURIComponent(
                                 playlist.id

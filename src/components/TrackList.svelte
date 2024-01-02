@@ -1,20 +1,29 @@
 <script lang="ts">
     import { Play } from 'lucide-svelte';
 
+    import { getModalStore, getToastStore } from '@skeletonlabs/skeleton';
     import type { FriendlyTrack } from '$lib/db';
     import { playTrack } from '$lib/player';
     import { audio } from '$lib/stores';
     import { getTimestamp } from '$lib/utils';
+    import { openTrackMenu } from '$lib/menus';
 
-    $: sortedTracks = tracks.sort((a, b) =>
-        a.discNum === b.discNum
-            ? a.trackNum - b.trackNum
-            : a.discNum - b.discNum
-    );
+    const toastStore = getToastStore();
+    const modalStore = getModalStore();
 
+    $: sortedTracks = resort
+        ? tracks.sort((a, b) =>
+              a.discNum === b.discNum
+                  ? a.trackNum - b.trackNum
+                  : a.discNum - b.discNum
+          )
+        : tracks;
+
+    export let resort: boolean = true;
     export let tracks: FriendlyTrack[] = [];
     export let mode: 'number' | 'albumArt' = 'number';
     export let playMode: 'button' | 'click' = 'button';
+    export let queueTracks: boolean = true;
 </script>
 
 <dl class="mt-8 space-y-2">
@@ -25,14 +34,16 @@
                 : ''} hover:!bg-primary-500 hover:cursor-pointer"
             on:click={() => {
                 if (playMode === 'click') {
-                    playTrack(track, tracks);
+                    playTrack(track, queueTracks ? tracks : undefined);
                 }
             }}
             on:keydown={() => {
                 if (playMode === 'click') {
-                    playTrack(track, tracks);
+                    playTrack(track, queueTracks ? tracks : undefined);
                 }
             }}
+            on:contextmenu={(e) =>
+                openTrackMenu(e, track, modalStore, toastStore)}
             role="button"
             tabindex="0"
         >

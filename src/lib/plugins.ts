@@ -6,23 +6,28 @@ import DiscordRPC from './plugins/discordrpc';
 import { getOrCreateConfig } from './config';
 import Test1 from './plugins/test';
 
-export type Plugin = {
+export interface PluginInfo {
     id: string;
     name: string;
-    description?: string;
-    version: string;
     author: string;
-    subscribedTo?: string[];
-    onEvent?: (event: string, data: unknown) => Promise<void> | void;
-};
+    version: string;
+    description?: string;
+}
 
-export interface PluginConstructor {
+export interface Plugin {
+    constructor: PluginConstructor;
+    onDestroy?(): void;
+}
+
+export interface PluginConstructor extends PluginInfo {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     new (apis?: any): Plugin; // TODO
 }
 
 export async function loadPlugin(constr: PluginConstructor) {
-    console.info(`Initializing plugin '${constr.name}'...`);
+    console.info(
+        `Initializing plugin ${constr.name} v${constr.version} by ${constr.author} (${constr.id})...`
+    );
 
     const plugin = new constr({
         stores: {
@@ -39,19 +44,19 @@ export async function loadPlugin(constr: PluginConstructor) {
     });
 
     console.info(
-        `Loaded plugin ${plugin.name} v${plugin.version} by ${plugin.author} (${plugin.id})`
+        `Loaded plugin ${plugin.constructor.name} v${plugin.constructor.version} by ${plugin.constructor.author} (${plugin.constructor.id})`
     );
 
     return {
-        id: plugin.id,
-        name: plugin.name,
-        description: plugin.description,
-        version: plugin.version,
-        author: plugin.author
+        id: plugin.constructor.id,
+        name: plugin.constructor.name,
+        description: plugin.constructor.description,
+        version: plugin.constructor.version,
+        author: plugin.constructor.author
     };
 }
 
-export async function loadPluginFromFile(source: string) {
+export async function loadPluginConstrFromFile(source: string) {
     const src = await getStreamUrl(source);
 
     let constr: PluginConstructor;
@@ -81,13 +86,16 @@ export async function loadPluginFromFile(source: string) {
         constr = (await import(/* @vite-ignore */ src)).default;
     }
 
-    return await loadPlugin(constr);
+    return constr;
+}
+export async function loadPluginFromFile(source: string) {
+    return await loadPlugin(await loadPluginConstrFromFile(source));
 }
 
 export async function loadPlugins() {
     const BUILT_IN: { [key: string]: PluginConstructor } = {
-        'com.cleftly.discordrpc': DiscordRPC,
-        'com.cleftly.test1': Test1
+        'com.cleftly.discordrpc': DiscordRPC as unknown as PluginConstructor,
+        'com.cleftly.test1': Test1 as unknown as PluginConstructor
     };
 
     const enabled = [...(await getOrCreateConfig()).enabled_plugins];

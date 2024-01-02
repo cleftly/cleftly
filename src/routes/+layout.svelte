@@ -35,6 +35,7 @@
     // Locales
 
     i18n_init();
+    initializeStores();
 
     storePopup.set({ computePosition, autoUpdate, offset, shift, flip, arrow });
 
@@ -52,8 +53,6 @@
             elemPage.scrollTop = 0;
         }
     });
-
-    initializeStores();
 
     $: if (process.browser)
         document.body.setAttribute('data-theme', $front.theme);
@@ -130,13 +129,22 @@
             data-tauri-drag-region={true}
         >
             <div class="flex w-1/4" data-tauri-drag-region={true}>
-                <button on:click={goBack} class="btn btn-sm variant-soft">
+                <button
+                    on:click={goBack}
+                    class="btn btn-sm variant-soft !bg-transparent"
+                >
                     &lt;
                 </button>
-                <button on:click={goForward} class="btn btn-sm variant-soft">
+                <button
+                    on:click={goForward}
+                    class="btn btn-sm variant-soft !bg-transparent"
+                >
                     &gt;
                 </button>
-                <button on:click={reload} class="btn btn-sm variant-soft">
+                <button
+                    on:click={reload}
+                    class="btn btn-sm variant-soft !bg-transparent"
+                >
                     <RotateCw class="p-1" />
                 </button>
             </div>

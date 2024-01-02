@@ -106,5 +106,13 @@
     "disabled": "Disabled",
     "built_in": "Built-in",
     "custom": "Custom",
-    "third_party": "Third-party"
+    "third_party": "Third-party",
+    "plugins_reload_required": "Reload to apply",
+    "plugins_reload_required_desc": "A reload is required to apply your changes",
+    "reload": "Reload",
+    "no_plugins": "No plugins found. Add some!",
+    "plugin_import_error": "Failed to import plugin",
+    "plugin_already_added": "Plugin already added",
+    "added_to_queue": "Added to Queue",
+    "singles_ep": "Singles/EP"
 }

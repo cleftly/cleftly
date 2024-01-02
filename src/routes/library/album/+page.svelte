@@ -23,7 +23,9 @@
                     <h1 class="mx-2 text-3xl mt-4">{album.name}</h1>
                     <a
                         class="!mx-0 p-2 btn bg-transparent hover:variant-ghost text-xl"
-                        href="/artist?id={encodeURIComponent(album.artist.id)}"
+                        href="/library/artist?id={encodeURIComponent(
+                            album.artist.id
+                        )}"
                     >
                         {album.artist.name}
                     </a>

@@ -1,0 +1,75 @@
+<script lang="ts">
+    import { Play, Shuffle } from 'lucide-svelte';
+    import { _ } from 'svelte-i18n';
+    import Album from '$components/Album.svelte';
+
+    $: artist = data.artist;
+    // Sum of all track durations > 30 or > 6 songs
+    $: albums = data.albums?.filter(
+        (a) =>
+            a.tracks.length > 6 ||
+            a.tracks.reduce((sum, t) => sum + t.duration, 0) >= 30 * 60
+    );
+    $: singles = data.albums?.filter(
+        (a) =>
+            a.tracks.length <= 6 &&
+            a.tracks.reduce((sum, t) => sum + t.duration, 0) < 30 * 60
+    );
+    $: tracks = data.tracks;
+
+    export let data;
+</script>
+
+{#if artist}
+    <div class="flex md:flex-row flex-col mb-0">
+        <!-- <Avatar
+                src={playlist.albumArt}
+                class="rounded-lg w-72 h-72 mb-1 justify-center items-center md:justify-normal"
+            /> -->
+        <div class="flex m-4 mb-0 items-end">
+            <div class="space-x-2">
+                <h1 class="mx-2 text-3xl mt-4">{artist.name}</h1>
+                <p class="mb-2 text-sm line-clamp-2 text-gray-400">
+                    {tracks?.length || 0} track{tracks?.length !== 1 ? 's' : ''}
+                    · {albums?.length || 0} album{albums?.length !== 1
+                        ? 's'
+                        : ''}
+                </p>
+                <div class="mx2 space-x-1">
+                    <!-- TODO-->
+                    <button class="btn btn-sm variant-filled-primary">
+                        <Play class="fill-white mr-2" />
+                        {$_('play')}
+                    </button>
+                    <!-- TODO -->
+                    <button class="btn btn-sm variant-filled-primary">
+                        <Shuffle class="mr-2" />
+                        {$_('shuffle')}
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="ml-4 space-y-4">
+        <div class="space-y-2">
+            <h2 class="text-xl">{$_('albums')}</h2>
+            <div class="flex space-x-4 overflow-y-auto">
+                {#if albums}
+                    {#each albums as album}
+                        <Album titleClamp={1} {album} />
+                    {/each}
+                {/if}
+            </div>
+        </div>
+        <div class="space-y-2">
+            <h2 class="text-xl">{$_('singles_ep')}</h2>
+            <div class="flex space-x-4 overflow-y-auto">
+                {#if singles}
+                    {#each singles as single}
+                        <Album titleClamp={1} album={single} />
+                    {/each}
+                {/if}
+            </div>
+        </div>
+    </div>
+{/if}

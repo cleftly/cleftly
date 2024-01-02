@@ -79,6 +79,6 @@
                 </div>
             </div>
         </div>
-        <TrackList tracks={playlist.tracks} mode="albumArt" />
+        <TrackList tracks={playlist.tracks} mode="albumArt" resort={false} />
     </div>
 {/if}

@@ -65,9 +65,14 @@ export interface FriendlyTrack extends Track {
 
 export interface FriendlyAlbum extends Album {
     artist: Artist;
+    tracks: Track[];
 }
 
 export interface FriendlyPlaylist extends Playlist {
+    tracks: FriendlyTrack[];
+}
+
+export interface FriendlyPlaylistForced extends Playlist {
     tracks: FriendlyTrack[];
 }
 
@@ -82,7 +87,7 @@ export class Database extends Dexie {
         super('cleftly', { autoOpen: true });
         this.version(0.1).stores({
             tracks: 'id, title, artistId, albumId, albumArt, genres, duration, trackNum, totalTracks, type, createdAt, discNum, totalDiscs, lastPlayedAt',
-            albums: 'id, name, genres, artist, albumArt, createdAt, year',
+            albums: 'id, name, genres, artistId, albumArt, createdAt, year',
             artists: 'id, name, genres, createdAt',
             playlists: 'id, name, tracks, createdAt, updatedAt',
             kvs: 'key, value'
@@ -111,6 +116,10 @@ export class Database extends Dexie {
 
     async friendlyAlbum(album: Album): Promise<FriendlyAlbum> {
         const artist = await this.artists.get(album.artistId);
+        const tracks = await this.tracks
+            .where('albumId')
+            .equals(album.id)
+            .toArray();
 
         if (!artist) {
             throw new Error('Artist not found');
@@ -118,11 +127,15 @@ export class Database extends Dexie {
 
         return {
             ...album,
-            artist
+            artist,
+            tracks
         };
     }
 
-    async friendlyPlaylist(playlist: Playlist): Promise<FriendlyPlaylist> {
+    async friendlyPlaylist(
+        playlist: Playlist,
+        force = false
+    ): Promise<FriendlyPlaylist> {
         const tracks = await this.tracks
             .where('id')
             .anyOf(playlist.trackIds)
@@ -132,9 +145,14 @@ export class Database extends Dexie {
 
         for (const trackId of playlist.trackIds) {
             const track = tracks.find((t) => t.id === trackId);
+
             if (track) {
                 const friendlyTrack = await this.friendlyTrack(track);
                 friendlyTracks.push(friendlyTrack);
+            } else {
+                if (force) {
+                    friendlyTracks.push(null);
+                }
             }
         }
 

@@ -21,6 +21,7 @@ export type Config = {
     audio_backend: 'native' | 'web';
     lyrics_save: boolean;
     locale: string | null;
+    plugins: string[];
     enabled_plugins: string[];
     theme: string;
     color: 'light' | 'dark' | 'oled';
@@ -35,6 +36,7 @@ const DEFAULT_CONFIG = {
     audio_backend: 'web',
     lyrics_save: false,
     locale: null,
+    plugins: [],
     enabled_plugins: ['com.cleftly.discordrpc'],
     theme: 'crimson',
     color: 'dark'
