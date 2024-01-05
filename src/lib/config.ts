@@ -20,6 +20,7 @@ export type Config = {
     lastfm_token: string;
     audio_backend: 'native' | 'web';
     lyrics_save: boolean;
+    lyrics_richsync: boolean;
     locale: string | null;
     plugins: string[];
     enabled_plugins: string[];
@@ -35,6 +36,7 @@ const DEFAULT_CONFIG = {
     lastfm_token: '',
     audio_backend: 'web',
     lyrics_save: false,
+    lyrics_richsync: true,
     locale: null,
     plugins: [],
     enabled_plugins: ['com.cleftly.discordrpc'],

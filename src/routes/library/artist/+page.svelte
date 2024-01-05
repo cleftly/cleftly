@@ -5,16 +5,21 @@
 
     $: artist = data.artist;
     // Sum of all track durations > 30 or > 6 songs
-    $: albums = data.albums?.filter(
-        (a) =>
-            a.tracks.length > 6 ||
-            a.tracks.reduce((sum, t) => sum + t.duration, 0) >= 30 * 60
-    );
-    $: singles = data.albums?.filter(
-        (a) =>
-            a.tracks.length <= 6 &&
-            a.tracks.reduce((sum, t) => sum + t.duration, 0) < 30 * 60
-    );
+    $: albums = data.albums
+        ?.filter(
+            (a) =>
+                a.tracks.length > 6 ||
+                a.tracks.reduce((sum, t) => sum + t.duration, 0) >= 30 * 60
+        )
+        .sort((a, b) => (b.year || 0) - (a.year || 0));
+
+    $: singles = data.albums
+        ?.filter(
+            (a) =>
+                a.tracks.length <= 6 &&
+                a.tracks.reduce((sum, t) => sum + t.duration, 0) < 30 * 60
+        )
+        .sort((a, b) => (b.year || 0) - (a.year || 0));
     $: tracks = data.tracks;
 
     export let data;
@@ -56,7 +61,7 @@
             <div class="flex space-x-4 overflow-y-auto">
                 {#if albums}
                     {#each albums as album}
-                        <Album titleClamp={1} {album} />
+                        <Album titleClamp={2} subtitle="year" {album} />
                     {/each}
                 {/if}
             </div>
@@ -66,7 +71,7 @@
             <div class="flex space-x-4 overflow-y-auto">
                 {#if singles}
                     {#each singles as single}
-                        <Album titleClamp={1} album={single} />
+                        <Album titleClamp={2} subtitle="year" album={single} />
                     {/each}
                 {/if}
             </div>

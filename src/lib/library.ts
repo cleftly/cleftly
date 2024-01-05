@@ -6,6 +6,7 @@ import { BaseDirectory, writeBinaryFile } from '@tauri-apps/api/fs';
 import { convertFileSrc } from '@tauri-apps/api/tauri';
 import { get } from 'svelte/store';
 import { join } from '@tauri-apps/api/path';
+import { invoke } from '@tauri-apps/api';
 import db, { type FriendlyTrack, type Track } from './db';
 import { parseMMMetadata } from './player';
 import { getStreamUrl, removeExtension, supportedExtensions } from './utils';
@@ -113,6 +114,21 @@ export async function updateLibrary() {
     );
 
     const config = await getOrCreateConfig();
+
+    await invoke('update_library', {
+        library: {
+            tracks: [],
+            artists: [],
+            albums: []
+        },
+        musicDirectories: config.music_directories
+    })
+        .then((res) => {
+            console.log(res);
+        })
+        .catch((e) => {
+            console.error(e);
+        });
 
     if (!config.music_directories || config.music_directories?.length < 1) {
         return;

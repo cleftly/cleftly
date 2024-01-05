@@ -67,7 +67,8 @@ async function fetchToken() {
 
 export async function getLyrics(
     track: FriendlyTrack,
-    retry = true
+    retry = true,
+    allowRichSync = true
 ): Promise<Lyrics | null> {
     // TODO: Rich Sync
     // See https://github.com/ciderapp/Cider/blob/c20001cd490696b4c91f8a10e41a5fb6c813ead4/src/renderer/main/vueapp.js#L3519
@@ -90,9 +91,8 @@ export async function getLyrics(
             track_spotify_id: '',
             q_duration: `${Math.round(track.duration)}`,
             f_subtitle_length: `${Math.round(track.duration)}`,
-            f_subtitle_length_max_deviation: `40`
-
-            // optional_calls: 'track.richsync'
+            f_subtitle_length_max_deviation: `40`,
+            optional_calls: allowRichSync ? 'track.richsync' : ''
         },
         headers: {
             Cookie: `AWSELBCORS=0; AWSELB=0; x-mxm-token-guid=${token};`,
@@ -124,6 +124,10 @@ export async function getLyrics(
         throw data;
     }
 
+    const trackRichLyrics =
+        data['message']?.['body']?.['macro_calls']?.['track.richsync.get']?.[
+            'message'
+        ]?.['body']?.['richsync']?.['richsync_body'];
     const trackLyricsGet =
         data['message']?.['body']?.['macro_calls']?.['track.lyrics.get']?.[
             'message'
@@ -134,14 +138,18 @@ export async function getLyrics(
         ]?.['body']?.['subtitle_list']?.[0]?.['subtitle']?.['subtitle_body'];
     const textSubtitles = trackLyricsGet?.['lyrics_body'];
     const credits = trackLyricsGet?.['lyrics_copyright'];
-    const format = liveSubtitles ? 'lrc' : 'plain';
+    const format = trackRichLyrics
+        ? 'richsync'
+        : liveSubtitles
+        ? 'lrc'
+        : 'plain';
 
     if (!liveSubtitles && !textSubtitles) {
         return null;
     }
 
     return {
-        lyrics: liveSubtitles || textSubtitles,
+        lyrics: trackRichLyrics || liveSubtitles || textSubtitles,
         format,
         credits
     };

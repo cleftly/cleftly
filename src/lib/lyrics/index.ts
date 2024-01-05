@@ -1,17 +1,16 @@
 import { readTextFile, writeTextFile } from '@tauri-apps/api/fs';
-import type { FriendlyTrack } from './db';
-import type { Lyrics } from './stores';
-import { removeExtension } from './utils';
-import { getLyrics as getLyricsMM } from './integrations/musixmatch';
-import { getOrCreateConfig } from './config';
+import type { FriendlyTrack } from '../db';
+import type { Lyrics } from '../stores';
+import { removeExtension } from '../utils';
+import { getLyrics as getLyricsMM } from '../integrations/musixmatch';
+import { getOrCreateConfig } from '../config';
 
-export async function getLyrics(
-    track: FriendlyTrack,
-    src?: string
-): Promise<Lyrics | null> {
-    if (src) {
+export async function getLyrics(track: FriendlyTrack): Promise<Lyrics | null> {
+    if (track.type === 'local') {
         try {
-            const lrc = await readTextFile(`${removeExtension(src)}.lrc`);
+            const lrc = await readTextFile(
+                `${removeExtension(track.location)}.lrc`
+            );
 
             return {
                 format: 'lrc',
@@ -20,7 +19,9 @@ export async function getLyrics(
             };
         } catch (e) {
             try {
-                const txt = await readTextFile(`${removeExtension(src)}.txt`);
+                const txt = await readTextFile(
+                    `${removeExtension(track.location)}.txt`
+                );
 
                 return {
                     format: 'plain',
@@ -33,7 +34,13 @@ export async function getLyrics(
         }
     }
 
-    const mmLyrics = await getLyricsMM(track);
+    const mmLyrics = await getLyricsMM(
+        track,
+        true,
+        (
+            await getOrCreateConfig()
+        ).lyrics_richsync
+    );
 
     if (!(await getOrCreateConfig()).lyrics_save) {
         return mmLyrics;

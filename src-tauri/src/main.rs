@@ -8,6 +8,7 @@ extern crate objc;
 mod audio;
 mod discordrpc;
 mod files;
+mod library;
 mod stream;
 
 use audio::Audio;
@@ -63,7 +64,8 @@ fn main() {
             audio::set_info,
             discordrpc::clear_activity,
             discordrpc::set_activity,
-            files::show_in_folder
+            files::show_in_folder,
+            library::update_library
         ])
         .run(tauri::generate_context!())
         .expect("Error while running application");

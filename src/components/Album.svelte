@@ -5,6 +5,7 @@
     export let album: FriendlyAlbum;
     export let titleClamp: 1 | 2 = 2;
     export let classes = '';
+    export let subtitle: 'artist' | 'year' = 'artist';
 </script>
 
 <div class="w-44 {classes}">
@@ -28,11 +29,17 @@
     </h3>
 
     <p class="ml-1 text-xs line-clamp-1">
-        <a
-            class="anchor no-underline"
-            href="/library/artist?id={encodeURIComponent(album.artist.id)}"
-        >
-            {album.artist.name}
-        </a>
+        {#if subtitle === 'artist'}
+            <a
+                class="anchor no-underline"
+                href="/library/artist?id={encodeURIComponent(album.artist.id)}"
+            >
+                {album.artist.name}
+            </a>
+        {:else}
+            <span class="text-gray-400">
+                {album.year}
+            </span>
+        {/if}
     </p>
 </div>

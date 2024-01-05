@@ -4,10 +4,10 @@ import { get } from 'svelte/store';
 import { invoke } from '@tauri-apps/api';
 import { getToastStore } from '@skeletonlabs/skeleton';
 import { _ } from 'svelte-i18n';
+import { getLyrics } from './lyrics';
 import type { FriendlyTrack } from './db';
 
 import { nowPlaying } from './integrations/lastfm';
-import { getLyrics } from './lyrics';
 import { getStreamUrl } from './utils';
 import { getOrCreateConfig } from './config';
 import db from './db';
@@ -64,7 +64,7 @@ async function play(
                   )
     });
 
-    getLyrics(track, track.location)
+    getLyrics(track)
         .then((lyrics) => {
             const aud = get(audio);
 
