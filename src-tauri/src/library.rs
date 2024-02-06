@@ -1,11 +1,12 @@
 /*
     Library scanning and management
 */
+use regex::Regex;
 use std::fs::read_dir;
 use std::path::{Path, PathBuf};
 use symphonia::core::formats::FormatOptions;
 use symphonia::core::io::MediaSourceStream;
-use symphonia::core::meta::{MetadataOptions, StandardTagKey, Tag};
+use symphonia::core::meta::{MetadataOptions, StandardTagKey};
 use symphonia::core::probe::{Hint, ProbeResult};
 
 const SUPPORTED_EXTENSIONS: &[&str] = &[
@@ -24,16 +25,17 @@ struct Metadata {
     artist: String,
     album: String,
     album_art: Option<AlbumArt>,
-    duration: Option<i32>,
+    duration: i32,
     genres: Vec<String>,
-    track_num: Option<i32>,
-    total_tracks: Option<i32>,
+    track_num: i32,
+    total_tracks: i32,
     disc_num: i32,
     total_discs: i32,
     year: Option<i32>,
 }
 
 #[derive(serde::Deserialize, serde::Serialize)]
+#[serde(rename_all = "camelCase")]
 pub struct Track {
     id: String,
     location: String,
@@ -53,6 +55,7 @@ pub struct Track {
 }
 
 #[derive(serde::Deserialize, serde::Serialize)]
+#[serde(rename_all = "camelCase")]
 pub struct Album {
     id: String,
     name: String,
@@ -64,6 +67,7 @@ pub struct Album {
 }
 
 #[derive(serde::Deserialize, serde::Serialize)]
+#[serde(rename_all = "camelCase")]
 pub struct Artist {
     id: String,
     name: String,
@@ -72,18 +76,28 @@ pub struct Artist {
 }
 
 #[derive(serde::Deserialize, serde::Serialize)]
+#[serde(rename_all = "camelCase")]
 pub struct Library {
     tracks: Vec<Track>,
     albums: Vec<Album>,
     artists: Vec<Artist>,
 }
 
+fn idify(name: &str) -> String {
+    let reg = Regex::new(r"^[a-zA-Z0-9]+$").unwrap();
+    format!("{:x}", md5::compute(reg.replace_all(name, "").as_bytes()))
+}
+
 fn recurse(path: impl AsRef<Path>) -> Vec<PathBuf> {
-    let Ok(entries) = read_dir(path) else { return vec![] };
+    let Ok(entries) = read_dir(path) else {
+        return vec![];
+    };
     entries
         .flatten()
         .flat_map(|entry| {
-            let Ok(meta) = entry.metadata() else { return vec![] };
+            let Ok(meta) = entry.metadata() else {
+                return vec![];
+            };
             if meta.is_dir() {
                 return recurse(entry.path());
             }
@@ -105,6 +119,7 @@ fn enum_to_string(value: StandardTagKey) -> &'static str {
         StandardTagKey::TrackNumber => "TrackNumber",
         StandardTagKey::TrackTotal => "TrackTotal",
         StandardTagKey::ReleaseDate => "ReleaseDate",
+        StandardTagKey::Date => "Date",
         StandardTagKey::TrackTitle => "TrackTitle",
         _ => "Unknown",
     }
@@ -112,7 +127,6 @@ fn enum_to_string(value: StandardTagKey) -> &'static str {
 
 fn parse_metadata_tags(mut probed: ProbeResult, file: PathBuf) -> Result<Metadata, String> {
     // Convert all tags with std_key to hashmap
-
     if let Some(metadata_rev) = probed.format.metadata().current() {
         let mut tags_map: std::collections::HashMap<String, symphonia::core::meta::Value> =
             std::collections::HashMap::new();
@@ -136,7 +150,6 @@ fn parse_metadata_tags(mut probed: ProbeResult, file: PathBuf) -> Result<Metadat
             .unwrap_or("Unknown Album")
             .to_string();
 
-        // parent().parent() or "Unknown Artist"
         let fallback_artist = file
             .parent()
             .and_then(|parent| parent.parent())
@@ -145,8 +158,9 @@ fn parse_metadata_tags(mut probed: ProbeResult, file: PathBuf) -> Result<Metadat
             .unwrap_or("Unknown Artist")
             .to_string();
 
+        println!("YEar: {:?}", tags_map.get("ReleaseDate"));
+        println!("Year: {:?}", tags_map.get("Date"));
         Ok(Metadata {
-            // TrackTitle or fallback_title
             title: tags_map
                 .get("TrackTitle")
                 .map(|v| v.to_string())
@@ -169,7 +183,8 @@ fn parse_metadata_tags(mut probed: ProbeResult, file: PathBuf) -> Result<Metadat
             duration: tags_map
                 .get("Duration")
                 .map(|v| v.to_string())
-                .and_then(|v| v.parse::<i32>().ok()),
+                .and_then(|v| v.parse::<i32>().ok())
+                .unwrap_or(0),
             genres: tags_map
                 .get("Genre")
                 .map(|v| vec![v.to_string()])
@@ -177,11 +192,13 @@ fn parse_metadata_tags(mut probed: ProbeResult, file: PathBuf) -> Result<Metadat
             track_num: tags_map
                 .get("TrackNumber")
                 .map(|v| v.to_string())
-                .and_then(|v| v.parse::<i32>().ok()),
+                .and_then(|v| v.parse::<i32>().ok())
+                .unwrap_or(1),
             total_tracks: tags_map
                 .get("TrackTotal")
                 .map(|v| v.to_string())
-                .and_then(|v| v.parse::<i32>().ok()),
+                .and_then(|v| v.parse::<i32>().ok())
+                .unwrap_or(1),
             disc_num: tags_map
                 .get("DiscNumber")
                 .map(|v| v.to_string())
@@ -192,7 +209,17 @@ fn parse_metadata_tags(mut probed: ProbeResult, file: PathBuf) -> Result<Metadat
                 .map(|v| v.to_string())
                 .and_then(|v| v.parse::<i32>().ok())
                 .unwrap_or(1),
-            year: Some(2000), // TODO
+            year: tags_map
+                .get("ReleaseDate")
+                .or_else(|| tags_map.get("Date"))
+                .map(|v| {
+                    v.to_string()
+                        .split('-')
+                        .next()
+                        .unwrap_or("")
+                        .parse::<i32>()
+                        .unwrap()
+                }),
         })
     } else {
         Err("Failed to parse metadata".to_string())
@@ -200,12 +227,19 @@ fn parse_metadata_tags(mut probed: ProbeResult, file: PathBuf) -> Result<Metadat
 }
 
 #[tauri::command(async)] // Run me in a separate thread
-pub fn update_library(library: Library, music_directories: Vec<String>) -> Result<(), String> {
+pub fn update_library(
+    _library: Library,
+    music_directories: Vec<String>,
+) -> Result<Library, String> {
     if music_directories.is_empty() {
-        return Ok(());
+        return Ok(Library {
+            tracks: vec![],
+            albums: vec![],
+            artists: vec![],
+        });
     }
 
-    let new_library = Library {
+    let mut new_library = Library {
         tracks: vec![],
         albums: vec![],
         artists: vec![],
@@ -217,7 +251,7 @@ pub fn update_library(library: Library, music_directories: Vec<String>) -> Resul
         .map(|dir| recurse(PathBuf::from(dir)))
         .flatten()
         .filter(|path| {
-            !path.iter().any(|f| {
+            !path.iter().any(|_f| {
                 path.file_name()
                     .unwrap()
                     .to_str()
@@ -236,7 +270,7 @@ pub fn update_library(library: Library, music_directories: Vec<String>) -> Resul
 
     // Files named cover.png/jpg/jpeg/gif
     // TODO
-    let cover_files = files.clone().into_iter().filter(|path| {
+    let _cover_files = files.clone().into_iter().filter(|path| {
         str::to_lowercase(
             path.with_extension("")
                 .file_name()
@@ -263,9 +297,66 @@ pub fn update_library(library: Library, music_directories: Vec<String>) -> Resul
             .format(&hint, mss, &fmt_opts, &meta_opts)
             .expect("unsupported format");
 
-        let metadata = parse_metadata_tags(probed, file);
+        let metadata = parse_metadata_tags(probed, file.clone());
 
-        if let Ok(metadata) = metadata {}
+        if let Ok(metadata) = metadata {
+            let artist_id = idify(&metadata.artist);
+            let album_id = idify(&metadata.album);
+            let id = idify(format!("{}-{}-{}", &metadata.title, artist_id, album_id).as_str());
+
+            // Create artist if it doesn't exist in the library
+            if !new_library
+                .artists
+                .iter()
+                .any(|artist| artist.id == artist_id)
+            {
+                new_library.artists.push(Artist {
+                    id: artist_id.clone(),
+                    name: metadata.artist,
+                    genres: vec![],
+                    created_at: "2022-01-01T00:00:00.000Z".to_string(),
+                });
+            }
+
+            // Create album if it doesn't exist in the library
+            if !new_library.albums.iter().any(|album| album.id == album_id) {
+                new_library.albums.push(Album {
+                    id: album_id.clone(),
+                    name: metadata.album,
+                    artist_id: artist_id.clone(),
+                    genres: metadata.genres.clone(),
+                    album_art: None,
+                    year: metadata.year,
+                    created_at: "2022-01-01T00:00:00.000Z".to_string(), // TODO
+                })
+            }
+
+            // Create track if it doesn't exist in the library
+            if !new_library
+                .tracks
+                .iter()
+                .any(|track| track.id == id && track.album_id == album_id)
+            {
+                new_library.tracks.push(Track {
+                    id,
+                    title: metadata.title,
+                    artist_id: artist_id,
+                    album_id: album_id,
+                    track_num: metadata.track_num,
+                    disc_num: metadata.disc_num,
+                    total_discs: metadata.total_discs,
+                    album_art: None,
+                    duration: metadata.duration,
+                    genres: metadata.genres,
+                    location: file.to_str().unwrap().to_string(),
+                    total_tracks: metadata.total_tracks,
+                    r#type: None,
+                    created_at: "2022-01-01T00:00:00.000Z".to_string(), // TODO
+                    last_played_at: "2022-01-01T00:00:00.000Z".to_string(),
+                });
+            }
+        }
     }
-    Ok(())
+
+    Ok(new_library)
 }

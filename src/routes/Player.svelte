@@ -230,10 +230,12 @@
                     accent="variant-filled-primary"
                     class="w-full"
                     bind:value={$audio.currentTime}
-                    max={Math.floor($audio.track.duration)}
+                    max={Math.floor($audio.track.duration || $audio.duration)}
                     step={1}
                 />
-                <p class="text-xs">{getTimestamp($audio.track.duration)}</p>
+                <p class="text-xs">
+                    {getTimestamp($audio.track.duration || $audio.duration)}
+                </p>
             </div>
             <div class="flex items-center space-x-2">
                 <button

@@ -16,7 +16,7 @@ use declarative_discord_rich_presence::DeclarativeDiscordIpcClient;
 use rodio::{OutputStream, Sink};
 use std::sync::Mutex;
 use stream::handle_stream_request;
-use tauri::{Manager, WindowEvent};
+use tauri::{Manager};
 
 #[cfg(target_os = "macos")]
 mod window_ext;
@@ -45,7 +45,7 @@ fn main() {
 
             Ok(())
         })
-        .on_window_event(|e| {
+        .on_window_event(|_e| {
             #[cfg(target_os = "macos")]
             {
                 if let WindowEvent::Resized(..) = e.event() {

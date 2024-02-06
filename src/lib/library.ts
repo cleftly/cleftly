@@ -1,21 +1,13 @@
 /* 
 Access and management of user library (Music directories, playlists, etc.)
 */
-import * as mm from 'music-metadata-browser';
 import { BaseDirectory, writeBinaryFile } from '@tauri-apps/api/fs';
 import { convertFileSrc } from '@tauri-apps/api/tauri';
 import { get } from 'svelte/store';
 import { join } from '@tauri-apps/api/path';
 import { invoke } from '@tauri-apps/api';
 import db, { type FriendlyTrack, type Track } from './db';
-import { parseMMMetadata } from './player';
-import { getStreamUrl, removeExtension, supportedExtensions } from './utils';
-import {
-    getOrCreateCacheDir,
-    getOrCreateConfig,
-    splitPath,
-    walkDir
-} from './config';
+import { getOrCreateCacheDir, getOrCreateConfig } from './config';
 import { progress } from './stores';
 
 export async function idify(str: string) {
@@ -115,116 +107,147 @@ export async function updateLibrary() {
 
     const config = await getOrCreateConfig();
 
-    await invoke('update_library', {
-        library: {
-            tracks: [],
-            artists: [],
-            albums: []
-        },
-        musicDirectories: config.music_directories
-    })
-        .then((res) => {
-            console.log(res);
-        })
-        .catch((e) => {
-            console.error(e);
-        });
-
     if (!config.music_directories || config.music_directories?.length < 1) {
         return;
     }
 
-    const library = await db.tracks.toArray();
-
-    const files = (
-        await Promise.all(
-            config.music_directories.map(async (dir: string) => {
-                return await walkDir(dir);
-            })
-        )
-    )
-        .flat()
-        .filter((file: string) => {
-            return (
-                supportedExtensions.includes(
-                    file.split('.').slice(-1)[0].toLowerCase()
-                ) &&
-                !library.some((item) => file === item.location) &&
-                !splitPath(file).slice(-1)[0].startsWith('._')
-            );
-        });
-
-    const res = [];
-
-    for (const file of files) {
-        let metadata;
-
-        try {
-            metadata = parseMMMetadata(
-                await mm.fetchFromUrl(await getStreamUrl(file))
-            );
-        } catch (e) {
-            console.error(e);
-            metadata = null;
+    // Call the Rust update_library function
+    await invoke('update_library', {
+        musicDirectories: config.music_directories,
+        library: {
+            tracks: [],
+            artists: [],
+            albums: []
         }
-
-        const title =
-            metadata?.title || removeExtension(splitPath(file).slice(-1)[0]);
-        const album =
-            metadata?.album ||
-            splitPath(file).reverse()[1] ||
-            removeExtension(splitPath(file).reverse()[1]) ||
-            'Unknown Album';
-        const artist =
-            metadata?.artist ||
-            splitPath(file).reverse()[2] ||
-            'Unknown Artist';
-        const totalTracks = metadata?.totalTracks || 1;
-        const artistId = await getOrCreateArtist(artist);
-        const albumId = await getAlbumId({
-            name: album,
-            artistId
-        });
-        const id = await idify(`${title}-${artistId}-${albumId}`);
-
-        await getOrCreateAlbum({
-            id: albumId,
-            name: album,
-            artistId,
-            genres: metadata?.genres || [],
-            albumArt: metadata?.albumArt
-                ? await saveArt(albumId, metadata.albumArt as Blob)
-                : undefined,
-            year: metadata?.year
+    })
+        .then((newLibrary) => {
+            console.dir(newLibrary.tracks);
+            db.transaction('rw', db.tracks, db.artists, db.albums, async () => {
+                await db.tracks.clear();
+                await db.artists.clear();
+                await db.albums.clear();
+                await db.tracks.bulkAdd(newLibrary.tracks);
+                await db.artists.bulkAdd(newLibrary.artists);
+                await db.albums.bulkAdd(newLibrary.albums);
+            });
+        })
+        .catch((e) => {
+            console.error(e);
+            throw e; // Re-throw the error to stop execution
         });
 
-        const data = {
-            id,
-            title,
-            albumId,
-            artistId,
-            genres: metadata?.genres || [],
-            type: 'local' as const,
-            location: file,
-            duration: metadata?.duration || 0,
-            trackNum: metadata?.trackNum || 1,
-            totalTracks,
-            discNum: metadata?.discNum || 1,
-            totalDiscs: metadata?.totalDiscs || 1,
-            createdAt: new Date()
-        };
+    // const config = await getOrCreateConfig();
 
-        res.push(data);
+    // await invoke('update_library', {
+    //     library: {
+    //         tracks: [],
+    //         artists: [],
+    //         albums: []
+    //     },
+    //     musicDirectories: config.music_directories
+    // })
+    //     .then((res) => {
+    //         console.log(res);
+    //     })
+    //     .catch((e) => {
+    //         console.error(e);
+    //     });
 
-        progress.set(
-            get(progress).set('updateLibrary', {
-                title: 'Updating library',
-                progress: res.length / files.length
-            })
-        );
-    }
+    // if (!config.music_directories || config.music_directories?.length < 1) {
+    //     return;
+    // }
 
-    await db.tracks.bulkPut(res);
+    // const library = await db.tracks.toArray();
+
+    // const files = (
+    //     await Promise.all(
+    //         config.music_directories.map(async (dir: string) => {
+    //             return await walkDir(dir);
+    //         })
+    //     )
+    // )
+    //     .flat()
+    //     .filter((file: string) => {
+    //         return (
+    //             supportedExtensions.includes(
+    //                 file.split('.').slice(-1)[0].toLowerCase()
+    //             ) &&
+    //             !library.some((item) => file === item.location) &&
+    //             !splitPath(file).slice(-1)[0].startsWith('._')
+    //         );
+    //     });
+
+    // const res = [];
+
+    // for (const file of files) {
+    //     let metadata;
+
+    //     try {
+    //         metadata = parseMMMetadata(
+    //             await mm.fetchFromUrl(await getStreamUrl(file))
+    //         );
+    //     } catch (e) {
+    //         console.error(e);
+    //         metadata = null;
+    //     }
+
+    //     const title =
+    //         metadata?.title || removeExtension(splitPath(file).slice(-1)[0]);
+    //     const album =
+    //         metadata?.album ||
+    //         splitPath(file).reverse()[1] ||
+    //         removeExtension(splitPath(file).reverse()[1]) ||
+    //         'Unknown Album';
+    //     const artist =
+    //         metadata?.artist ||
+    //         splitPath(file).reverse()[2] ||
+    //         'Unknown Artist';
+    //     const totalTracks = metadata?.totalTracks || 1;
+    //     const artistId = await getOrCreateArtist(artist);
+    //     const albumId = await getAlbumId({
+    //         name: album,
+    //         artistId
+    //     });
+    //     const id = await idify(`${title}-${artistId}-${albumId}`);
+
+    //     await getOrCreateAlbum({
+    //         id: albumId,
+    //         name: album,
+    //         artistId,
+    //         genres: metadata?.genres || [],
+    //         albumArt: metadata?.albumArt
+    //             ? await saveArt(albumId, metadata.albumArt as Blob)
+    //             : undefined,
+    //         year: metadata?.year
+    //     });
+
+    //     const data = {
+    //         id,
+    //         title,
+    //         albumId,
+    //         artistId,
+    //         genres: metadata?.genres || [],
+    //         type: 'local' as const,
+    //         location: file,
+    //         duration: metadata?.duration || 0,
+    //         trackNum: metadata?.trackNum || 1,
+    //         totalTracks,
+    //         discNum: metadata?.discNum || 1,
+    //         totalDiscs: metadata?.totalDiscs || 1,
+    //         createdAt: new Date()
+    //     };
+
+    //     res.push(data);
+
+    //     progress.set(
+    //         get(progress).set('updateLibrary', {
+    //             title: 'Updating library',
+    //             progress: res.length / files.length
+    //         })
+    //     );
+    // }
+
+    // await db.tracks.bulkPut(res);
 
     progress.set(
         get(progress).set('updateLibrary', {
