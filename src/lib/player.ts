@@ -1,4 +1,5 @@
 import type * as mm from 'music-metadata-browser';
+import { platform } from '@tauri-apps/api/os';
 
 import { get } from 'svelte/store';
 import { invoke } from '@tauri-apps/api';
@@ -146,9 +147,22 @@ export async function playTrack(
     const backend = (await getOrCreateConfig()).audio_backend;
 
     if (backend === 'web') {
-        const streamUrl = await getStreamUrl(track.location);
+        if ((await platform()) === 'linux') {
+            console.log('Linux');
+            const streamUrl = await getStreamUrl(track.location);
 
-        await play(streamUrl, track, queued, index, backend);
+            // Convert to blob as streaming is broken on linux
+
+            const blob = await fetch(streamUrl).then((res) => res.blob());
+
+            const url = URL.createObjectURL(blob);
+
+            await play(url, track, queued, index, backend);
+        } else {
+            const streamUrl = await getStreamUrl(track.location);
+
+            await play(streamUrl, track, queued, index, backend);
+        }
     } else {
         await play(track.location, track, queued, index, backend);
     }
