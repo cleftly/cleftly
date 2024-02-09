@@ -122,6 +122,15 @@ export async function updateLibrary() {
     })
         .then((newLibrary) => {
             console.dir(newLibrary.tracks);
+
+            // Convert album art locations into stream URLs
+            newLibrary.albums.forEach((t) => {
+                if (t.albumArt) {
+                    console.log(t.albumArt);
+                    t.albumArt = convertFileSrc(t.albumArt, 'stream');
+                }
+            });
+
             db.transaction('rw', db.tracks, db.artists, db.albums, async () => {
                 await db.tracks.clear();
                 await db.artists.clear();

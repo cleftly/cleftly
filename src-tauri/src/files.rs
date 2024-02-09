@@ -7,7 +7,7 @@ use std::{fs::metadata, path::PathBuf};
 /*
  Credits: https://github.com/tauri-apps/tauri/issues/4062#issuecomment-1338048169 by @elibroftw
 */
-#[tauri::command]
+#[tauri::command(async)]
 pub fn show_in_folder(path: String) {
     #[cfg(target_os = "windows")]
     {

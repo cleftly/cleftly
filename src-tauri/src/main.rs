@@ -16,7 +16,7 @@ use declarative_discord_rich_presence::DeclarativeDiscordIpcClient;
 use rodio::{OutputStream, Sink};
 use std::sync::Mutex;
 use stream::handle_stream_request;
-use tauri::{Manager};
+use tauri::Manager;
 
 #[cfg(target_os = "macos")]
 mod window_ext;

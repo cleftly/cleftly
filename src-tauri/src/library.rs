@@ -2,12 +2,14 @@
     Library scanning and management
 */
 use regex::Regex;
+use std::collections::HashMap;
 use std::fs::read_dir;
 use std::path::{Path, PathBuf};
 use symphonia::core::formats::FormatOptions;
 use symphonia::core::io::MediaSourceStream;
 use symphonia::core::meta::{MetadataOptions, StandardTagKey};
 use symphonia::core::probe::{Hint, ProbeResult};
+use tauri::utils::debug_eprintln;
 
 const SUPPORTED_EXTENSIONS: &[&str] = &[
     "wav", "wave", "mp3", "m4a", "aac", "ogg", "flac", "webm", "caf",
@@ -128,8 +130,7 @@ fn enum_to_string(value: StandardTagKey) -> &'static str {
 fn parse_metadata_tags(mut probed: ProbeResult, file: PathBuf) -> Result<Metadata, String> {
     // Convert all tags with std_key to hashmap
     if let Some(metadata_rev) = probed.format.metadata().current() {
-        let mut tags_map: std::collections::HashMap<String, symphonia::core::meta::Value> =
-            std::collections::HashMap::new();
+        let mut tags_map: HashMap<String, symphonia::core::meta::Value> = HashMap::new();
 
         for tag in metadata_rev.tags().into_iter() {
             if let Some(std_key) = tag.std_key {
@@ -158,8 +159,6 @@ fn parse_metadata_tags(mut probed: ProbeResult, file: PathBuf) -> Result<Metadat
             .unwrap_or("Unknown Artist")
             .to_string();
 
-        println!("YEar: {:?}", tags_map.get("ReleaseDate"));
-        println!("Year: {:?}", tags_map.get("Date"));
         Ok(Metadata {
             title: tags_map
                 .get("TrackTitle")
@@ -226,8 +225,38 @@ fn parse_metadata_tags(mut probed: ProbeResult, file: PathBuf) -> Result<Metadat
     }
 }
 
+fn get_or_add_album_art(
+    cache_dir: PathBuf,
+    album_id: String,
+    album_art: AlbumArt,
+) -> Result<PathBuf, String> {
+    let mimes = HashMap::from([
+        ("image/jpeg", "jpg"),
+        ("image/png", "png"),
+        ("image/gif", "gif"),
+    ]);
+
+    let mut ext = "jpg";
+
+    // Try to match the mime type to an extension
+    if let Some(mime) = mimes.get(album_art.mime_type.as_str()) {
+        ext = mime;
+    }
+
+    let path = cache_dir.join(format!("{}.{}", album_id, ext).as_str());
+
+    if !cache_dir.exists() {
+        std::fs::create_dir_all(&cache_dir).map_err(|e| e.to_string())?;
+    }
+
+    std::fs::write(&path, album_art.data).map_err(|e| e.to_string())?;
+
+    Ok(path)
+}
+
 #[tauri::command(async)] // Run me in a separate thread
 pub fn update_library(
+    app_handle: tauri::AppHandle,
     _library: Library,
     music_directories: Vec<String>,
 ) -> Result<Library, String> {
@@ -245,7 +274,6 @@ pub fn update_library(
         artists: vec![],
     };
 
-    // Walk through music directories
     let all_files = music_directories
         .iter()
         .map(|dir| recurse(PathBuf::from(dir)))
@@ -314,18 +342,39 @@ pub fn update_library(
                     id: artist_id.clone(),
                     name: metadata.artist,
                     genres: vec![],
-                    created_at: "2022-01-01T00:00:00.000Z".to_string(),
+                    created_at: "2022-01-01T00:00:00.000Z".to_string(), // TODO
                 });
             }
 
             // Create album if it doesn't exist in the library
             if !new_library.albums.iter().any(|album| album.id == album_id) {
+                // Get album art if it exists
+                let album_art = metadata.album_art;
+
+                let mut album_art_path = None;
+
+                if let Some(album_art) = album_art {
+                    album_art_path = match get_or_add_album_art(
+                        app_handle.path_resolver().app_cache_dir().unwrap(),
+                        album_id.clone(),
+                        album_art,
+                    ) {
+                        Ok(path) => Some(path.to_str().unwrap_or_default().to_string()),
+                        Err(err) => {
+                            eprintln!("Failed to get or add album art: {}", err);
+                            None
+                        }
+                    };
+                }
+
+                println!("Album art path: {:?}", album_art_path);
+
                 new_library.albums.push(Album {
                     id: album_id.clone(),
                     name: metadata.album,
                     artist_id: artist_id.clone(),
                     genres: metadata.genres.clone(),
-                    album_art: None,
+                    album_art: album_art_path,
                     year: metadata.year,
                     created_at: "2022-01-01T00:00:00.000Z".to_string(), // TODO
                 })
@@ -350,9 +399,9 @@ pub fn update_library(
                     genres: metadata.genres,
                     location: file.to_str().unwrap().to_string(),
                     total_tracks: metadata.total_tracks,
-                    r#type: None,
+                    r#type: Some("local".to_string()),
                     created_at: "2022-01-01T00:00:00.000Z".to_string(), // TODO
-                    last_played_at: "2022-01-01T00:00:00.000Z".to_string(),
+                    last_played_at: "1970-01-01T00:00:00.000Z".to_string(),
                 });
             }
         }
