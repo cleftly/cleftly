@@ -10,7 +10,7 @@ mod discordrpc;
 mod files;
 mod library;
 mod stream;
-
+mod ytdl;
 use audio::Audio;
 use declarative_discord_rich_presence::DeclarativeDiscordIpcClient;
 use rodio::{OutputStream, Sink};
@@ -65,7 +65,8 @@ fn main() {
             discordrpc::clear_activity,
             discordrpc::set_activity,
             files::show_in_folder,
-            library::update_library
+            library::update_library,
+            ytdl::get_audio_url
         ])
         .run(tauri::generate_context!())
         .expect("Error while running application");
