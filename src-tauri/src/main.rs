@@ -5,6 +5,9 @@
 #[macro_use]
 extern crate objc;
 
+#[cfg(target_os = "linux")]
+pub struct DbusState(Mutex<Option<dbus::blocking::SyncConnection>>);
+
 mod audio;
 mod discordrpc;
 mod files;
@@ -30,6 +33,11 @@ fn main() {
 
     tauri::Builder::default()
         .setup(|app| {
+            #[cfg(target_os = "linux")]
+            app.manage(DbusState(Mutex::new(
+                dbus::blocking::SyncConnection::new_session().ok(),
+            )));
+
             #[cfg(target_os = "macos")]
             {
                 let win = app.get_window("main").unwrap();

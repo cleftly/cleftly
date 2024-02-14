@@ -9,7 +9,7 @@ use symphonia::core::formats::FormatOptions;
 use symphonia::core::io::MediaSourceStream;
 use symphonia::core::meta::{MetadataOptions, StandardTagKey};
 use symphonia::core::probe::{Hint, ProbeResult};
-use tauri::utils::debug_eprintln;
+
 
 const SUPPORTED_EXTENSIONS: &[&str] = &[
     "wav", "wave", "mp3", "m4a", "aac", "ogg", "flac", "webm", "caf",
