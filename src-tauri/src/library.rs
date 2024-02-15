@@ -10,10 +10,13 @@ use symphonia::core::io::MediaSourceStream;
 use symphonia::core::meta::{MetadataOptions, StandardTagKey};
 use symphonia::core::probe::{Hint, ProbeResult};
 
-
 const SUPPORTED_EXTENSIONS: &[&str] = &[
     "wav", "wave", "mp3", "m4a", "aac", "ogg", "flac", "webm", "caf",
 ];
+
+macro_rules! debug_println {
+    ($($arg:tt)*) => (if ::std::cfg!(debug_assertions) { ::std::println!($($arg)*); })
+}
 
 #[derive(Debug)]
 struct AlbumArt {
@@ -25,6 +28,7 @@ struct AlbumArt {
 struct Metadata {
     title: String,
     artist: String,
+    album_artist: String,
     album: String,
     album_art: Option<AlbumArt>,
     duration: i32,
@@ -36,7 +40,7 @@ struct Metadata {
     year: Option<i32>,
 }
 
-#[derive(serde::Deserialize, serde::Serialize)]
+#[derive(serde::Deserialize, serde::Serialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct Track {
     id: String,
@@ -56,7 +60,7 @@ pub struct Track {
     last_played_at: String,
 }
 
-#[derive(serde::Deserialize, serde::Serialize)]
+#[derive(serde::Deserialize, serde::Serialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct Album {
     id: String,
@@ -68,7 +72,7 @@ pub struct Album {
     year: Option<i32>,
 }
 
-#[derive(serde::Deserialize, serde::Serialize)]
+#[derive(serde::Deserialize, serde::Serialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct Artist {
     id: String,
@@ -77,7 +81,7 @@ pub struct Artist {
     created_at: String,
 }
 
-#[derive(serde::Deserialize, serde::Serialize)]
+#[derive(serde::Deserialize, serde::Serialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct Library {
     tracks: Vec<Track>,
@@ -86,7 +90,7 @@ pub struct Library {
 }
 
 fn idify(name: &str) -> String {
-    let reg = Regex::new(r"^[a-zA-Z0-9]+$").unwrap();
+    let reg = Regex::new("[^a-zA-Z0-9 -]").unwrap();
     format!("{:x}", md5::compute(reg.replace_all(name, "").as_bytes()))
 }
 
@@ -115,6 +119,7 @@ fn enum_to_string(value: StandardTagKey) -> &'static str {
     match value {
         StandardTagKey::Album => "Album",
         StandardTagKey::Artist => "Artist",
+        StandardTagKey::AlbumArtist => "AlbumArtist",
         StandardTagKey::DiscNumber => "DiscNumber",
         StandardTagKey::DiscTotal => "DiscTotal",
         StandardTagKey::Genre => "Genre",
@@ -168,6 +173,11 @@ fn parse_metadata_tags(mut probed: ProbeResult, file: PathBuf) -> Result<Metadat
                 .get("Artist")
                 .map(|v| v.to_string())
                 .or_else(|| tags_map.get("AlbumArtist").map(|v| v.to_string()))
+                .unwrap_or(fallback_artist.clone()),
+            album_artist: tags_map
+                .get("AlbumArtist")
+                .map(|v| v.to_string())
+                .or_else(|| tags_map.get("Artist").map(|v| v.to_string()))
                 .unwrap_or(fallback_artist),
             album: tags_map
                 .get("Album")
@@ -217,7 +227,7 @@ fn parse_metadata_tags(mut probed: ProbeResult, file: PathBuf) -> Result<Metadat
                         .next()
                         .unwrap_or("")
                         .parse::<i32>()
-                        .unwrap()
+                        .unwrap_or(0)
                 }),
         })
     } else {
@@ -257,7 +267,7 @@ fn get_or_add_album_art(
 #[tauri::command(async)] // Run me in a separate thread
 pub fn update_library(
     app_handle: tauri::AppHandle,
-    _library: Library,
+    library: Library,
     music_directories: Vec<String>,
 ) -> Result<Library, String> {
     if music_directories.is_empty() {
@@ -268,11 +278,7 @@ pub fn update_library(
         });
     }
 
-    let mut new_library = Library {
-        tracks: vec![],
-        albums: vec![],
-        artists: vec![],
-    };
+    let mut new_library = library.clone();
 
     let all_files = music_directories
         .iter()
@@ -288,7 +294,7 @@ pub fn update_library(
             })
         });
 
-    let files = all_files.filter(|path| {
+    let files = all_files.clone().filter(|path| {
         SUPPORTED_EXTENSIONS.iter().any(|ext| {
             path.extension()
                 .map(|pext| pext.to_str().unwrap() == ext.to_string().as_str())
@@ -296,9 +302,16 @@ pub fn update_library(
         })
     });
 
+    // Files not in library
+    let new_files = files.clone().filter(|path| {
+        !library
+            .tracks
+            .iter()
+            .any(|track| track.location == path.to_str().unwrap())
+    });
+
     // Files named cover.png/jpg/jpeg/gif
-    // TODO
-    let _cover_files = files.clone().into_iter().filter(|path| {
+    let cover_files = all_files.clone().into_iter().filter(|path| {
         str::to_lowercase(
             path.with_extension("")
                 .file_name()
@@ -306,12 +319,21 @@ pub fn update_library(
                 .to_str()
                 .unwrap(),
         ) == "cover"
+            && !(SUPPORTED_EXTENSIONS.iter().any(|ext| {
+                path.extension()
+                    .map(|pext| pext.to_str().unwrap() == ext.to_string().as_str())
+                    .unwrap_or(false)
+            }))
     });
 
-    println!("{} files found", files.clone().count());
+    debug_println!(
+        "{} files found, {} new",
+        files.clone().count(),
+        new_files.clone().count()
+    );
 
-    for file in files {
-        println!("Scanning {}", file.display());
+    for file in new_files {
+        debug_println!("Scanning {}", file.display());
         let src = std::fs::File::open(file.as_path()).unwrap();
         let mss = MediaSourceStream::new(Box::new(src), Default::default());
         let mut hint = Hint::new();
@@ -321,18 +343,33 @@ pub fn update_library(
         let fmt_opts: FormatOptions = Default::default();
 
         // Probe the media source.
-        let probed = symphonia::default::get_probe()
-            .format(&hint, mss, &fmt_opts, &meta_opts)
-            .expect("unsupported format");
+        let Ok(probed) = symphonia::default::get_probe().format(&hint, mss, &fmt_opts, &meta_opts)
+        else {
+            continue;
+        };
 
         let metadata = parse_metadata_tags(probed, file.clone());
 
         if let Ok(metadata) = metadata {
+            let album_artist_id = idify(&metadata.album_artist);
             let artist_id = idify(&metadata.artist);
-            let album_id = idify(&metadata.album);
+            let album_id = idify(format!("{}-{}", &metadata.album, album_artist_id).as_str());
             let id = idify(format!("{}-{}-{}", &metadata.title, artist_id, album_id).as_str());
 
             // Create artist if it doesn't exist in the library
+            if !new_library
+                .artists
+                .iter()
+                .any(|artist| artist.id == album_artist_id)
+            {
+                new_library.artists.push(Artist {
+                    id: album_artist_id.clone(),
+                    name: metadata.album_artist,
+                    genres: vec![],
+                    created_at: "2022-01-01T00:00:00.000Z".to_string(), // TODO
+                });
+            }
+
             if !new_library
                 .artists
                 .iter()
@@ -348,31 +385,42 @@ pub fn update_library(
 
             // Create album if it doesn't exist in the library
             if !new_library.albums.iter().any(|album| album.id == album_id) {
-                // Get album art if it exists
-                let album_art = metadata.album_art;
+                // If cover_files len > 0, use the first file
+                let mut album_art_path: Option<String> = None;
 
-                let mut album_art_path = None;
+                // Find cover_files wiht same directory
+                let covers = cover_files
+                    .clone()
+                    .filter(|cover_file| cover_file.parent().unwrap() == file.parent().unwrap());
 
-                if let Some(album_art) = album_art {
-                    album_art_path = match get_or_add_album_art(
-                        app_handle.path_resolver().app_cache_dir().unwrap(),
-                        album_id.clone(),
-                        album_art,
-                    ) {
-                        Ok(path) => Some(path.to_str().unwrap_or_default().to_string()),
-                        Err(err) => {
-                            eprintln!("Failed to get or add album art: {}", err);
-                            None
-                        }
-                    };
+                if covers.clone().count() > 0 {
+                    album_art_path =
+                        Some(covers.clone().next().unwrap().to_str().unwrap().to_string());
+                } else {
+                    // Get album art if it exists
+                    let album_art = metadata.album_art;
+
+                    if let Some(album_art) = album_art {
+                        album_art_path = match get_or_add_album_art(
+                            app_handle.path_resolver().app_cache_dir().unwrap(),
+                            album_id.clone(),
+                            album_art,
+                        ) {
+                            Ok(path) => Some(path.to_str().unwrap_or_default().to_string()),
+                            Err(err) => {
+                                eprintln!("Failed to get or add album art: {}", err);
+                                None
+                            }
+                        };
+                    }
                 }
 
-                println!("Album art path: {:?}", album_art_path);
+                debug_println!("Album art path: {:?}", album_art_path);
 
                 new_library.albums.push(Album {
                     id: album_id.clone(),
                     name: metadata.album,
-                    artist_id: artist_id.clone(),
+                    artist_id: album_artist_id.clone(),
                     genres: metadata.genres.clone(),
                     album_art: album_art_path,
                     year: metadata.year,
@@ -406,6 +454,29 @@ pub fn update_library(
             }
         }
     }
+
+    // Remove deleted files from tracklist
+    new_library.tracks.retain(|track| {
+        all_files
+            .clone()
+            .any(|file| file.to_str().unwrap() == track.location)
+    });
+
+    // Remove all albums with 0 tracks
+    new_library.albums.retain(|album| {
+        new_library
+            .tracks
+            .iter()
+            .any(|track| track.album_id == album.id)
+    });
+
+    // Remove all artists with 0 tracks
+    new_library.artists.retain(|artist| {
+        new_library
+            .tracks
+            .iter()
+            .any(|track| track.artist_id == artist.id)
+    });
 
     Ok(new_library)
 }

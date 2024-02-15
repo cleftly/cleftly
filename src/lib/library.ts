@@ -115,9 +115,9 @@ export async function updateLibrary() {
     await invoke('update_library', {
         musicDirectories: config.music_directories,
         library: {
-            tracks: [],
-            artists: [],
-            albums: []
+            tracks: await db.tracks.toArray(),
+            artists: await db.artists.toArray(),
+            albums: await db.albums.toArray()
         }
     })
         .then((newLibrary) => {
@@ -125,9 +125,15 @@ export async function updateLibrary() {
 
             // Convert album art locations into stream URLs
             newLibrary.albums.forEach((t) => {
+                // TODO: Proper solution for this
                 if (t.albumArt) {
-                    console.log(t.albumArt);
-                    t.albumArt = convertFileSrc(t.albumArt, 'stream');
+                    if (
+                        !['stream://', 'http://', 'https://'].some((prefix) =>
+                            t.albumArt.startsWith(prefix)
+                        )
+                    ) {
+                        t.albumArt = convertFileSrc(t.albumArt, 'stream');
+                    }
                 }
             });
 
