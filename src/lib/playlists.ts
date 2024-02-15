@@ -48,8 +48,6 @@ export async function importPlaylist(playlist: {
         });
 
         trackIds.push(await idify(`${track.title}-${artistId}-${albumId}`));
-
-        console.log();
     }
 
     await db.playlists.add({

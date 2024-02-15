@@ -73,7 +73,7 @@
         );
 
         loadPlugins().then(() => {
-            console.log('Plugins loaded');
+            console.info('Plugins loaded');
         });
 
         const config = await getOrCreateConfig();

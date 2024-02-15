@@ -60,7 +60,7 @@ export async function getLyrics(track: FriendlyTrack): Promise<Lyrics | null> {
         }
     } catch (e) {
         console.error(e);
-        console.log('Failed to save lyrics to disk');
+        console.error('Failed to save lyrics to disk');
     }
 
     return mmLyrics;

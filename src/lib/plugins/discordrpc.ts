@@ -292,7 +292,7 @@ export default class DiscordRPC {
                         : undefined
             }
         }).then(() => {
-            console.log(
+            console.info(
                 `DiscordRPC: Set activity: ${audio.track.title} - ${audio.track.artist.name} - ${audio.track.album.name}`
             );
         });

@@ -23,7 +23,6 @@ async function play(
     backend: 'native' | 'web' = 'native'
 ) {
     if (backend == 'native') {
-        console.log(src);
         await invoke('play_audio', {
             filePath: src
         }).catch(() => {
@@ -147,21 +146,25 @@ export async function playTrack(
     const backend = (await getOrCreateConfig()).audio_backend;
 
     if (backend === 'web') {
-        if ((await platform()) === 'linux') {
-            console.log('Linux');
-            const streamUrl = await getStreamUrl(track.location);
+        if ((track.type || 'local') === 'local') {
+            if ((await platform()) === 'linux') {
+                const streamUrl = await getStreamUrl(track.location);
 
-            // Convert to blob as streaming is broken on linux
+                // Convert to blob as streaming is broken on linux
 
-            const blob = await fetch(streamUrl).then((res) => res.blob());
+                const blob = await fetch(streamUrl).then((res) => res.blob());
 
-            const url = URL.createObjectURL(blob);
+                const url = URL.createObjectURL(blob);
 
-            await play(url, track, queued, index, backend);
+                await play(url, track, queued, index, backend);
+            } else {
+                const streamUrl = await getStreamUrl(track.location);
+
+                await play(streamUrl, track, queued, index, backend);
+            }
         } else {
-            const streamUrl = await getStreamUrl(track.location);
-
-            await play(streamUrl, track, queued, index, backend);
+            // TODO
+            console.error('Not implemented');
         }
     } else {
         await play(track.location, track, queued, index, backend);
