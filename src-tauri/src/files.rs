@@ -12,7 +12,7 @@ use crate::DbusState;
 use std::time::Duration;
 
 #[cfg(target_os = "linux")]
-#[tauri::command(async)]
+#[tauri::command]
 pub fn show_in_folder(path: String, dbus_state: State<DbusState>) -> Result<(), String> {
     let dbus_guard = dbus_state.0.lock().map_err(|e| e.to_string())?;
 
@@ -51,7 +51,7 @@ pub fn show_in_folder(path: String, dbus_state: State<DbusState>) -> Result<(), 
 }
 
 #[cfg(not(target_os = "linux"))]
-#[tauri::command(async)]
+#[tauri::command]
 pub fn show_in_folder(path: String) -> Result<(), String> {
     #[cfg(target_os = "windows")]
     {
