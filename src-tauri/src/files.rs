@@ -1,6 +1,6 @@
 use std::process::Command;
 // State is used by linux
-use tauri::{Manager, State};
+use tauri::{State};
 
 #[cfg(not(target_os = "windows"))]
 use std::path::PathBuf;
