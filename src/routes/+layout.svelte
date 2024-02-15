@@ -117,6 +117,18 @@
     async function reload() {
         doRerender++;
     }
+
+    // Global shortcuts
+    window.addEventListener('keydown', (e) => {
+        // Ctrl + R - Reload
+        if (e.ctrlKey && e.key === 'r') {
+            reload();
+        }
+        // Ctrl + Shift + R - Full reload
+        else if (e.ctrlKey && e.key === 'R') {
+            window.location.reload();
+        }
+    });
 </script>
 
 <Modal />
