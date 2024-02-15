@@ -71,7 +71,10 @@
         {$_('add_directory')}
     </button>
 {:else if i.type === 'enum'}
-    <select class="select w-full max-w-xs" bind:value>
+    <select
+        class="select w-full max-w-xs p-1 rounded dark:bg-white dark:text-black"
+        bind:value
+    >
         {#each i.options as option}
             <option value={option.value}>{option.label}</option>
         {/each}

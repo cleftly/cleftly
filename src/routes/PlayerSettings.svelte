@@ -15,7 +15,7 @@
             <div>
                 <label class="label">
                     <span>{$_('speed')}</span>
-                    <select class="select" bind:value={$player.speed}>
+                    <select class="select rounded" bind:value={$player.speed}>
                         {#each SPEEDS as speed}
                             <option value={speed}>{speed}x</option>
                         {/each}

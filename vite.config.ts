@@ -12,12 +12,5 @@ export default defineConfig({
     build: {
         target: 'esnext'
     },
-    envPrefix: [
-        'VITE_',
-        'PUBLIC_',
-        'TAURI_ENV_DEBUG',
-        'TAURI_ENV_PLATFORM',
-        'TAURI_ENV_ARCH',
-        'TAURI_ENV_FAMILY'
-    ]
+    envPrefix: ['VITE_', 'PUBLIC_', 'TAURI_PLATFORM']
 });

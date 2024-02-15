@@ -137,7 +137,9 @@
 <AppShell scrollbarGutter="auto">
     <svelte:fragment slot="header">
         <nav
-            class="px-[4.75rem] navbar h-11 bg-neutral-300 dark:bg-neutral-900 flex w-full select-none"
+            class="{import.meta.env.TAURI_PLATFORM === 'darwin'
+                ? 'pl-[4.75rem] pr-4'
+                : 'px-4'} navbar h-11 bg-neutral-300 dark:bg-neutral-900 flex w-full select-none"
             data-tauri-drag-region={true}
         >
             <div class="flex w-1/4" data-tauri-drag-region={true}>
