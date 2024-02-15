@@ -36,7 +36,7 @@ const DEFAULT_CONFIG = {
     lastfm_token: '',
     audio_backend: 'web',
     lyrics_save: false,
-    lyrics_richsync: true,
+    lyrics_richsync: false,
     locale: null,
     plugins: [],
     enabled_plugins: ['com.cleftly.discordrpc'],

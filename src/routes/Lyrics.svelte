@@ -96,7 +96,7 @@
                 {:else if $audio.lyrics?.format === 'plain'}
                     <p class="whitespace-pre-line">{lyrics}</p>
                 {:else if $audio.lyrics?.format === 'richsync'}
-                    <p>
+                    <!-- <p>
                         getCurrentLineIndex: {getCurrentLineIndex(
                             lyrics,
                             $audio.currentTime
@@ -107,7 +107,7 @@
                             ],
                             $audio.currentTime
                         )}
-                    </p>
+                    </p> -->
                     {#each lyrics as line, i}
                         {#if line.line.trim() || getCurrentLineIndex(lyrics, $audio.currentTime) === i}
                             <p

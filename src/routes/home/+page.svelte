@@ -55,6 +55,8 @@
 
     onMount(async () => {
         try {
+            loading = true;
+            await getThings();
             await updateLibrary();
             await getThings();
             loading = false;
@@ -83,11 +85,13 @@
     </div>
     <div class="space-y-4">
         <h2 class="text-xl">{$_('recently_played')}</h2>
-        <div class="flex space-x-4 {!loading ? 'overflow-y-auto' : ''}">
-            {#if loading}
+        {#if loading}
+            <div class="flex space-x-4">
                 <Loader2 class="animate-spin " />
                 <p>{$_('updating_your_library')}...</p>
-            {/if}
+            </div>
+        {/if}
+        <div class="flex space-x-4 overflow-y-auto">
             {#each recentlyPlayed as track}
                 <Track {track} titleClamp={1} view="artist" />
             {/each}
@@ -95,32 +99,41 @@
                 <p>{$_('no_recently_played')}</p>
             {/if}
         </div>
+
         <h2 class="text-xl">{$_('recently_added')}</h2>
-        <div class="flex space-x-4 {!loading ? 'overflow-y-auto' : ''}">
-            {#if loading}
+        {#if loading}
+            <div class="flex space-x-4">
                 <Loader2 class="animate-spin " />
                 <p>{$_('updating_your_library')}...</p>
-            {/if}
+            </div>
+        {/if}
+        <div class="flex space-x-4 overflow-y-auto">
             {#each recentlyAdded as track}
                 <Track {track} titleClamp={1} view="artist" />
             {/each}
         </div>
+
         <h2 class="text-xl">{$_('albums')}</h2>
-        <div class="flex space-x-4 {!loading ? 'overflow-y-auto' : ''}">
-            {#if loading}
+        {#if loading}
+            <div class="flex space-x-4">
                 <Loader2 class="animate-spin " />
                 <p>{$_('updating_your_library')}...</p>
-            {/if}
+            </div>
+        {/if}
+        <div class="flex space-x-4 overflow-y-auto">
             {#each albums as album}
                 <Album titleClamp={1} {album} />
             {/each}
         </div>
+
         <h2 class="text-xl">{$_('playlists')}</h2>
-        <div class="flex space-x-4 {!loading ? 'overflow-y-auto' : ''}">
-            {#if loading}
+        {#if loading}
+            <div class="flex space-x-4">
                 <Loader2 class="animate-spin " />
                 <p>{$_('updating_your_library')}...</p>
-            {/if}
+            </div>
+        {/if}
+        <div class="flex space-x-4 overflow-y-auto">
             {#each playlists as playlist}
                 <Playlist titleClamp={1} {playlist} />
             {/each}

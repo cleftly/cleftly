@@ -88,8 +88,16 @@
             name: $_('setting_lyrics_auto_save'),
             description: $_('setting_lyrics_auto_save_desc'),
             type: 'bool'
+        },
+        lyrics_richsync: {
+            name: $_('thing_is_experimental', {
+                values: {
+                    thing: $_('lyrics_karaoke')
+                }
+            }),
+            description: $_('setting_lyrics_richsync_desc'),
+            type: 'bool'
         }
-
         // audio_backend: {
         //     name: 'Audio Backend',
         //     type: 'enum',
@@ -304,7 +312,13 @@
                 <p class="text-slate-400">
                     {$_('discord_rpc_details')}
                 </p>
-                <p>TODO</p>
+                <a href="/settings/plugins" class="btn variant-ghost">
+                    {$_('see_thing', {
+                        values: {
+                            thing: $_('plugin')
+                        }
+                    })}
+                </a>
             </div>
         </div>
     {:else}
