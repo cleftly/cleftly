@@ -9,6 +9,7 @@
         description: string;
         type: string;
         options?: { label: string; value: string }[];
+        onChange?: (val: unknown) => void;
     };
     export let key: string;
     export let value: unknown;
@@ -43,15 +44,16 @@
     {/if}
 </div>
 {#if i.type === 'string'}
-    <input class="input p-1" type="text" bind:value />
+    <input class="input p-1" type="text" bind:value on:change={i.onChange} />
 {:else if i.type === 'number'}
-    <input class="input p-1" type="number" bind:value />
+    <input class="input p-1" type="number" bind:value on:change={i.onChange} />
 {:else if i.type === 'bool'}
     <SlideToggle
         name={key}
         type="checkbox"
         active="bg-primary-500"
         bind:checked={value}
+        on:change={i.onChange}
     />
 {:else if i.type === 'dirs'}
     {#each value as item}
@@ -74,6 +76,7 @@
     <select
         class="select w-full max-w-xs p-1 rounded dark:bg-white dark:text-black"
         bind:value
+        on:change={i.onChange}
     >
         {#each i.options as option}
             <option value={option.value}>{option.label}</option>

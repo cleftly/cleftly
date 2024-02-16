@@ -17,6 +17,7 @@
         selectAndImportPlaylists
     } from '$lib/playlists';
     import { front, playlists } from '$lib/stores';
+    import init_i18n from '$lib/i18n';
 
     const toastStore = getToastStore();
     const modalStore = getModalStore();
@@ -25,6 +26,31 @@
     let config: Config | null = null;
 
     const SETTINGS = {
+        lang: {
+            name: $_('setting_language'),
+            description: $_('setting_needs_reload'),
+            type: 'enum',
+            options: [
+                {
+                    label: $_('settings_language_system_default'),
+                    value: null
+                },
+
+                {
+                    label: 'English',
+                    value: 'en'
+                },
+                {
+                    label: 'Español',
+                    value: 'es'
+                }
+            ],
+            onChange: () => {
+                saveChanges().then(() => {
+                    init_i18n().then(() => {});
+                });
+            }
+        },
         color: {
             name: $_('setting_color'),
             description: $_('setting_color_desc'),

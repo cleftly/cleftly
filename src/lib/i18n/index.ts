@@ -7,8 +7,13 @@ export default async () => {
     addMessages('en', en);
     addMessages('es', es);
 
+    const { getOrCreateConfig } = await import('$lib/config');
+
+    console.log((await getOrCreateConfig()).lang);
+
     init({
         fallbackLocale: 'en',
-        initialLocale: getLocaleFromNavigator()
+        initialLocale:
+            (await getOrCreateConfig()).lang || getLocaleFromNavigator()
     });
 };

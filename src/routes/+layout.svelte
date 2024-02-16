@@ -1,4 +1,4 @@
-<script lang="ts">
+<script async lang="ts">
     import '../app.css';
     import {
         computePosition,
@@ -29,12 +29,9 @@
     import { front, playlists } from '$lib/stores';
     import Search from '$components/Search.svelte';
     import Progress from '$components/Progress.svelte';
-    import i18n_init from '$lib/i18n';
     import { loadPlugins } from '$lib/plugins';
     import { getOrCreateConfig } from '$lib/config';
-    // Locales
 
-    i18n_init();
     initializeStores();
 
     storePopup.set({ computePosition, autoUpdate, offset, shift, flip, arrow });

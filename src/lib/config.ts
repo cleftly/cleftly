@@ -26,6 +26,7 @@ export type Config = {
     enabled_plugins: string[];
     theme: string;
     color: 'light' | 'dark' | 'oled';
+    lang: string | null;
     [key: string]: unknown;
 };
 
@@ -41,7 +42,8 @@ const DEFAULT_CONFIG = {
     plugins: [],
     enabled_plugins: ['com.cleftly.discordrpc'],
     theme: 'crimson',
-    color: 'dark'
+    color: 'dark',
+    lang: null
 };
 
 export async function getOrCreateConfig() {
