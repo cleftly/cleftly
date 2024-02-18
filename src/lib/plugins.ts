@@ -1,4 +1,4 @@
-import { transpileModule } from 'typescript';
+// import { transpileModule } from 'typescript';
 import { get } from 'svelte/store';
 import { audio, queue, player, plugins } from './stores';
 import { getStreamUrl } from './utils';
@@ -61,20 +61,23 @@ export async function loadPluginConstrFromFile(source: string) {
 
     let constr: PluginConstructor;
 
+    // TODO: TO FIX (run tsc command externally instead of bloating app with TS)
     if (source.endsWith('.ts')) {
         // Compile TS on the fly (Only useful for development - Plugins should be distributed pre-compiled)
-        const tsconfig = {
-            compilerOptions: {
-                target: 2, // ES6
-                module: 99, // ESNext
-                lib: ['esnext', 'DOM', 'DOM.Iterable']
-            }
-        };
+        // const tsconfig = {
+        //     compilerOptions: {
+        //         target: 2, // ES6
+        //         module: 99, // ESNext
+        //         lib: ['esnext', 'DOM', 'DOM.Iterable']
+        //     }
+        // };
 
-        const script = transpileModule(
-            await (await fetch(src)).text(),
-            tsconfig
-        );
+        // const script = transpileModule(
+        //     await (await fetch(src)).text(),
+        //     tsconfig
+        // );
+
+        const script = "alert('Please use a JS file for now')";
 
         constr = (
             await import(
