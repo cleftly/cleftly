@@ -9,7 +9,7 @@ export async function load({ url }) {
     const slug = url.searchParams.get('id');
 
     if (!slug) {
-        throw error(404, 'Artist not found');
+        error(404, 'Artist not found');
     }
 
     const artist = await db.artists.get(slug);
@@ -27,7 +27,7 @@ export async function load({ url }) {
     );
 
     if (!artist) {
-        throw error(404, 'Artist not found');
+        error(404, 'Artist not found');
     }
 
     return {

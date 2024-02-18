@@ -8,7 +8,7 @@ export async function load({ url }) {
     const slug = url.searchParams.get('id');
 
     if (!slug) {
-        throw error(404, 'Album not found');
+        error(404, 'Album not found');
     }
 
     const { default: db } = await import('$lib/db');
@@ -16,7 +16,7 @@ export async function load({ url }) {
     const res = await db.albums.get(slug);
 
     if (!slug) {
-        throw error(404, 'Album not found');
+        error(404, 'Album not found');
     }
 
     const tracks = (
