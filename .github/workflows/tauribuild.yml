@@ -59,17 +59,17 @@ jobs:
               with:
                   workspaces: './src-tauri -> target'
 
-            - name: Sync node version and setup cache
-              uses: actions/setup-node@v3
-              with:
-                  node-version: 20
-                  cache: 'pnpm' # Set this to npm, yarn or pnpm.
-
             - uses: pnpm/action-setup@v2
               name: Install pnpm
               with:
                   version: 8
                   run_install: false
+
+            - name: Sync node version and setup cache
+              uses: actions/setup-node@v3
+              with:
+                  node-version: 20
+                  cache: 'pnpm' # Set this to npm, yarn or pnpm.
 
             - name: Install frontend dependencies
               # If you don't have `beforeBuildCommand` configured you may want to build your frontend here too.
