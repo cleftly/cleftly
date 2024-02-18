@@ -16,8 +16,8 @@ jobs:
                       args: '--target universal-apple-darwin'
                     - platform: 'ubuntu-22.04'
                       args: ''
-                    - platform: 'ubuntu-22.04'
-                      args: '--target aarch64-unknown-linux-gnu --bundles deb'
+                    # - platform: 'ubuntu-22.04'
+                    #   args: '--target aarch64-unknown-linux-gnu --bundles deb'
                     - platform: 'windows-latest'
                       args: '--target x86_64-pc-windows-msvc'
 
@@ -34,29 +34,28 @@ jobs:
               # You can remove libayatana-appindicator3-dev if you don't use the system tray feature.
               run: |
                   sudo apt-get update
-                  sudo apt-get install -y libgtk-3-dev libwebkit2gtk-4.0-dev librsvg2-dev patchelf alsa-tools libasound2-dev libudev-dev gcc-aarch64-linux-gnu
-                  export linker=gcc-aarch64-linux-gnu
-                  sudo dpkg --add-architecture arm64
-                  sudo touch /etc/apt/sources.list.d/arm-cross-compile-sources.list
-                  sudo bash -c 'echo "deb [arch=arm64] http://ports.ubuntu.com/ubuntu-ports jammy main restricted" >> /etc/apt/sources.list.d/arm-cross-compile-sources.list'
-                  sudo bash -c 'echo "deb [arch=arm64] http://ports.ubuntu.com/ubuntu-ports jammy-updates main restricted" >> /etc/apt/sources.list.d/arm-cross-compile-sources.list'
-                  sudo bash -c 'echo "deb [arch=arm64] http://ports.ubuntu.com/ubuntu-ports jammy universe" >> /etc/apt/sources.list.d/arm-cross-compile-sources.list'
-                  sudo bash -c 'echo "deb [arch=arm64] http://ports.ubuntu.com/ubuntu-ports jammy-updates universe" >> /etc/apt/sources.list.d/arm-cross-compile-sources.list'
-                  sudo bash -c 'echo "deb [arch=arm64] http://ports.ubuntu.com/ubuntu-ports jammy multiverse" >> /etc/apt/sources.list.d/arm-cross-compile-sources.list'
-                  sudo bash -c 'echo "deb [arch=arm64] http://ports.ubuntu.com/ubuntu-ports jammy-updates multiverse" >> /etc/apt/sources.list.d/arm-cross-compile-sources.list'
-                  sudo bash -c 'echo "deb [arch=arm64] http://ports.ubuntu.com/ubuntu-ports jammy-backports main restricted universe multiverse" >> /etc/apt/sources.list.d/arm-cross-compile-sources.list'
-                  sudo bash -c 'echo "deb [arch=arm64] http://ports.ubuntu.com/ubuntu-ports jammy-security main restricted" >> /etc/apt/sources.list.d/arm-cross-compile-sources.list'
-                  sudo bash -c 'echo "deb [arch=arm64] http://ports.ubuntu.com/ubuntu-ports jammy-security universe" >> /etc/apt/sources.list.d/arm-cross-compile-sources.list'
-                  sudo bash -c 'echo "deb [arch=arm64] http://ports.ubuntu.com/ubuntu-ports jammy-security multiverse" >> /etc/apt/sources.list.d/arm-cross-compile-sources.list'
+                  sudo apt-get install -y libgtk-3-dev libwebkit2gtk-4.0-dev librsvg2-dev patchelf alsa-tools libasound2-dev libudev-dev
+              # gcc-aarch64-linux-gnu
+              #   export linker=gcc-aarch64-linux-gnu
+              #   sudo dpkg --add-architecture arm64
+              #   sudo touch /etc/apt/sources.list.d/arm-cross-compile-sources.list
+              #   sudo bash -c 'echo "deb [arch=arm64] http://ports.ubuntu.com/ubuntu-ports jammy main restricted" >> /etc/apt/sources.list.d/arm-cross-compile-sources.list'
+              #   sudo bash -c 'echo "deb [arch=arm64] http://ports.ubuntu.com/ubuntu-ports jammy-updates main restricted" >> /etc/apt/sources.list.d/arm-cross-compile-sources.list'
+              #   sudo bash -c 'echo "deb [arch=arm64] http://ports.ubuntu.com/ubuntu-ports jammy universe" >> /etc/apt/sources.list.d/arm-cross-compile-sources.list'
+              #   sudo bash -c 'echo "deb [arch=arm64] http://ports.ubuntu.com/ubuntu-ports jammy-updates universe" >> /etc/apt/sources.list.d/arm-cross-compile-sources.list'
+              #   sudo bash -c 'echo "deb [arch=arm64] http://ports.ubuntu.com/ubuntu-ports jammy multiverse" >> /etc/apt/sources.list.d/arm-cross-compile-sources.list'
+              #   sudo bash -c 'echo "deb [arch=arm64] http://ports.ubuntu.com/ubuntu-ports jammy-updates multiverse" >> /etc/apt/sources.list.d/arm-cross-compile-sources.list'
+              #   sudo bash -c 'echo "deb [arch=arm64] http://ports.ubuntu.com/ubuntu-ports jammy-backports main restricted universe multiverse" >> /etc/apt/sources.list.d/arm-cross-compile-sources.list'
+              #   sudo bash -c 'echo "deb [arch=arm64] http://ports.ubuntu.com/ubuntu-ports jammy-security main restricted" >> /etc/apt/sources.list.d/arm-cross-compile-sources.list'
+              #   sudo bash -c 'echo "deb [arch=arm64] http://ports.ubuntu.com/ubuntu-ports jammy-security universe" >> /etc/apt/sources.list.d/arm-cross-compile-sources.list'
+              #   sudo bash -c 'echo "deb [arch=arm64] http://ports.ubuntu.com/ubuntu-ports jammy-security multiverse" >> /etc/apt/sources.list.d/arm-cross-compile-sources.list'
 
-                  sudo apt update
-                  sudo apt install libwebkit2gtk-4.0-dev:arm64
-                  export PKG_CONFIG_SYSROOT_DIR=/usr/aarch64-linux-gnu/
+              #   sudo apt update
+              #   sudo apt install libwebkit2gtk-4.0-dev:arm64
+              #   export PKG_CONFIG_SYSROOT_DIR=/usr/aarch64-linux-gnu/
 
             - name: Rust setup
               uses: dtolnay/rust-toolchain@stable
-              with:
-                  targets: aarch64-unknown-linux-gnu
 
             - name: Rust cache
               uses: swatinem/rust-cache@v2
