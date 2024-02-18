@@ -38,13 +38,13 @@ jobs:
                   export linker=gcc-aarch64-linux-gnu
                   sudo dpkg --add-architecture arm64
                   sudo touch /etc/apt/sources.list.d/arm-cross-compile-sources.list
-                  echo "deb [arch=arm64] http://ports.ubuntu.com/ focal main restricted" >> /etc/apt/sources.list.d/arm-cross-compile-sources.list
-                  echo "deb [arch=arm64] http://ports.ubuntu.com/ focal-updates main restricted" >> /etc/apt/sources.list.d/arm-cross-compile-sources.list
-                  echo "deb [arch=arm64] http://ports.ubuntu.com/ focal universe" >> /etc/apt/sources.list.d/arm-cross-compile-sources.list
-                  echo "deb [arch=arm64] http://ports.ubuntu.com/ focal-updates universe" >> /etc/apt/sources.list.d/arm-cross-compile-sources.list
-                  echo "deb [arch=arm64] http://ports.ubuntu.com/ focal multiverse" >> /etc/apt/sources.list.d/arm-cross-compile-sources.list
-                  echo "deb [arch=arm64] http://ports.ubuntu.com/ focal-updates multiverse" >> /etc/apt/sources.list.d/arm-cross-compile-sources.list
-                  echo "deb [arch=arm64] http://ports.ubuntu.com/ focal-backports main restricted universe multiverse" >> /etc/apt/sources.list.d/arm-cross-compile-sources.list
+                  sudo bash -c 'echo "deb [arch=arm64] http://ports.ubuntu.com/ focal main restricted" >> /etc/apt/sources.list.d/arm-cross-compile-sources.list'
+                  sudo bash -c 'echo "deb [arch=arm64] http://ports.ubuntu.com/ focal-updates main restricted" >> /etc/apt/sources.list.d/arm-cross-compile-sources.list'
+                  sudo bash -c 'echo "deb [arch=arm64] http://ports.ubuntu.com/ focal universe" >> /etc/apt/sources.list.d/arm-cross-compile-sources.list'
+                  sudo bash -c 'echo "deb [arch=arm64] http://ports.ubuntu.com/ focal-updates universe" >> /etc/apt/sources.list.d/arm-cross-compile-sources.list'
+                  sudo bash -c 'echo "deb [arch=arm64] http://ports.ubuntu.com/ focal multiverse" >> /etc/apt/sources.list.d/arm-cross-compile-sources.list'
+                  sudo bash -c 'echo "deb [arch=arm64] http://ports.ubuntu.com/ focal-updates multiverse" >> /etc/apt/sources.list.d/arm-cross-compile-sources.list'
+                  sudo bash -c 'echo "deb [arch=arm64] http://ports.ubuntu.com/ focal-backports main restricted universe multiverse" >> /etc/apt/sources.list.d/arm-cross-compile-sources.list'
                   sudo apt update
                   sudo apt install libwebkit2gtk-4.0-dev:arm64
                   export PKG_CONFIG_SYSROOT_DIR=/usr/aarch64-linux-gnu/
