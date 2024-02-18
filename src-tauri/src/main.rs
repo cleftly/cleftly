@@ -1,13 +1,6 @@
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
-#[cfg(target_os = "macos")]
-#[macro_use]
-extern crate objc;
-
-#[cfg(target_os = "linux")]
-pub struct DbusState(Mutex<Option<dbus::blocking::SyncConnection>>);
-
 mod audio;
 mod discordrpc;
 mod files;
@@ -21,8 +14,19 @@ use std::sync::Mutex;
 use stream::handle_stream_request;
 use tauri::Manager;
 
+#[cfg(target_os = "linux")]
+pub struct DbusState(Mutex<Option<dbus::blocking::SyncConnection>>);
+
+#[cfg(target_os = "macos")]
+#[macro_use]
+extern crate objc;
+
+#[cfg(target_os = "macos")]
+use tauri::WindowEvent;
+
 #[cfg(target_os = "macos")]
 mod window_ext;
+
 #[cfg(target_os = "macos")]
 use window_ext::WindowExt;
 
@@ -55,11 +59,9 @@ fn main() {
         })
         .on_window_event(|_e| {
             #[cfg(target_os = "macos")]
-            {
-                if let WindowEvent::Resized(..) = _e.event() {
-                    let win = _e.window();
-                    win.position_traffic_lights(15.0, 20.0);
-                }
+            if let WindowEvent::Resized(..) = _e.event() {
+                let win = _e.window();
+                win.position_traffic_lights(15.0, 20.0);
             }
         })
         .manage(Audio(Mutex::new(Sink::try_new(&stream_handle).unwrap())))
