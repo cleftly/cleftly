@@ -9,7 +9,7 @@ A simple music player focused on aesthetics, speed, and extensibility.
 - Live Lyrics
 - Last.FM Integration
 - Discord Rich Presence
-- Plugins (Beta)
+- Plugins (Coming Soon)
 - Theming (Coming Soon)
 
 ## Installation
