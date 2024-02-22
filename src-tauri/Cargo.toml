@@ -50,6 +50,9 @@ walkdir = "2.4.0"
 regex = "1.10.3"
 md5 = "0.7.0"
 which = "6.0.0"
+tauri-plugin-log = { git = "https://github.com/tauri-apps/plugins-workspace", branch = "v1" }
+log = { version = "0.4.20", features = ["release_max_level_info"] }
+
 
 [target.'cfg(target_os = "macos")'.dependencies]
 objc = "0.2.7"
@@ -64,3 +67,6 @@ dbus = "0.9.7"
 # If you use cargo directly instead of tauri's cli you can use this feature flag to switch between tauri's `dev` and `build` modes.
 # DO NOT REMOVE!!
 custom-protocol = ["tauri/custom-protocol"]
+
+[profile.release]
+strip = true

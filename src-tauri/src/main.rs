@@ -13,6 +13,7 @@ use rodio::{OutputStream, Sink};
 use std::sync::Mutex;
 use stream::handle_stream_request;
 use tauri::Manager;
+use tauri_plugin_log::LogTarget;
 
 #[cfg(target_os = "linux")]
 pub struct DbusState(Mutex<Option<dbus::blocking::SyncConnection>>);
@@ -67,6 +68,11 @@ fn main() {
         .manage(Audio(Mutex::new(Sink::try_new(&stream_handle).unwrap())))
         .plugin(tauri_plugin_persisted_scope::init())
         .plugin(tauri_plugin_context_menu::init())
+        .plugin(
+            tauri_plugin_log::Builder::default()
+                .targets([LogTarget::LogDir, LogTarget::Stdout, LogTarget::Webview])
+                .build(),
+        )
         .register_uri_scheme_protocol("stream", |app, request| handle_stream_request(app, request))
         .invoke_handler(tauri::generate_handler![
             audio::play_audio,

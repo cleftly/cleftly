@@ -15,7 +15,6 @@ pub fn handle_stream_request(
     app: &AppHandle,
     request: &Request,
 ) -> Result<tauri::http::Response, Box<(dyn std::error::Error + 'static)>> {
-    println!("request: {request:?}");
     // get the file path
     let path = request
         .uri()

@@ -1,6 +1,7 @@
 /*
     Library scanning and management
 */
+use log::debug;
 use regex::Regex;
 use std::collections::HashMap;
 use std::fs::read_dir;
@@ -13,10 +14,6 @@ use symphonia::core::probe::{Hint, ProbeResult};
 const SUPPORTED_EXTENSIONS: &[&str] = &[
     "wav", "wave", "mp3", "m4a", "aac", "ogg", "flac", "webm", "caf",
 ];
-
-macro_rules! debug_println {
-    ($($arg:tt)*) => (if ::std::cfg!(debug_assertions) { ::std::println!($($arg)*); })
-}
 
 #[derive(Debug)]
 struct AlbumArt {
@@ -326,14 +323,14 @@ pub fn update_library(
             }))
     });
 
-    debug_println!(
+    debug!(
         "{} files found, {} new",
         files.clone().count(),
         new_files.clone().count()
     );
 
     for file in new_files {
-        debug_println!("Scanning {}", file.display());
+        debug!("Scanning {}", file.display());
         let src = std::fs::File::open(file.as_path()).unwrap();
         let mss = MediaSourceStream::new(Box::new(src), Default::default());
         let mut hint = Hint::new();
@@ -415,7 +412,7 @@ pub fn update_library(
                     }
                 }
 
-                debug_println!("Album art path: {:?}", album_art_path);
+                debug!("Album art path: {:?}", album_art_path);
 
                 new_library.albums.push(Album {
                     id: album_id.clone(),
