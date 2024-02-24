@@ -60,7 +60,7 @@
         <div class="flex flex-row">
             <p>{item}</p>
             <button
-                class="btn variant-ghost-error"
+                class="btn variant-ghost-error ml-2 h-8 p-2"
                 on:click={() => {
                     value = value.filter((i) => i !== item);
                 }}
