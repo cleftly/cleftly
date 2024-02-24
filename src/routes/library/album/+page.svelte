@@ -14,10 +14,12 @@
 {#if album}
     <div>
         <div class="flex md:flex-row flex-col w-full">
-            <Avatar
-                src={album.albumArt}
-                class="rounded-lg w-72 h-72 mb-1 justify-center items-center md:justify-normal"
-            />
+            <div class="w-72 h-72">
+                <Avatar
+                    src={album.albumArt}
+                    class="rounded-lg w-72 h-72 mb-1 justify-center items-center md:justify-normal"
+                />
+            </div>
             <div class="flex m-4 items-end">
                 <div class="space-x-2">
                     <h1 class="mx-2 text-3xl mt-4">{album.name}</h1>
