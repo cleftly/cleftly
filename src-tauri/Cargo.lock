@@ -119,6 +119,7 @@ dependencies = [
  "tauri-plugin-context-menu",
  "tauri-plugin-log",
  "tauri-plugin-persisted-scope",
+ "time",
  "walkdir",
  "which",
 ]

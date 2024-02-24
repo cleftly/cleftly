@@ -10,6 +10,7 @@ use symphonia::core::formats::FormatOptions;
 use symphonia::core::io::MediaSourceStream;
 use symphonia::core::meta::{MetadataOptions, StandardTagKey};
 use symphonia::core::probe::{Hint, ProbeResult};
+use time::OffsetDateTime;
 
 const SUPPORTED_EXTENSIONS: &[&str] = &[
     "wav", "wave", "mp3", "m4a", "aac", "ogg", "flac", "webm", "caf",
@@ -53,8 +54,10 @@ pub struct Track {
     total_tracks: i32,
     disc_num: i32,
     total_discs: i32,
-    created_at: String,
-    last_played_at: String,
+    #[serde(with = "time::serde::rfc3339")]
+    created_at: OffsetDateTime,
+    #[serde(with = "time::serde::rfc3339")]
+    last_played_at: OffsetDateTime, // TODO: Make optional
 }
 
 #[derive(serde::Deserialize, serde::Serialize, Clone)]
@@ -65,7 +68,8 @@ pub struct Album {
     genres: Vec<String>,
     artist_id: String,
     album_art: Option<String>,
-    created_at: String,
+    #[serde(with = "time::serde::rfc3339")]
+    created_at: OffsetDateTime,
     year: Option<i32>,
 }
 
@@ -75,7 +79,8 @@ pub struct Artist {
     id: String,
     name: String,
     genres: Vec<String>,
-    created_at: String,
+    #[serde(with = "time::serde::rfc3339")]
+    created_at: OffsetDateTime,
 }
 
 #[derive(serde::Deserialize, serde::Serialize, Clone)]
@@ -363,7 +368,7 @@ pub fn update_library(
                     id: album_artist_id.clone(),
                     name: metadata.album_artist,
                     genres: vec![],
-                    created_at: "2022-01-01T00:00:00.000Z".to_string(), // TODO
+                    created_at: OffsetDateTime::now_utc(), // TODO
                 });
             }
 
@@ -376,7 +381,7 @@ pub fn update_library(
                     id: artist_id.clone(),
                     name: metadata.artist,
                     genres: vec![],
-                    created_at: "2022-01-01T00:00:00.000Z".to_string(), // TODO
+                    created_at: OffsetDateTime::now_utc(), // TODO
                 });
             }
 
@@ -421,7 +426,7 @@ pub fn update_library(
                     genres: metadata.genres.clone(),
                     album_art: album_art_path,
                     year: metadata.year,
-                    created_at: "2022-01-01T00:00:00.000Z".to_string(), // TODO
+                    created_at: OffsetDateTime::now_utc(), // TODO
                 })
             }
 
@@ -445,8 +450,8 @@ pub fn update_library(
                     location: file.to_str().unwrap().to_string(),
                     total_tracks: metadata.total_tracks,
                     r#type: Some("local".to_string()),
-                    created_at: "2022-01-01T00:00:00.000Z".to_string(), // TODO
-                    last_played_at: "1970-01-01T00:00:00.000Z".to_string(),
+                    created_at: OffsetDateTime::now_utc(), // TODO
+                    last_played_at: OffsetDateTime::now_utc(),
                 });
             }
         }
