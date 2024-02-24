@@ -128,7 +128,7 @@ export default class DiscordRPC {
             artist: audio.track.artist.name,
             albumArtUrl: externalInfo.albumArtUrl ?? '',
             songLinkUrl: externalInfo.songLinkUrl ?? '',
-            duration: `${audio.track.duration}`
+            duration: `${audio.duration || audio.track.duration}`
         };
 
         await this.setDiscordActivity(conf, audio, externalInfo, vars);

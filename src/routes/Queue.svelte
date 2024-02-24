@@ -10,11 +10,13 @@
     >
         <h3 class="text-2xl">{$_('queue')}</h3>
         {#if $queue.tracks.length > 0}
-            <TrackList
-                tracks={$queue.tracks.slice($queue.index)}
-                mode="albumArt"
-                resort={false}
-            />
+            <div class="mt-4">
+                <TrackList
+                    tracks={$queue.tracks.slice($queue.index)}
+                    mode="albumArt"
+                    resort={false}
+                />
+            </div>
         {:else}
             <p class="text-slate-400">{$_('queue_empty')}</p>
         {/if}

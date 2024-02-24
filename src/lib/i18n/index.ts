@@ -9,8 +9,6 @@ export default async () => {
 
     const { getOrCreateConfig } = await import('$lib/config');
 
-    console.log((await getOrCreateConfig()).lang);
-
     init({
         fallbackLocale: 'en',
         initialLocale:

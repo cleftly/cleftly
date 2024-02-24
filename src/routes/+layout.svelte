@@ -1,4 +1,4 @@
-<script async lang="ts">
+<script lang="ts">
     import '../app.css';
     import {
         computePosition,

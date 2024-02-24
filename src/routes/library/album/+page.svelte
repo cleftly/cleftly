@@ -56,6 +56,8 @@
                 </div>
             </div>
         </div>
-        <TrackList {tracks} />
+        <div class="mt-8">
+            <TrackList {tracks} />
+        </div>
     </div>
 {/if}

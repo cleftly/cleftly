@@ -26,7 +26,7 @@
     export let queueTracks: boolean = true;
 </script>
 
-<dl class="mt-8 space-y-2">
+<dl class="space-y-2">
     {#each sortedTracks as track, i}
         <div
             class="flex flex-row rounded-xl items-center p-2 group {i % 2 === 0
@@ -60,8 +60,8 @@
                 {/if}
                 <button
                     class="btn btn-sm block {playMode === 'button'
-                        ? 'group-hover:hidden'
-                        : ''} w-10 mr-2"
+                        ? 'group-hover:hidden '
+                        : ''} w-10 {mode !== 'number' ? 'p-0' : ''} mr-2"
                 >
                     {#if track.id === $audio?.track.id}
                         <!-- <Visualizer /> -->
@@ -77,7 +77,7 @@
                         <img
                             src={track.album.albumArt}
                             alt="Album Art"
-                            class="p-0 m-0 w-8 h-8 rounded-lg"
+                            class="w-10 h-10 rounded-lg"
                         />
                     {/if}
                 </button>

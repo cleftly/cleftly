@@ -9,7 +9,6 @@
         type FriendlyTrack
     } from '$lib/db';
     import { friendlyLibrary, updateLibrary } from '$lib/library';
-    import CreatePlaylist from '$components/CreatePlaylist.svelte';
     import Album from '$components/Album.svelte';
     import Track from '$components/Track.svelte';
     import Playlist from '$components/Playlist.svelte';
@@ -73,16 +72,13 @@
 </script>
 
 <div>
-    <div class="flex justify-between">
-        <h1 class="text-3xl mt-4 mb-8 justify-start">
-            {new Date().getHours() < 12
-                ? $_('good_morning')
-                : new Date().getHours() < 18
-                ? $_('good_afternoon')
-                : $_('good_evening')}
-        </h1>
-        <CreatePlaylist />
-    </div>
+    <h1 class="text-3xl mt-4 mb-8">
+        {new Date().getHours() < 12
+            ? $_('good_morning')
+            : new Date().getHours() < 18
+            ? $_('good_afternoon')
+            : $_('good_evening')}
+    </h1>
     <div class="space-y-4">
         <h2 class="text-xl">{$_('recently_played')}</h2>
         {#if loading}

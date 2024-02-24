@@ -9,8 +9,8 @@ import { get } from 'svelte/store';
 import { _ } from 'svelte-i18n';
 import {
     type ModalSettings,
-    getToastStore,
-    getModalStore
+    type getToastStore,
+    type getModalStore
 } from '@skeletonlabs/skeleton';
 import { platform } from '@tauri-apps/api/os';
 import type { FriendlyTrack, Playlist } from './db';
@@ -27,7 +27,7 @@ const MENU_SEPERATOR = {
 async function _add(
     playlist: Playlist,
     tracks: FriendlyTrack[],
-    toastStore = getToastStore()
+    toastStore: ReturnType<typeof getToastStore>
 ) {
     await db.playlists.update(playlist.id, {
         trackIds: [...playlist.trackIds, ...tracks.map((t) => t.id)]
@@ -44,11 +44,11 @@ async function add(
     playlist: Playlist,
     tracks: FriendlyTrack[],
     modalStore: ReturnType<typeof getModalStore>,
-    toastStore = getToastStore()
+    toastStore: ReturnType<typeof getToastStore>
 ) {
     // Check for duplicates
     if (!playlist.trackIds.includes(tracks[0].id)) {
-        return _add(playlist, tracks);
+        return _add(playlist, tracks, toastStore);
     }
 
     const duplicateModal: ModalSettings = {
@@ -142,7 +142,7 @@ export async function openTrackMenu(
                                 }
                             };
 
-                            getModalStore().trigger(createPlaylistModal);
+                            modalStore.trigger(createPlaylistModal);
                         }
                     },
                     MENU_SEPERATOR,
@@ -225,9 +225,9 @@ export async function openTrackMenu(
                         title: 'Properties',
                         body: `
                         <div class="overflow-y-auto text-sm">
-                            <p>Title: ${track.title}<br>
-                            Artist: ${track.artist.name}<br>
-                            Album: ${track.album.name}<br>
+                            <p>Title: ${track.title} (${track.id})<br>
+                            Artist: ${track.artist.name} (${track.artistId})<br>
+                            Album: ${track.album.name} (${track.albumId})<br>
                             Location: ${track.location}<br>
                             Played At: ${track.lastPlayedAt}<br>
                             Created At: ${track.createdAt}<br>
@@ -244,7 +244,7 @@ export async function openTrackMenu(
                             `
                     };
 
-                    getModalStore().trigger(propertiesModal);
+                    modalStore.trigger(propertiesModal);
                 }
             }
         ]

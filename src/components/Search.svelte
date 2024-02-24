@@ -79,15 +79,13 @@
             style="top: {inputRef.clientHeight + 16}px;"
             bind:this={resRef}
         >
-            <ul class="list-nav text-sm w-full">
-                <TrackList
-                    resort={false}
-                    queueTracks={false}
-                    tracks={res}
-                    mode="albumArt"
-                    playMode="click"
-                />
-            </ul>
+            <TrackList
+                resort={false}
+                queueTracks={false}
+                tracks={res}
+                mode="albumArt"
+                playMode="click"
+            />
         </div>
     {/if}
 </div>
