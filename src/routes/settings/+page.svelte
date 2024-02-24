@@ -25,120 +25,128 @@
     let oldConfig: Config | null = null;
     let config: Config | null = null;
 
-    const SETTINGS = {
-        lang: {
-            name: $_('setting_language'),
-            description: $_('setting_needs_reload'),
-            type: 'enum',
-            options: [
-                {
-                    label: $_('settings_language_system_default'),
-                    value: null
-                },
+    let SETTINGS;
 
-                {
-                    label: 'English',
-                    value: 'en'
-                },
-                {
-                    label: 'Español',
-                    value: 'es'
+    function setSettings() {
+        SETTINGS = {
+            lang: {
+                name: $_('setting_language'),
+                description: $_('setting_needs_reload'),
+                type: 'enum',
+                options: [
+                    {
+                        label: $_('settings_language_system_default'),
+                        value: null
+                    },
+
+                    {
+                        label: 'English',
+                        value: 'en'
+                    },
+                    {
+                        label: 'Español',
+                        value: 'es'
+                    }
+                ],
+                onChange: () => {
+                    saveChanges().then(() => {
+                        init_i18n().then(() => {
+                            setSettings();
+                        });
+                    });
                 }
-            ],
-            onChange: () => {
-                saveChanges().then(() => {
-                    init_i18n().then(() => {});
-                });
+            },
+            color: {
+                name: $_('setting_color'),
+                description: $_('setting_color_desc'),
+                type: 'enum',
+                options: [
+                    {
+                        label: $_('color_light'),
+                        value: 'light'
+                    },
+                    {
+                        label: $_('color_dark'),
+                        value: 'dark'
+                    },
+                    {
+                        label: $_('thing_is_beta', {
+                            values: {
+                                thing: 'OLED' // TODO: Does this need i18n?,
+                            }
+                        }),
+                        value: 'oled'
+                    }
+                ]
+            },
+            theme: {
+                name: $_('setting_theme'),
+                description: $_('setting_theme_desc'),
+                type: 'enum',
+                options: [
+                    {
+                        label: $_('thing_is_default', {
+                            values: {
+                                thing: $_('theme_crimson')
+                            }
+                        }),
+                        value: 'crimson'
+                    },
+                    {
+                        label: $_('theme_skeleton'),
+                        value: 'skeleton'
+                    },
+                    {
+                        label: $_('theme_gold_nouveau'),
+                        value: 'gold-nouveau'
+                    },
+                    {
+                        label: $_('theme_modern'),
+                        value: 'modern'
+                    },
+                    {
+                        label: $_('theme_pink'),
+                        value: 'pink'
+                    }
+                ]
+            },
+            music_directories: {
+                name: $_('setting_music_dir'),
+                description: $_('setting_music_dir_desc'),
+                type: 'dirs'
+            },
+            lyrics_save: {
+                name: $_('setting_lyrics_auto_save'),
+                description: $_('setting_lyrics_auto_save_desc'),
+                type: 'bool'
+            },
+            lyrics_richsync: {
+                name: $_('thing_is_experimental', {
+                    values: {
+                        thing: $_('lyrics_karaoke')
+                    }
+                }),
+                description: $_('setting_lyrics_richsync_desc'),
+                type: 'bool'
             }
-        },
-        color: {
-            name: $_('setting_color'),
-            description: $_('setting_color_desc'),
-            type: 'enum',
-            options: [
-                {
-                    label: $_('color_light'),
-                    value: 'light'
-                },
-                {
-                    label: $_('color_dark'),
-                    value: 'dark'
-                },
-                {
-                    label: $_('thing_is_beta', {
-                        values: {
-                            thing: 'OLED' // TODO: Does this need i18n?,
-                        }
-                    }),
-                    value: 'oled'
-                }
-            ]
-        },
-        theme: {
-            name: $_('setting_theme'),
-            description: $_('setting_theme_desc'),
-            type: 'enum',
-            options: [
-                {
-                    label: $_('thing_is_default', {
-                        values: {
-                            thing: $_('theme_crimson')
-                        }
-                    }),
-                    value: 'crimson'
-                },
-                {
-                    label: $_('theme_skeleton'),
-                    value: 'skeleton'
-                },
-                {
-                    label: $_('theme_gold_nouveau'),
-                    value: 'gold-nouveau'
-                },
-                {
-                    label: $_('theme_modern'),
-                    value: 'modern'
-                },
-                {
-                    label: $_('theme_pink'),
-                    value: 'pink'
-                }
-            ]
-        },
-        music_directories: {
-            name: $_('setting_music_dir'),
-            description: $_('setting_music_dir_desc'),
-            type: 'dirs'
-        },
-        lyrics_save: {
-            name: $_('setting_lyrics_auto_save'),
-            description: $_('setting_lyrics_auto_save_desc'),
-            type: 'bool'
-        },
-        lyrics_richsync: {
-            name: $_('thing_is_experimental', {
-                values: {
-                    thing: $_('lyrics_karaoke')
-                }
-            }),
-            description: $_('setting_lyrics_richsync_desc'),
-            type: 'bool'
-        }
-        // audio_backend: {
-        //     name: 'Audio Backend',
-        //     type: 'enum',
-        //     options: [
-        //         {
-        //             label: 'Web',
-        //             value: 'web'
-        //         },
-        //         {
-        //             label: 'Native (Not Implemented)',
-        //             value: 'native'
-        //         }
-        //     ]
-        // }
-    };
+            // audio_backend: {
+            //     name: 'Audio Backend',
+            //     type: 'enum',
+            //     options: [
+            //         {
+            //             label: 'Web',
+            //             value: 'web'
+            //         },
+            //         {
+            //             label: 'Native (Not Implemented)',
+            //             value: 'native'
+            //         }
+            //     ]
+            // }
+        };
+    }
+
+    setSettings();
 
     onMount(async () => {
         getOrCreateConfig()

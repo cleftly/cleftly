@@ -74,7 +74,7 @@
     />
     {#if inputRef && active}
         <div
-            class="absolute card w-full max-w-sm max-h-48 p-4 overflow-y-auto"
+            class="absolute card w-2/4 max-h-48 p-4 overflow-y-auto"
             tabindex="-1"
             style="top: {inputRef.clientHeight + 16}px;"
             bind:this={resRef}

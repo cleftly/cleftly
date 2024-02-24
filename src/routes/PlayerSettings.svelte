@@ -2,7 +2,7 @@
     import { _ } from 'svelte-i18n';
     import { front, player } from '$lib/stores';
 
-    const SPEEDS = [0.5, 0.75, 1, 1.25, 1.5, 1.75, 2];
+    const SPEEDS = [0.25, 0.5, 0.75, 1, 1.25, 1.5, 1.75, 2];
 </script>
 
 {#if $front.modal === 'playerSettings' && $player}

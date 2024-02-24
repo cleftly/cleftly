@@ -1,7 +1,15 @@
 <script lang="ts">
-    import { Avatar } from '@skeletonlabs/skeleton';
+    import {
+        Avatar,
+        getModalStore,
+        getToastStore
+    } from '@skeletonlabs/skeleton';
     import type { FriendlyTrack } from '$lib/db';
     import { playTrack } from '$lib/player';
+    import { openTrackMenu } from '$lib/menus';
+
+    const toastStore = getToastStore();
+    const modalStore = getModalStore();
 
     export let track: FriendlyTrack;
     export let titleClamp: 1 | 2 = 2;
@@ -9,7 +17,12 @@
     export let view: 'album' | 'artist' = 'album';
 </script>
 
-<div class="w-44 {classes}">
+<div
+    class="w-44 {classes}"
+    on:contextmenu={(e) => openTrackMenu(e, track, modalStore, toastStore)}
+    role="button"
+    tabindex="0"
+>
     <Avatar
         src={track.album.albumArt}
         class="rounded-lg w-44 h-44 hover:brightness-90 hover:cursor-pointer mb-1"

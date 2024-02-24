@@ -164,7 +164,7 @@
         </nav>
     </svelte:fragment>
     <svelte:fragment slot="sidebarLeft">
-        <div class="xs:showme h-full">
+        <div class="xs:showme h-full select-none">
             <Sidebar />
         </div>
     </svelte:fragment>
