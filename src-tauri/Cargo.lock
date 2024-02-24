@@ -4142,7 +4142,7 @@ dependencies = [
 [[package]]
 name = "tauri-plugin-log"
 version = "0.0.0"
-source = "git+https://github.com/tauri-apps/plugins-workspace?branch=v1#58176114f98c977e3435aba3aa910b61115a394e"
+source = "git+https://github.com/tauri-apps/plugins-workspace?branch=v1#25aecc00745043a7d1a6d38e35eb86949e8ee23f"
 dependencies = [
  "byte-unit",
  "fern",
@@ -4157,7 +4157,7 @@ dependencies = [
 [[package]]
 name = "tauri-plugin-persisted-scope"
 version = "0.1.3"
-source = "git+https://github.com/tauri-apps/plugins-workspace?branch=v1#58176114f98c977e3435aba3aa910b61115a394e"
+source = "git+https://github.com/tauri-apps/plugins-workspace?branch=v1#25aecc00745043a7d1a6d38e35eb86949e8ee23f"
 dependencies = [
  "aho-corasick",
  "bincode",
