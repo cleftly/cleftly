@@ -48,7 +48,10 @@
                     .reverse()
                     .limit(16)
                     .toArray()
-            ).map(async (playlist) => await db.friendlyPlaylist(playlist))
+            ).map(
+                async (playlist) =>
+                    (await db.friendlyPlaylist(playlist)) as FriendlyPlaylist
+            )
         );
     }
 

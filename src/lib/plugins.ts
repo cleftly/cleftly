@@ -14,7 +14,7 @@ export interface PluginInfo {
     description?: string;
 }
 
-export interface Plugin {
+export interface Plugin extends PluginInfo {
     constructor: PluginConstructor;
     onDestroy?(): void;
 }
@@ -77,7 +77,9 @@ export async function loadPluginConstrFromFile(source: string) {
         //     tsconfig
         // );
 
-        const script = "alert('Please use a JS file for now')";
+        const script = {
+            outputText: "alert('Please use a JS file for now');"
+        };
 
         constr = (
             await import(

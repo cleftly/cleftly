@@ -1,8 +1,9 @@
 import { error } from '@sveltejs/kit';
+import type { PageLoad } from './$types';
 import { browser } from '$app/environment';
-import type { Playlist } from '$lib/db';
+import type { FriendlyPlaylist, Playlist } from '$lib/db';
 
-export async function load({ url }) {
+export const load: PageLoad = async ({ url }) => {
     if (!browser) return;
 
     const { default: db } = await import('$lib/db');
@@ -19,9 +20,11 @@ export async function load({ url }) {
         error(404, 'Playlist not found');
     }
 
-    const playlist = await db.friendlyPlaylist(res as Playlist);
+    const playlist = (await db.friendlyPlaylist(
+        res as Playlist
+    )) as FriendlyPlaylist;
 
     return {
         playlist
     };
-}
+};

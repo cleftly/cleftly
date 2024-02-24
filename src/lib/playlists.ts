@@ -4,6 +4,18 @@ import type { FriendlyPlaylist } from './db';
 import db from './db';
 import { getAlbumId, getOrCreateArtist, idify } from './library';
 
+export type PlaylistExport = {
+    name: string;
+    createdAt?: Date;
+    updatedAt?: Date;
+    tracks: {
+        id?: string;
+        title: string;
+        artist: string;
+        album: string;
+    }[];
+};
+
 // Playlist export/import utilities
 export function exportPlaylist(playlist: FriendlyPlaylist) {
     return {
@@ -21,17 +33,7 @@ export function exportPlaylist(playlist: FriendlyPlaylist) {
     };
 }
 
-export async function importPlaylist(playlist: {
-    name: string;
-    createdAt?: Date;
-    updatedAt?: Date;
-    tracks: {
-        id?: string;
-        title: string;
-        artist: string;
-        album: string;
-    }[];
-}) {
+export async function importPlaylist(playlist: PlaylistExport) {
     const trackIds: string[] = [];
 
     for (const track of playlist.tracks) {
@@ -74,7 +76,7 @@ export async function selectAndImportPlaylist() {
 
     const txt = await readTextFile(loc);
 
-    const playlist = JSON.parse(txt) as unknown;
+    const playlist = JSON.parse(txt) as unknown as PlaylistExport;
 
     await importPlaylist(playlist);
 
@@ -96,7 +98,7 @@ export async function selectAndImportPlaylists() {
 
     const txt = await readTextFile(loc);
 
-    const playlists = JSON.parse(txt) as unknown[];
+    const playlists = JSON.parse(txt) as unknown as PlaylistExport[];
 
     for (const playlist of playlists) {
         await importPlaylist(playlist);
@@ -124,7 +126,10 @@ export async function exportAndSaveAllPlaylists() {
     const playlists = await Promise.all(
         (
             await db.playlists.orderBy('name').toArray()
-        ).map(async (playlist) => await db.friendlyPlaylist(playlist))
+        ).map(
+            async (playlist) =>
+                (await db.friendlyPlaylist(playlist)) as FriendlyPlaylist
+        )
     );
 
     const exports: unknown[] = [];

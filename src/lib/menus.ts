@@ -13,7 +13,7 @@ import {
     type getModalStore
 } from '@skeletonlabs/skeleton';
 import { platform } from '@tauri-apps/api/os';
-import type { FriendlyTrack, Playlist } from './db';
+import type { FriendlyPlaylist, FriendlyTrack, Playlist } from './db';
 import { playlists, queue } from './stores';
 import db from './db';
 import { getTimestamp } from './utils';
@@ -81,7 +81,9 @@ export async function openPlaylistMenu(
             {
                 label: 'Play',
                 event: async () => {
-                    const friendly = await db.friendlyPlaylist(playlist);
+                    const friendly = (await db.friendlyPlaylist(
+                        playlist
+                    )) as FriendlyPlaylist;
 
                     await playTrack(friendly.tracks[0], friendly.tracks);
                 }

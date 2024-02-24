@@ -73,7 +73,7 @@ export interface FriendlyPlaylist extends Playlist {
 }
 
 export interface FriendlyPlaylistForced extends Playlist {
-    tracks: FriendlyTrack[];
+    tracks: (FriendlyTrack | null)[];
 }
 
 export class Database extends Dexie {
@@ -134,8 +134,8 @@ export class Database extends Dexie {
 
     async friendlyPlaylist(
         playlist: Playlist,
-        force = false
-    ): Promise<FriendlyPlaylist> {
+        force: boolean = false
+    ): Promise<FriendlyPlaylist | FriendlyPlaylistForced> {
         const tracks = await this.tracks
             .where('id')
             .anyOf(playlist.trackIds)
@@ -156,10 +156,17 @@ export class Database extends Dexie {
             }
         }
 
+        if (force) {
+            return {
+                ...playlist,
+                tracks: friendlyTracks
+            } as FriendlyPlaylistForced;
+        }
+
         return {
             ...playlist,
             tracks: friendlyTracks
-        };
+        } as FriendlyPlaylist;
     }
 }
 
@@ -205,7 +212,7 @@ db.use({
                                         playlists.set(
                                             get(playlists).filter(
                                                 (p) =>
-                                                    !res.results.includes(p.id)
+                                                    !res.results?.includes(p.id)
                                             )
                                         );
                                     }

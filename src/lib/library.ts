@@ -6,7 +6,12 @@ import { convertFileSrc } from '@tauri-apps/api/tauri';
 import { get } from 'svelte/store';
 import { join } from '@tauri-apps/api/path';
 import { invoke } from '@tauri-apps/api';
-import db, { type FriendlyTrack, type Track } from './db';
+import db, {
+    type Artist,
+    type Album,
+    type Track,
+    type FriendlyTrack
+} from './db';
 import { getOrCreateCacheDir, getOrCreateConfig } from './config';
 import { progress } from './stores';
 
@@ -120,16 +125,20 @@ export async function updateLibrary() {
             albums: await db.albums.toArray()
         }
     })
-        .then((newLibrary) => {
-            console.dir(newLibrary.tracks);
+        .then((newLibrary: unknown) => {
+            const library = newLibrary as {
+                tracks: Track[];
+                artists: Artist[];
+                albums: Album[];
+            };
 
             // Convert album art locations into stream URLs
-            newLibrary.albums.forEach((t) => {
+            library.albums.forEach((t) => {
                 // TODO: Proper solution for this
                 if (t.albumArt) {
                     if (
                         !['stream://', 'http://', 'https://'].some((prefix) =>
-                            t.albumArt.startsWith(prefix)
+                            t.albumArt?.startsWith(prefix)
                         )
                     ) {
                         t.albumArt = convertFileSrc(t.albumArt, 'stream');
@@ -141,9 +150,9 @@ export async function updateLibrary() {
                 await db.tracks.clear();
                 await db.artists.clear();
                 await db.albums.clear();
-                await db.tracks.bulkAdd(newLibrary.tracks);
-                await db.artists.bulkAdd(newLibrary.artists);
-                await db.albums.bulkAdd(newLibrary.albums);
+                await db.tracks.bulkAdd(library.tracks);
+                await db.artists.bulkAdd(library.artists);
+                await db.albums.bulkAdd(library.albums);
             });
         })
         .catch((e) => {

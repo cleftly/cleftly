@@ -1,7 +1,8 @@
 import { error } from '@sveltejs/kit';
+import type { PageLoad } from './$types';
 import { browser } from '$app/environment';
 
-export async function load({ url }) {
+export const load: PageLoad = async ({ url }) => {
     if (!browser) return;
 
     const { default: db } = await import('$lib/db');
@@ -35,4 +36,4 @@ export async function load({ url }) {
         albums,
         tracks
     };
-}
+};
