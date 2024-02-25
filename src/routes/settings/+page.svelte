@@ -77,7 +77,16 @@
                         }),
                         value: 'oled'
                     }
-                ]
+                ],
+                onChange: () => {
+                    if (!config) return;
+
+                    front.set({
+                        ...$front,
+                        theme: config.theme,
+                        color: config.color
+                    });
+                }
             },
             theme: {
                 name: $_('setting_theme'),
@@ -108,7 +117,16 @@
                         label: $_('theme_pink'),
                         value: 'pink'
                     }
-                ]
+                ],
+                onChange: () => {
+                    if (!config) return;
+
+                    front.set({
+                        ...$front,
+                        theme: config.theme,
+                        color: config.color
+                    });
+                }
             },
             music_directories: {
                 name: $_('setting_music_dir'),
@@ -166,6 +184,12 @@
     async function cancelChanges() {
         config = await getOrCreateConfig();
         oldConfig = structuredClone(config);
+
+        front.set({
+            ...$front,
+            theme: config.theme,
+            color: config.color
+        });
     }
 
     async function saveChanges() {
