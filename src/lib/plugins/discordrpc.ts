@@ -7,6 +7,7 @@ import { get } from 'svelte/store';
 import type { FriendlyTrack } from '$lib/db';
 import { eventManager } from '$lib/events';
 import { getConfig, saveConfig } from '$lib/api/config';
+import { getTimestamp } from '$lib/utils';
 
 type TrackData = {
     albumArtUrl: string | null;
@@ -17,6 +18,7 @@ interface DiscordRPCConfig {
     discordRpcDetails: string;
     discordRpcState: string;
     discordRpcShowElapsed: boolean;
+    discordRpcLargeImage: string;
     discordRpcLargeText: string;
     discordRpcSmallText: string;
     discordRpcExternal: boolean;
@@ -33,17 +35,45 @@ export default class DiscordRPC {
     public static version: string = '1.0.0';
     public static api_version: string = 'v1'; // Must be v1
 
+    /*
+             track: audio.track.title,
+            album: audio.track.album.name,
+            artist: audio.track.artist.name,
+            albumArtUrl: externalInfo.albumArtUrl ?? '',
+            songLinkUrl: externalInfo.songLinkUrl ?? '',
+            duration: `${audio.duration || audio.track.duration}`
+    */
+
     public static config_settings = {
-        discordRpcDetails: { name: 'details', description: '', type: 'string' },
-        discordRpcState: { name: 'state', description: '', type: 'string' },
+        discordRpcEnabled: {
+            name: 'Variables',
+            description:
+                '{artist}, {album}, {track}, {albumArtUrl}, {songLinkUrl}, {duration}, {rawDuration}',
+            type: 'hidden'
+        },
+        discordRpcDetails: {
+            name: 'details',
+            description: 'The first line of the Rich Presence.',
+            type: 'string'
+        },
+        discordRpcState: {
+            name: 'state',
+            description: 'The second line of the Rich Presence.',
+            type: 'string'
+        },
         discordRpcShowElapsed: {
             name: 'Show elapsed time',
             description: '',
-            type: 'boolean'
+            type: 'bool'
+        },
+        discordRpcLargeImage: {
+            name: 'Large Image',
+            description: '',
+            type: 'string'
         },
         discordRpcLargeText: {
             name: 'Large Image Text',
-            description: '',
+            description: 'Shown when hovering large image (cover art)',
             type: 'string'
         },
         discordRpcSmallText: {
@@ -54,7 +84,7 @@ export default class DiscordRPC {
         discordRpcExternal: {
             name: 'Fetch external info',
             description:
-                'Allows the plugin to fetch external track information, useful for things such as iTunes links :P',
+                'Allows the plugin to fetch external track information, enabling things such as song links, album art :P',
             type: 'bool'
         },
         discordRpcHideOnPause: {
@@ -89,11 +119,18 @@ export default class DiscordRPC {
     }
 
     private async init() {
+        try {
+            await invoke('clear_activity');
+        } catch (e) {
+            console.error(e);
+        }
+
         const conf = (await getConfig(DiscordRPC.id)) as DiscordRPCConfig;
         const updatedConf = {
             discordRpcDetails: conf.discordRpcDetails ?? '{track}',
             discordRpcState: conf.discordRpcState ?? '{album} - {artist}',
             discordRpcShowElapsed: conf.discordRpcShowElapsed ?? true,
+            discordRpcLargeImage: conf.discordRpcLargeImage ?? '{albumArtUrl}',
             discordRpcLargeText: conf.discordRpcLargeText ?? '{album}',
             discordRpcSmallText: conf.discordRpcSmallText ?? '',
             discordRpcExternal: conf.discordRpcExternal ?? true,
@@ -128,7 +165,8 @@ export default class DiscordRPC {
             artist: audio.track.artist.name,
             albumArtUrl: externalInfo.albumArtUrl ?? '',
             songLinkUrl: externalInfo.songLinkUrl ?? '',
-            duration: `${audio.duration || audio.track.duration}`
+            duration: getTimestamp(audio.duration || audio.track.duration),
+            rawDuration: `${audio.duration || audio.track.duration}`
         };
 
         await this.setDiscordActivity(conf, audio, externalInfo, vars);
@@ -266,7 +304,12 @@ export default class DiscordRPC {
                     this.applyTemplate(conf.discordRpcState as string, vars),
                     80
                 ),
-                large_image: externalInfo.albumArtUrl || undefined,
+                large_image: conf.discordRpcLargeImage
+                    ? this.applyTemplate(
+                          conf.discordRpcLargeImage as string,
+                          vars
+                      )
+                    : undefined,
                 large_text: conf.discordRpcLargeText
                     ? this.applyTemplate(
                           conf.discordRpcLargeText as string,
