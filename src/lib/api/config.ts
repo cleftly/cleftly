@@ -11,6 +11,12 @@ import {
 } from '@tauri-apps/api/fs';
 import { appConfigDir } from '@tauri-apps/api/path';
 
+export async function doesConfigExist(pluginId: string) {
+    return await exists(`${pluginId}.config.json`, {
+        dir: BaseDirectory.AppConfig
+    });
+}
+
 export async function getConfig(pluginId: string) {
     const fileName = `${pluginId}.config.json`;
 

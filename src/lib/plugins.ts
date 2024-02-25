@@ -12,6 +12,13 @@ export interface PluginInfo {
     author: string;
     version: string;
     description?: string;
+    config_settings?: {
+        [key: string]: {
+            name: string;
+            description: string;
+            type: 'bool' | 'string' | 'number' | 'dir' | 'dirs';
+        };
+    };
 }
 
 export interface Plugin extends PluginInfo {

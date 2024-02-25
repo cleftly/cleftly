@@ -40,7 +40,9 @@
 <div class="space-y-1">
     <h2 class="text-2xl">{i.name}</h2>
     {#if i.description}
-        <p class="text-slate-400 md:max-w-[75%]">{i.description}</p>
+        <p class="text-slate-400 md:max-w-[75%] whitespace-break-spaces">
+            {i.description}
+        </p>
     {/if}
 </div>
 {#if i.type === 'string'}
@@ -82,6 +84,8 @@
             <option value={option.value}>{option.label}</option>
         {/each}
     </select>
+{:else if i.type === 'hidden'}
+    <span />
 {:else}
     <p>{value}</p>
 {/if}
