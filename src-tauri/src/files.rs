@@ -1,6 +1,6 @@
 use std::process::Command;
 // State is used by linux
-use tauri::{State};
+use tauri::State;
 
 #[cfg(not(target_os = "windows"))]
 use std::path::PathBuf;
@@ -30,7 +30,6 @@ pub fn show_in_folder(path: String, dbus_state: State<DbusState>) -> Result<(), 
             .arg(&new_path)
             .spawn()
             .map_err(|e| format!("{e:?}"))?;
-        return Ok(());
     } else {
         // https://docs.rs/dbus/latest/dbus/
         let dbus = dbus_guard.as_ref().unwrap();
@@ -43,11 +42,11 @@ pub fn show_in_folder(path: String, dbus_state: State<DbusState>) -> Result<(), 
             .method_call(
                 "org.freedesktop.FileManager1",
                 "ShowItems",
-                (vec![path], ""),
+                (vec![format!("file://{}", path)], ""),
             )
             .map_err(|e| e.to_string())?;
-        return Ok(());
     }
+    Ok(())
 }
 
 #[cfg(not(target_os = "linux"))]
