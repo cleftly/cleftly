@@ -100,18 +100,34 @@ fn recurse(path: impl AsRef<Path>) -> Vec<PathBuf> {
     let Ok(entries) = read_dir(path) else {
         return vec![];
     };
+
     entries
         .flatten()
         .flat_map(|entry| {
             let Ok(meta) = entry.metadata() else {
                 return vec![];
             };
+
             if meta.is_dir() {
                 return recurse(entry.path());
             }
+
             if meta.is_file() {
                 return vec![entry.path()];
             }
+
+            if meta.is_symlink() {
+                let Ok(resolved_path) = std::fs::read_link(entry.path()) else {
+                    return vec![];
+                };
+
+                if resolved_path.is_dir() {
+                    return recurse(resolved_path);
+                }
+
+                return vec![resolved_path];
+            }
+
             vec![]
         })
         .collect()
