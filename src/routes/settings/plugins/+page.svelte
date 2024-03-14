@@ -121,12 +121,14 @@
 
         enabledPlugins = (await getOrCreateConfig()).enabled_plugins || [];
 
-        loadedPlugins = Array.from($plugins.keys());
+        console.log(enabledPlugins, loadedPlugins);
     }
+
+    $: loadedPlugins = Array.from($plugins.keys());
 </script>
 
 <div class="space-y-2">
-    {#if enabledPlugins.length > 0 && enabledPlugins.every( (i) => loadedPlugins.find((i2) => i === i2) )}
+    {#if (enabledPlugins.length > 0 || loadedPlugins.length > 0) && !(enabledPlugins.every( (i) => loadedPlugins.find((i2) => i === i2) ) && loadedPlugins.every( (i) => enabledPlugins.find((i2) => i === i2) ))}
         <aside class="alert variant-filled-warning">
             <div class="alert-message">
                 <h3 class="text-xl">{$_('plugins_reload_required')}</h3>
