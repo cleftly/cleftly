@@ -1,10 +1,11 @@
 // import { transpileModule } from 'typescript';
 import { get } from 'svelte/store';
-import { audio, queue, player, plugins } from './stores';
+import { plugins } from './stores';
 import { getStreamUrl } from './utils';
 import DiscordRPC from './plugins/discordrpc';
 import { getOrCreateConfig } from './config';
 import Test1 from './plugins/test';
+import { generateAPI } from './api/generate';
 
 export interface PluginInfo {
     id: string;
@@ -36,13 +37,7 @@ export async function loadPlugin(constr: PluginConstructor) {
         `Initializing plugin ${constr.name} v${constr.version} by ${constr.author} (${constr.id})...`
     );
 
-    const plugin = new constr({
-        stores: {
-            audio,
-            queue,
-            player
-        }
-    });
+    const plugin = new constr(generateAPI(constr.id));
 
     // Add plugin to store
     plugins.update((val) => {

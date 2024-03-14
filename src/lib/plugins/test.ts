@@ -1,3 +1,4 @@
+// @ts-nocheck
 import type { FriendlyTrack } from '$lib/db';
 import { eventManager } from '$lib/events';
 

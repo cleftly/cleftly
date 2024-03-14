@@ -4,10 +4,9 @@
 import { invoke } from '@tauri-apps/api';
 import { getClient } from '@tauri-apps/api/http';
 import { get } from 'svelte/store';
-import type { FriendlyTrack } from '$lib/db';
-import { eventManager } from '$lib/events';
-import { getConfig, saveConfig } from '$lib/api/config';
 import { getTimestamp } from '$lib/utils';
+import type { FriendlyTrack } from '$lib/db';
+import type { PluginAPI } from '$lib/api/generate';
 
 type TrackData = {
     albumArtUrl: string | null;
@@ -101,12 +100,12 @@ export default class DiscordRPC {
         }
     };
 
-    private _apis;
+    private api: PluginAPI;
     private cache: Map<string, TrackData> = new Map();
     private eventDestroyers: (() => void)[] = [];
 
-    public constructor(apis) {
-        this._apis = apis;
+    public constructor(api: PluginAPI) {
+        this.api = api;
         this.init().then(() => {
             this.setupEventListeners();
         });
@@ -125,7 +124,7 @@ export default class DiscordRPC {
             console.error(e);
         }
 
-        const conf = (await getConfig(DiscordRPC.id)) as DiscordRPCConfig;
+        const conf = (await this.api.config.getConfig()) as DiscordRPCConfig;
         const updatedConf = {
             discordRpcDetails: conf.discordRpcDetails ?? '{track}',
             discordRpcState: conf.discordRpcState ?? '{album} - {artist}',
@@ -139,7 +138,7 @@ export default class DiscordRPC {
         };
 
         if (JSON.stringify(conf) !== JSON.stringify(updatedConf)) {
-            await saveConfig(DiscordRPC.id, {
+            await this.api.config.saveConfig({
                 ...conf,
                 ...updatedConf
             });
@@ -148,15 +147,19 @@ export default class DiscordRPC {
 
     private setupEventListeners() {
         this.eventDestroyers.push(
-            eventManager.onEvent('on_track_change', this.handleTrackChange)
+            this.api.events.eventManager.onEvent(
+                'on_track_change',
+                this.handleTrackChange
+            )
         );
     }
 
-    private handleTrackChange = async (audio: {
-        track: FriendlyTrack;
-        currentTime: number;
-    }) => {
-        const conf = (await getConfig(DiscordRPC.id)) as DiscordRPCConfig;
+    private handleTrackChange = async (
+        audio: Parameters<typeof this.api.stores.audio.set>[0]
+    ) => {
+        if (!audio) return;
+
+        const conf = (await this.api.config.getConfig()) as DiscordRPCConfig;
         const externalInfo = await this.getExternalInfo(audio.track, conf);
 
         const vars = {
@@ -283,14 +286,13 @@ export default class DiscordRPC {
 
     private async setDiscordActivity(
         conf: DiscordRPCConfig,
-        audio: { track: FriendlyTrack; currentTime: number },
+        audio: Parameters<typeof this.api.stores.audio.set>[0],
         externalInfo: TrackData,
         vars: { [key: string]: string }
     ) {
-        if (
-            conf.discordRpcHideOnPause &&
-            get(this._apis.stores.player).paused
-        ) {
+        if (!audio) return;
+
+        if (conf.discordRpcHideOnPause && get(this.api.stores.player).paused) {
             await invoke('clear_activity');
             return;
         }
@@ -324,7 +326,7 @@ export default class DiscordRPC {
                     : undefined,
                 start:
                     conf.discordRpcShowElapsed &&
-                    !get(this._apis.stores.player).paused
+                    !get(this.api.stores.player).paused
                         ? Math.round(
                               new Date().getTime() / 1000 - audio.currentTime
                           )
