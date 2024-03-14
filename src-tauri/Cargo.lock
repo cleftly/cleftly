@@ -120,7 +120,6 @@ dependencies = [
  "tauri-plugin-log",
  "tauri-plugin-persisted-scope",
  "time",
- "walkdir",
  "which",
 ]
 

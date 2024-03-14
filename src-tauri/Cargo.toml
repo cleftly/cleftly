@@ -46,7 +46,6 @@ rand = "0.8.5"
 symphonia = { version = "0.5.3", features = ["all-codecs"] }
 declarative-discord-rich-presence = { git = "https://github.com/KPidS/declarative-discord-rich-presence" }
 tauri-plugin-context-menu = "0.7.0"
-walkdir = "2.4.0"
 regex = "1.10.3"
 md5 = "0.7.0"
 which = "6.0.0"
