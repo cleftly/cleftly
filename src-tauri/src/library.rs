@@ -10,11 +10,20 @@ use symphonia::core::formats::FormatOptions;
 use symphonia::core::io::MediaSourceStream;
 use symphonia::core::meta::{MetadataOptions, StandardTagKey};
 use symphonia::core::probe::{Hint, ProbeResult};
+use tauri::Manager;
 use time::OffsetDateTime;
 
 const SUPPORTED_EXTENSIONS: &[&str] = &[
     "wav", "wave", "mp3", "m4a", "aac", "ogg", "flac", "webm", "caf",
 ];
+
+#[derive(Clone, serde::Serialize)]
+struct ProgressUpdatePayload {
+    id: String,
+    title: String,
+    message: Option<String>,
+    progress: Option<f64>,
+}
 
 #[derive(Debug)]
 struct AlbumArt {
@@ -93,7 +102,10 @@ pub struct Library {
 
 fn idify(name: &str) -> String {
     let reg = Regex::new("[^a-zA-Z0-9 -]").unwrap();
-    format!("{:x}", md5::compute(reg.replace_all(name, "").as_bytes()))
+    format!(
+        "{:x}",
+        md5::compute(reg.replace_all(&name.to_lowercase(), "").as_bytes())
+    )
 }
 
 fn recurse(path: impl AsRef<Path>) -> Vec<PathBuf> {
@@ -350,8 +362,28 @@ pub fn update_library(
         new_files.clone().count()
     );
 
-    for file in new_files {
+    let mut prev_perc = 0.0;
+
+    for (filei, file) in new_files.clone().enumerate() {
         debug!("Scanning {}", file.display());
+
+        let new_perc = (filei + 1) as f64 / new_files.clone().count() as f64;
+
+        if (new_perc - prev_perc) > 0.01 {
+            app_handle
+                .emit_all(
+                    "progressUpdate",
+                    ProgressUpdatePayload {
+                        id: "updateLibrary".to_string(),
+                        title: "Updating Library".to_string(),
+                        message: None,
+                        progress: Some(new_perc),
+                    },
+                )
+                .unwrap();
+            prev_perc = new_perc;
+        }
+
         let src = std::fs::File::open(file.as_path()).unwrap();
         let mss = MediaSourceStream::new(Box::new(src), Default::default());
         let mut hint = Hint::new();
@@ -384,7 +416,7 @@ pub fn update_library(
                     id: album_artist_id.clone(),
                     name: metadata.album_artist,
                     genres: vec![],
-                    created_at: OffsetDateTime::now_utc(), // TODO
+                    created_at: OffsetDateTime::now_utc(),
                 });
             }
 
@@ -397,7 +429,7 @@ pub fn update_library(
                     id: artist_id.clone(),
                     name: metadata.artist,
                     genres: vec![],
-                    created_at: OffsetDateTime::now_utc(), // TODO
+                    created_at: OffsetDateTime::now_utc(),
                 });
             }
 
@@ -442,7 +474,7 @@ pub fn update_library(
                     genres: metadata.genres.clone(),
                     album_art: album_art_path,
                     year: metadata.year,
-                    created_at: OffsetDateTime::now_utc(), // TODO
+                    created_at: OffsetDateTime::now_utc(),
                 })
             }
 
@@ -466,7 +498,7 @@ pub fn update_library(
                     location: file.to_str().unwrap().to_string(),
                     total_tracks: metadata.total_tracks,
                     r#type: Some("local".to_string()),
-                    created_at: OffsetDateTime::now_utc(), // TODO
+                    created_at: OffsetDateTime::now_utc(),
                     last_played_at: OffsetDateTime::now_utc(),
                 });
             }

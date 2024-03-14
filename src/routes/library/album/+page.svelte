@@ -31,7 +31,6 @@
                     >
                         {album.artist.name}
                     </a>
-                    <!-- TODO -->
                     <p class="mb-2 text-sm line-clamp-2 text-gray-400">
                         {album.genres.length > 0 ? `${album.genres[0]}` : ''}
                         {album.genres.length > 0 && album.year ? ' · ' : ''}

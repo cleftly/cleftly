@@ -56,25 +56,25 @@
         </div>
     </div>
     <div class="ml-4 space-y-4">
-        <div class="space-y-2">
-            <h2 class="text-xl">{$_('albums')}</h2>
-            <div class="flex space-x-4 overflow-y-auto">
-                {#if albums}
+        {#if albums && albums?.length > 0}
+            <div class="space-y-2">
+                <h2 class="text-xl">{$_('albums')}</h2>
+                <div class="flex space-x-4 overflow-y-auto">
                     {#each albums as album}
                         <Album titleClamp={2} subtitle="year" {album} />
                     {/each}
-                {/if}
+                </div>
             </div>
-        </div>
-        <div class="space-y-2">
-            <h2 class="text-xl">{$_('singles_ep')}</h2>
-            <div class="flex space-x-4 overflow-y-auto">
-                {#if singles}
+        {/if}
+        {#if singles && singles?.length > 0}
+            <div class="space-y-2">
+                <h2 class="text-xl">{$_('singles_ep')}</h2>
+                <div class="flex space-x-4 overflow-y-auto">
                     {#each singles as single}
                         <Album titleClamp={2} subtitle="year" album={single} />
                     {/each}
-                {/if}
+                </div>
             </div>
-        </div>
+        {/if}
     </div>
 {/if}

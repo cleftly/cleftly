@@ -110,7 +110,7 @@ export async function loadPlugins() {
     /* Load all plugins from config and all built-in plugins */
     const loaded = get(plugins);
 
-    // Ignore loaded plugins (TODO: Reload them instead)
+    // Ignore loaded plugins (TODO?: Reload them instead)
     const toLoad = enabled.filter((id) => !loaded.has(id));
 
     // Load built-in plugins

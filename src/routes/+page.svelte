@@ -102,7 +102,7 @@
                     {
                         label: $_('thing_is_beta', {
                             values: {
-                                thing: 'OLED' // TODO: Does this need i18n?,
+                                thing: 'OLED' // TODO?: Does this need i18n?,
                             }
                         }),
                         value: 'oled'

@@ -6,6 +6,7 @@ import { convertFileSrc } from '@tauri-apps/api/tauri';
 import { get } from 'svelte/store';
 import { join } from '@tauri-apps/api/path';
 import { invoke } from '@tauri-apps/api';
+import { md5 } from 'js-md5';
 import db, {
     type Artist,
     type Album,
@@ -21,7 +22,7 @@ export async function idify(str: string) {
         .trim()
         .replace(/[^a-zA-Z0-9]/g, ''); // TODO: i18n
 
-    return btoa(stripped);
+    return md5.create().update(stripped).hex();
 }
 
 export async function getOrCreateArtist(name: string) {

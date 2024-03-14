@@ -70,8 +70,6 @@ export async function getLyrics(
     retry = true,
     allowRichSync = true
 ): Promise<Lyrics | null> {
-    // TODO: Rich Sync
-    // See https://github.com/ciderapp/Cider/blob/c20001cd490696b4c91f8a10e41a5fb6c813ead4/src/renderer/main/vueapp.js#L3519
     const token = await fetchToken();
 
     const client = await getClient();
