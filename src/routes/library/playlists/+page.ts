@@ -1,5 +1,5 @@
 import { browser } from '$app/environment';
-import { type FriendlyPlaylist } from '$lib/db';
+import type { FriendlyPlaylist } from '$lib/db';
 
 export async function load() {
     if (!browser) return;
