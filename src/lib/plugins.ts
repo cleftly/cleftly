@@ -41,7 +41,7 @@ export async function loadPlugin(constr: PluginConstructor) {
 
     // Add plugin to store
     plugins.update((val) => {
-        val.set(plugin.id, plugin);
+        val.set(constr.id, plugin);
         return val;
     });
 
