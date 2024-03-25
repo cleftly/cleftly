@@ -1,7 +1,7 @@
 /*
     Library scanning and management
 */
-use log::debug;
+use log::{debug, warn};
 use regex::Regex;
 use std::collections::HashMap;
 use std::fs::read_dir;
@@ -163,7 +163,23 @@ fn enum_to_string(value: StandardTagKey) -> &'static str {
 }
 
 fn parse_metadata_tags(mut probed: ProbeResult, file: PathBuf) -> Result<Metadata, String> {
-    // Convert all tags with std_key to hashmap
+    let fallback_title = file.file_stem().unwrap().to_str().unwrap().to_string();
+
+    let fallback_album = file
+        .parent()
+        .and_then(|parent| parent.file_stem())
+        .and_then(|stem| stem.to_str())
+        .unwrap_or("Unknown Album")
+        .to_string();
+
+    let fallback_artist = file
+        .parent()
+        .and_then(|parent| parent.parent())
+        .and_then(|parent| parent.file_stem())
+        .and_then(|stem| stem.to_str())
+        .unwrap_or("Unknown Artist")
+        .to_string();
+
     if let Some(metadata_rev) = probed.format.metadata().current() {
         let mut tags_map: HashMap<String, symphonia::core::meta::Value> = HashMap::new();
 
@@ -176,23 +192,6 @@ fn parse_metadata_tags(mut probed: ProbeResult, file: PathBuf) -> Result<Metadat
                 }
             }
         }
-
-        let fallback_title = file.file_stem().unwrap().to_str().unwrap().to_string();
-
-        let fallback_album = file
-            .parent()
-            .and_then(|parent| parent.file_stem())
-            .and_then(|stem| stem.to_str())
-            .unwrap_or("Unknown Album")
-            .to_string();
-
-        let fallback_artist = file
-            .parent()
-            .and_then(|parent| parent.parent())
-            .and_then(|parent| parent.file_stem())
-            .and_then(|stem| stem.to_str())
-            .unwrap_or("Unknown Artist")
-            .to_string();
 
         Ok(Metadata {
             title: tags_map
@@ -261,7 +260,20 @@ fn parse_metadata_tags(mut probed: ProbeResult, file: PathBuf) -> Result<Metadat
                 }),
         })
     } else {
-        Err("Failed to parse metadata".to_string())
+        Ok(Metadata {
+            title: fallback_title,
+            artist: fallback_artist.clone(),
+            album_artist: fallback_artist,
+            album: fallback_album,
+            album_art: None,
+            duration: 0,
+            genres: vec![],
+            track_num: 1,
+            total_tracks: 1,
+            disc_num: 1,
+            total_discs: 1,
+            year: None,
+        })
     }
 }
 
@@ -502,6 +514,8 @@ pub fn update_library(
                     last_played_at: OffsetDateTime::now_utc(),
                 });
             }
+        } else {
+            warn!("Failed to parse metadata: {}", file.to_str().unwrap());
         }
     }
 
