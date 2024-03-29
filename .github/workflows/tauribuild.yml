@@ -35,7 +35,7 @@ jobs:
             - name: get package info
               id: get-package
               run: |
-                  echo "name='cleftly'" >> $GITHUB_OUTPUT
+                  echo "name=cleftly" >> $GITHUB_OUTPUT
                   echo "version=$(node -p "require('./package.json').version")" >> $GITHUB_OUTPUT
                   echo "description=''" >> $GITHUB_OUTPUT
                   echo "license=$(node -p "require('./package.json').license")" >> $GITHUB_OUTPUT
