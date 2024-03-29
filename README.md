@@ -2,6 +2,8 @@
 
 A simple music player focused on aesthetics, speed, and extensibility.
 
+![GitHub stars](https://img.shields.io/github/stars/wxllow/cleftly?style=flat) ![Downloads](https://img.shields.io/github/downloads/wxllow/cleftly/total) ![GitHub release (latest by SemVer)](https://img.shields.io/github/downloads/wxllow/cleftly/latest/total) ![GitHub forks](https://img.shields.io/github/forks/wxllow/cleftly?style=flat) ![GitHub contributors](https://img.shields.io/github/contributors/wxllow/cleftly) ![License](https://img.shields.io/github/license/wxllow/cleftly)
+
 ![Screenshot](/assets/screenshot1.png)
 
 ## Features
