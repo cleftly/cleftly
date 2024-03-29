@@ -8,10 +8,11 @@ A simple music player focused on aesthetics, speed, and extensibility.
 
 ## Features
 
-- Live Lyrics
+- Live Lyrics (Online, .lrc file, or .txt file)
 - Last.FM Integration
 - Discord Rich Presence
-- Plugins (Coming Soon)
+- Doesn't clutter your music directories (by default)
+- Plugins (WIP)
 - Theming (Coming Soon)
 
 ## Installation
