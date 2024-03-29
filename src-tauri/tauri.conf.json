@@ -91,7 +91,7 @@
             }
         },
         "security": {
-            "csp": "default-src 'self' blob: stream: tauri: https://localhost https://stream.localhost; script-src self stream: https://stream.localhost;"
+            "csp": "default-src 'self' blob: stream: tauri: https://localhost https://stream.localhost 'unsafe-inline'; script-src self stream: https://stream.localhost;"
         },
         "updater": {
             "active": true,
