@@ -49,6 +49,7 @@
 
         const fileName = (file instanceof Array ? file[0] : file) as string;
 
+        console.log(fileName);
         if (allPlugins.find((e) => e.file === fileName)) {
             toastStore.trigger({
                 message: $_('plugin_already_added')
@@ -91,7 +92,7 @@
         const conf = await getOrCreateConfig();
         await saveConfig({
             ...conf,
-            plugins: [...conf.plugins, fileName],
+            plugins: { ...conf.plugins, [plugin.id]: fileName },
             enabled_plugins: [...conf.enabled_plugins]
         });
 
@@ -103,7 +104,9 @@
     }
 
     async function refreshList() {
-        const externalPluginFiles = (await getOrCreateConfig()).plugins;
+        const externalPluginFiles = Object.values(
+            (await getOrCreateConfig()).plugins
+        );
 
         allPlugins = [
             DiscordRPC,

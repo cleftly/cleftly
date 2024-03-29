@@ -47,7 +47,8 @@
                         <!-- TODO -->
                         <button
                             class="btn btn-sm variant-filled-primary"
-                            on:click={() => playTrack(tracks[0], tracks)}
+                            on:click={() =>
+                                playTrack(tracks[0], tracks, undefined, true)}
                         >
                             <Shuffle class="mr-2" />
                             {$_('shuffle')}

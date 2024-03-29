@@ -20,7 +20,8 @@ async function play(
     track: FriendlyTrack,
     queued?: FriendlyTrack[],
     queueIndex?: number,
-    backend: 'native' | 'web' = 'native'
+    backend: 'native' | 'web' = 'native',
+    shuffle: boolean = false
 ) {
     if (backend == 'native') {
         await invoke('play_audio', {
@@ -52,17 +53,32 @@ async function play(
         paused: false
     });
 
-    queue.set({
-        unshuffled: null,
-        tracks: queued || [track],
-        index:
-            typeof queueIndex === 'number'
-                ? queueIndex
-                : Math.max(
-                      0,
-                      queued ? queued.findIndex((t) => t.id === track.id) : -1
-                  )
-    });
+    if (shuffle && queued) {
+        const shuffled = queued
+            .map((value) => ({ value, sort: Math.random() }))
+            .sort((a, b) => a.sort - b.sort)
+            .map(({ value }) => value);
+
+        queue.set({
+            unshuffled: queued,
+            index: 0,
+            tracks: [...shuffled]
+        });
+    } else {
+        queue.set({
+            unshuffled: null,
+            tracks: queued || [track],
+            index:
+                typeof queueIndex === 'number'
+                    ? queueIndex
+                    : Math.max(
+                          0,
+                          queued
+                              ? queued.findIndex((t) => t.id === track.id)
+                              : -1
+                      )
+        });
+    }
 
     getLyrics(track)
         .then((lyrics) => {
@@ -94,11 +110,19 @@ async function play(
         });
 
     eventManager
-        .fireEvent('on_track_change', get(audio))
+        .fireEvent('onTrackPlay', get(audio))
         .then(() => {})
         .catch((err) => {
             console.error(err);
-            console.error('Failed to fire event on_track_change');
+            console.error('Failed to fire event onTrackPlay');
+        });
+
+    eventManager
+        .fireEvent('onTrackChange', get(audio))
+        .then(() => {})
+        .catch((err) => {
+            console.error(err);
+            console.error('Failed to fire event onTrackChange');
         });
 
     db.tracks
@@ -141,7 +165,8 @@ export function parseMMMetadata(
 export async function playTrack(
     track: FriendlyTrack,
     queued?: FriendlyTrack[],
-    index?: number
+    index?: number,
+    shuffle: boolean = false
 ) {
     const backend = (await getOrCreateConfig()).audio_backend;
 
@@ -156,19 +181,17 @@ export async function playTrack(
 
                 const url = URL.createObjectURL(blob);
 
-                await play(url, track, queued, index, backend);
+                await play(url, track, queued, index, backend, shuffle);
             } else {
                 const streamUrl = await getStreamUrl(track.location);
 
-                await play(streamUrl, track, queued, index, backend);
+                await play(streamUrl, track, queued, index, backend, shuffle);
             }
         } else {
             // TODO
             console.error('Not implemented');
         }
     } else {
-        await play(track.location, track, queued, index, backend);
+        await play(track.location, track, queued, index, backend, shuffle);
     }
 }
-
-export async function syncCycle() {}

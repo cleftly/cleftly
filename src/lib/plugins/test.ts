@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
 // @ts-nocheck
 import type { FriendlyTrack } from '$lib/db';
 import { eventManager } from '$lib/events';
@@ -19,7 +20,7 @@ export default class Test1 {
 
         this.eventDestroyers.push(
             eventManager.onEvent(
-                'on_track_change',
+                'onTrackChange',
                 async (track: FriendlyTrack) => {
                     console.log(`Played track: ${JSON.stringify(track)}`);
                 }

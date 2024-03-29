@@ -11,8 +11,6 @@ export default async function () {
             progress?: number;
         };
 
-        console.log('PAYLOAD', payload);
-
         progress.set(
             get(progress).set(payload.id, {
                 title: payload.title,

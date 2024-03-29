@@ -144,11 +144,11 @@
 
     async function fireTrackChange() {
         eventManager
-            .fireEvent('on_track_change', $audio)
+            .fireEvent('onTrackChange', $audio)
             .then(() => {})
             .catch((err) => {
                 console.error(err);
-                console.error('Failed to fire event on_track_change');
+                console.error('Failed to fire event onTrackChange');
             });
     }
 </script>

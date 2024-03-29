@@ -105,7 +105,8 @@ export async function loadPlugins() {
         'com.cleftly.test1': Test1 as unknown as PluginConstructor
     };
 
-    const enabled = [...(await getOrCreateConfig()).enabled_plugins];
+    const conf = await getOrCreateConfig();
+    const enabled = conf.enabled_plugins;
 
     /* Load all plugins from config and all built-in plugins */
     const loaded = get(plugins);
@@ -124,6 +125,6 @@ export async function loadPlugins() {
     await Promise.all(
         toLoad
             .filter((id) => !Object.keys(BUILT_IN).includes(id))
-            .map((id) => loadPluginFromFile(id))
+            .map((id) => loadPluginFromFile(conf.plugins[id]))
     );
 }

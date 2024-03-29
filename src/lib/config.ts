@@ -22,7 +22,7 @@ export type Config = {
     lyrics_save: boolean;
     lyrics_richsync: boolean;
     locale: string | null;
-    plugins: string[];
+    plugins: { [key: string]: string };
     enabled_plugins: string[];
     theme: string;
     color: 'light' | 'dark' | 'oled';
@@ -39,7 +39,7 @@ const DEFAULT_CONFIG = {
     lyrics_save: false,
     lyrics_richsync: false,
     locale: null,
-    plugins: [],
+    plugins: {},
     enabled_plugins: ['com.cleftly.discordrpc'],
     theme: 'crimson',
     color: 'dark',

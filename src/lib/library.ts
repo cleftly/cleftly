@@ -14,7 +14,8 @@ import db, {
     type FriendlyTrack
 } from './db';
 import { getOrCreateCacheDir, getOrCreateConfig } from './config';
-import { progress } from './stores';
+import { playlists, progress } from './stores';
+import { eventManager } from '$lib/events';
 
 export async function idify(str: string) {
     const stripped = str
@@ -155,6 +156,14 @@ export async function updateLibrary() {
                 await db.artists.bulkAdd(library.artists);
                 await db.albums.bulkAdd(library.albums);
             });
+
+            eventManager
+                .fireEvent('onLibraryUpdate', library)
+                .then(() => {})
+                .catch((err) => {
+                    console.error(err);
+                    console.error('Failed to fire event onLibraryUpdate');
+                });
         })
         .catch((e) => {
             console.error(e);
@@ -190,4 +199,34 @@ export async function friendlyLibrary(
             return await db.friendlyTrack(t);
         })
     );
+}
+
+export async function toggleFavorite(trackId: string) {
+    const FAVORITES_PLAYLIST = '0000-0000-0000-0001';
+
+    const playlist = await db.playlists.get(FAVORITES_PLAYLIST);
+
+    if (!playlist) {
+        return;
+    }
+
+    if (playlist.trackIds.includes(trackId)) {
+        await db.playlists.update(FAVORITES_PLAYLIST, {
+            trackIds: playlist.trackIds.filter((id) => id !== trackId)
+        });
+    } else {
+        await db.playlists.update(FAVORITES_PLAYLIST, {
+            trackIds: [...playlist.trackIds, trackId]
+        });
+    }
+
+    const updatedPlaylist = await db.playlists.get(FAVORITES_PLAYLIST);
+
+    if (updatedPlaylist) {
+        console.log('Updated', updatedPlaylist);
+        playlists.set([
+            ...get(playlists).filter((p) => p.id !== FAVORITES_PLAYLIST),
+            updatedPlaylist
+        ]);
+    }
 }

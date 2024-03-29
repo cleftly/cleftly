@@ -148,7 +148,7 @@ export default class DiscordRPC {
     private setupEventListeners() {
         this.eventDestroyers.push(
             this.api.events.eventManager.onEvent(
-                'on_track_change',
+                'onTrackChange',
                 this.handleTrackChange
             )
         );

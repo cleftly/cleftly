@@ -1,12 +1,15 @@
 <script lang="ts">
-    import { Play } from 'lucide-svelte';
+    import { Heart, Play } from 'lucide-svelte';
 
     import { getModalStore, getToastStore } from '@skeletonlabs/skeleton';
     import type { FriendlyTrack } from '$lib/db';
     import { playTrack } from '$lib/player';
-    import { audio } from '$lib/stores';
+    import { audio, playlists } from '$lib/stores';
     import { getTimestamp } from '$lib/utils';
     import { openTrackMenu } from '$lib/menus';
+    import { toggleFavorite } from '$lib/library';
+
+    let favoritesPlaylistTracks: string[] = [];
 
     const toastStore = getToastStore();
     const modalStore = getModalStore();
@@ -18,6 +21,12 @@
                   : a.discNum - b.discNum
           )
         : tracks;
+
+    playlists.subscribe(() => {
+        favoritesPlaylistTracks = $playlists.find(
+            (playlist) => playlist.id === '0000-0000-0000-0001'
+        )?.trackIds;
+    });
 
     export let resort: boolean = true;
     export let tracks: FriendlyTrack[] = [];
@@ -87,9 +96,25 @@
                 <dt class="line-clamp-3">{track.title}</dt>
                 <dd>{track.artist.name}</dd>
             </span>
-            <span class="justify-end items-center text-sm text-gray-400 mr-2">
-                {getTimestamp(track.duration)}
-            </span>
+            <div class="flex flex-row justify-end items-center mr-2">
+                <button
+                    class="hidden sm:block mr-2 btn variant-soft !bg-transparent p-2"
+                    on:click={async () => {
+                        await toggleFavorite(track.id);
+                    }}
+                >
+                    <Heart
+                        class="w-5 h-5 {favoritesPlaylistTracks.includes(
+                            track.id
+                        )
+                            ? 'fill-pink-500'
+                            : ''}"
+                    />
+                </button>
+                <p class="text-sm text-gray-400">
+                    {getTimestamp(track.duration)}
+                </p>
+            </div>
         </div>
     {/each}
 </dl>
