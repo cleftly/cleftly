@@ -23,8 +23,8 @@ jobs:
             deb_pkg_name: ${{ steps.get-package.outputs.name }}_${{ steps.get-package.outputs.version }}_amd64.deb
             deb_pkg_path: ./src-tauri/target/release/bundle/deb/
             deb_pkg_renamed: ${{ steps.get-package.outputs.name }}-${{ steps.get-package.outputs.version }}-${{ env.ARCH }}.deb
-            arch_pkg_name: ${{ steps.get-package.outputs.name }}-bin-${{ steps.get-package.outputs.version }}-1-${{ env.ARCH }}.pkg.tar.zst
-            rpm_pkg_name: RPMS/${{ steps.get-package.outputs.name }}-${{ steps.get-package.outputs.version }}-1.${{ env.ARCH }}.rpm
+            arch_pkg_name: ${{ steps.get-package.outputs.name }}-bin-${{ steps.get-package.outputs.version }}-${{ env.ARCH }}.pkg.tar.zst
+            rpm_pkg_name: RPMS/${{ steps.get-package.outputs.name }}-${{ steps.get-package.outputs.version }}.${{ env.ARCH }}.rpm
             tag_name: v${{ steps.get-package.outputs.version }}
         steps:
             - uses: actions/checkout@v4
@@ -96,7 +96,7 @@ jobs:
                   tagName: ${{ needs.setup.outputs.tag_name }}
                   releaseName: ${{ needs.setup.outputs.tag_name  }}
                   releaseBody: 'See the assets to download and install this version.'
-                  releaseDraft: false
+                  releaseDraft: true
                   prerelease: false
 
             - name: copy deb package && create PKGBUILD file (ubuntu only)
