@@ -186,3 +186,4 @@ jobs:
                   files: |
                       ${{ needs.setup.outputs.name_bin }}/${{ needs.setup.outputs.arch_pkg_name }}
                       ${{ needs.setup.outputs.rpm_pkg_name }}
+                  draft: true
