@@ -43,3 +43,14 @@ For the best compatibility and encoding, we recommend using the following audio 
 ## Missing tracks
 
 - File with the `.mp4` extension will not be recognized, use `.m4a` instead
+
+## Album Art
+
+Cleftly will use album art from the audio file metadata or from a `cover.{png,jpg,gif}` in the same directory as the audio file, in the following order:
+
+- album art from a `cover.{png,jpg,gif}` in the same directory as the audio file
+- album art from the audio file metadata
+
+### Caching
+
+Cleftly will cache the album art from audio file metadata to speed up the process. You may need to Reset DB in Settings if you change the album art from audio file metadata.
