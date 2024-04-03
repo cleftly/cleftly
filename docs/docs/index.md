@@ -1,3 +1,3 @@
-# Cleftly
+# Cleftly Docs
 
 TODO
