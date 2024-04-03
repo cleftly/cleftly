@@ -6,7 +6,7 @@ We are always looking for contributors. If you would like to contribute, this pa
 
 If you are looking to contribute, you can find needed contributions by checking
 
-- [Issues](https://github.com/wxllow/cleftly/issues)
+- [Issues](https://github.com/cleftly/cleftly/issues)
 - [Roadmap](https://github.com/users/wxllow/projects/1)
 - [i18n](i18n.md)
 
@@ -64,4 +64,4 @@ If applied, this commit will ...
 
 ## Pull Requests
 
-Please create/send pull requests to the [main repository](https://github.com/wxllow/cleftly)
+Please create/send pull requests to the [main repository](https://github.com/cleftly/cleftly)

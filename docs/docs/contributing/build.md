@@ -9,7 +9,7 @@
 ## 1. Clone the repository
 
 ```bash
-git clone https://github.com/wxllow/cleftly.git
+git clone https://github.com/cleftly/cleftly.git
 cd cleftly
 ```
 

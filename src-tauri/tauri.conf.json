@@ -96,7 +96,7 @@
         "updater": {
             "active": true,
             "endpoints": [
-                "https://github.com/wxllow/cleftly/releases/download/latest/latest.json"
+                "https://github.com/cleftly/cleftly/releases/download/latest/latest.json"
             ],
             "windows": {
                 "installMode": "basicUi"
