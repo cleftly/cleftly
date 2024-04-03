@@ -29,7 +29,7 @@ this.api.events.eventManager.onEvent('onTrackChange', this.handleTrackChange);
 
 ## Sendable Events
 
-### Search
+### Search Results
 
 - `addSearchResult` - Add a custom search results tab to the search results list (Takes payload of `FriendlyTrack`)
 
