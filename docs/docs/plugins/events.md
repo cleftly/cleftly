@@ -25,13 +25,13 @@ this.api.events.eventManager.onEvent('onTrackChange', this.handleTrackChange);
 
 ### Search
 
-- `onSearch` (TODO) - Fired when a search is performed
+- `onSearch`- Fired when a search is performed
 
 ## Sendable Events
 
 ### Search
 
-- `addSearchResult` (TODO) - Add a custom search results tab to the search results list
+- `addSearchResult` - Add a custom search results tab to the search results list (Takes payload of `FriendlyTrack`)
 
 ## Example Plugin
 
