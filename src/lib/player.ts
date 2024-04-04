@@ -15,7 +15,7 @@ import db from './db';
 import { eventManager } from './events';
 import { INITIAL_AUDIO, audio, player, queue } from '$lib/stores';
 
-async function play(
+export async function play(
     src: string,
     track: FriendlyTrack,
     queued?: FriendlyTrack[],
@@ -171,25 +171,58 @@ export async function playTrack(
     const backend = (await getOrCreateConfig()).audio_backend;
 
     if (backend === 'web') {
-        if ((track.type || 'local') === 'local') {
-            if ((await platform()) === 'linux') {
-                const streamUrl = await getStreamUrl(track.location);
+        switch (track.type || 'local') {
+            case 'local': {
+                if ((await platform()) === 'linux') {
+                    const streamUrl = await getStreamUrl(track.location);
 
-                // Convert to blob as streaming is broken on linux
+                    // Convert to blob as streaming is broken on linux
 
-                const blob = await fetch(streamUrl).then((res) => res.blob());
+                    const blob = await fetch(streamUrl).then((res) =>
+                        res.blob()
+                    );
 
-                const url = URL.createObjectURL(blob);
+                    const url = URL.createObjectURL(blob);
 
-                await play(url, track, queued, index, backend, shuffle);
-            } else {
-                const streamUrl = await getStreamUrl(track.location);
+                    await play(url, track, queued, index, backend, shuffle);
+                } else {
+                    const streamUrl = await getStreamUrl(track.location);
 
-                await play(streamUrl, track, queued, index, backend, shuffle);
+                    await play(
+                        streamUrl,
+                        track,
+                        queued,
+                        index,
+                        backend,
+                        shuffle
+                    );
+                }
+                break;
             }
-        } else {
-            // TODO
-            console.error('Not implemented');
+            case 'http': {
+                let parsedTrack = track;
+
+                if (typeof track.location === 'function') {
+                    parsedTrack = {
+                        ...parsedTrack,
+                        location: await track.location()
+                    };
+                }
+
+                await play(
+                    parsedTrack.location,
+                    track,
+                    queued,
+                    index,
+                    backend,
+                    shuffle
+                );
+                break;
+            }
+            default: {
+                throw new Error('Not implemented');
+                break;
+            }
         }
     } else {
         await play(track.location, track, queued, index, backend, shuffle);
