@@ -19,10 +19,22 @@ pub fn handle_stream_request(
     let path = request
         .uri()
         .strip_prefix(URI_SCHEME_PREFIX)
-        .expect("Invalid URI format");
+        .expect("Invalid URI format")
+        .split_once("?uuid=")
+        .map(|(path, _)| path.to_string())
+        .unwrap_or_else(|| {
+            request
+                .uri()
+                .strip_prefix(URI_SCHEME_PREFIX)
+                .expect("Invalid URI format")
+                .to_string()
+        });
+
     let path = percent_encoding::percent_decode(path.as_bytes())
         .decode_utf8_lossy()
         .to_string();
+
+    println!("Path: {}", path);
 
     if !app.app_handle().fs_scope().is_allowed(&path) {
         return ResponseBuilder::new()

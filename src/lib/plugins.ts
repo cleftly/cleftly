@@ -62,7 +62,6 @@ export async function loadPluginConstrFromFile(source: string) {
     const src = await getStreamUrl(source);
 
     let constr: PluginConstructor;
-
     // TODO: TO FIX (run tsc command externally instead of bloating app with TS)
     if (source.endsWith('.ts')) {
         // Compile TS on the fly (Only useful for development - Plugins should be distributed pre-compiled)
@@ -90,7 +89,8 @@ export async function loadPluginConstrFromFile(source: string) {
             )
         ).default;
     } else {
-        constr = (await import(/* @vite-ignore */ src)).default;
+        constr = (await import(/* @vite-ignore */ `${src}?uuid=${Date.now()}`))
+            .default;
     }
 
     return constr;
