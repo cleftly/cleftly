@@ -1,15 +1,13 @@
 /*
     Library scanning and management
 */
+
+use lofty::{Accessor, AudioFile, Tag, TaggedFile, TaggedFileExt};
 use log::{debug, warn};
 use regex::Regex;
 use std::collections::HashMap;
 use std::fs::read_dir;
 use std::path::{Path, PathBuf};
-use symphonia::core::formats::FormatOptions;
-use symphonia::core::io::MediaSourceStream;
-use symphonia::core::meta::{MetadataOptions, StandardTagKey};
-use symphonia::core::probe::{Hint, ProbeResult};
 use tauri::Manager;
 use time::OffsetDateTime;
 
@@ -38,13 +36,13 @@ struct Metadata {
     album_artist: String,
     album: String,
     album_art: Option<AlbumArt>,
-    duration: i32,
+    duration: u64,
     genres: Vec<String>,
-    track_num: i32,
-    total_tracks: i32,
-    disc_num: i32,
-    total_discs: i32,
-    year: Option<i32>,
+    track_num: u32,
+    total_tracks: u32,
+    disc_num: u32,
+    total_discs: u32,
+    year: Option<u32>,
 }
 
 #[derive(serde::Deserialize, serde::Serialize, Clone)]
@@ -58,11 +56,11 @@ pub struct Track {
     album_id: String,
     album_art: Option<String>,
     genres: Vec<String>,
-    duration: i32,
-    track_num: i32,
-    total_tracks: i32,
-    disc_num: i32,
-    total_discs: i32,
+    duration: u64,
+    track_num: u32,
+    total_tracks: u32,
+    disc_num: u32,
+    total_discs: u32,
     #[serde(with = "time::serde::rfc3339")]
     created_at: OffsetDateTime,
     #[serde(with = "time::serde::rfc3339")]
@@ -79,7 +77,7 @@ pub struct Album {
     album_art: Option<String>,
     #[serde(with = "time::serde::rfc3339")]
     created_at: OffsetDateTime,
-    year: Option<i32>,
+    year: Option<u32>,
 }
 
 #[derive(serde::Deserialize, serde::Serialize, Clone)]
@@ -145,24 +143,11 @@ fn recurse(path: impl AsRef<Path>) -> Vec<PathBuf> {
         .collect()
 }
 
-fn enum_to_string(value: StandardTagKey) -> &'static str {
-    match value {
-        StandardTagKey::Album => "Album",
-        StandardTagKey::Artist => "Artist",
-        StandardTagKey::AlbumArtist => "AlbumArtist",
-        StandardTagKey::DiscNumber => "DiscNumber",
-        StandardTagKey::DiscTotal => "DiscTotal",
-        StandardTagKey::Genre => "Genre",
-        StandardTagKey::TrackNumber => "TrackNumber",
-        StandardTagKey::TrackTotal => "TrackTotal",
-        StandardTagKey::ReleaseDate => "ReleaseDate",
-        StandardTagKey::Date => "Date",
-        StandardTagKey::TrackTitle => "TrackTitle",
-        _ => "Unknown",
-    }
-}
-
-fn parse_metadata_tags(mut probed: ProbeResult, file: PathBuf) -> Result<Metadata, String> {
+fn parse_metadata_tags(
+    tag: Option<&Tag>,
+    file: PathBuf,
+    tagged_file: &TaggedFile,
+) -> Result<Metadata, String> {
     let fallback_title = file.file_stem().unwrap().to_str().unwrap().to_string();
 
     let fallback_album = file
@@ -180,100 +165,72 @@ fn parse_metadata_tags(mut probed: ProbeResult, file: PathBuf) -> Result<Metadat
         .unwrap_or("Unknown Artist")
         .to_string();
 
-    if let Some(metadata_rev) = probed.format.metadata().current() {
-        let mut tags_map: HashMap<String, symphonia::core::meta::Value> = HashMap::new();
+    match tag {
+        Some(tag) => {
+            let album_artist = if let Some(artist) = tag.artist().as_deref() {
+                artist.to_string()
+            } else {
+                fallback_artist.clone()
+            };
 
-        for tag in metadata_rev.tags().into_iter() {
-            if let Some(std_key) = tag.std_key {
-                let key = enum_to_string(std_key).to_string();
-
-                if key != "Unknown" {
-                    tags_map.insert(key, tag.value.to_owned());
-                }
-            }
+            Ok(Metadata {
+                title: tag
+                    .title()
+                    .as_deref()
+                    .unwrap_or(&fallback_title)
+                    .to_string(),
+                artist: tag
+                    .artist()
+                    .as_deref()
+                    .unwrap_or(&fallback_artist.clone())
+                    .to_string(),
+                album_artist: tag
+                    .get_string(&lofty::ItemKey::AlbumArtist)
+                    .unwrap_or(album_artist.as_str())
+                    .to_string(),
+                album: tag
+                    .album()
+                    .as_deref()
+                    .unwrap_or(&fallback_album)
+                    .to_string(),
+                album_art: tag.pictures().first().and_then(|v| {
+                    Some(AlbumArt {
+                        mime_type: v
+                            .mime_type()
+                            .unwrap_or(&lofty::MimeType::Jpeg)
+                            .as_str()
+                            .to_string(),
+                        data: v.data().into(),
+                    })
+                }),
+                duration: tagged_file.properties().duration().as_secs(),
+                genres: tag
+                    .genre()
+                    .as_deref()
+                    .map(|v| vec![v.to_string()])
+                    .unwrap_or_default(),
+                track_num: tag.track().unwrap_or(1),
+                total_tracks: tag.track_total().unwrap_or(1),
+                disc_num: tag.disk().unwrap_or(1),
+                total_discs: tag.disk_total().unwrap_or(1),
+                year: tag.year(),
+            })
         }
 
-        Ok(Metadata {
-            title: tags_map
-                .get("TrackTitle")
-                .map(|v| v.to_string())
-                .unwrap_or(fallback_title),
-            artist: tags_map
-                .get("Artist")
-                .map(|v| v.to_string())
-                .or_else(|| tags_map.get("AlbumArtist").map(|v| v.to_string()))
-                .unwrap_or(fallback_artist.clone()),
-            album_artist: tags_map
-                .get("AlbumArtist")
-                .map(|v| v.to_string())
-                .or_else(|| tags_map.get("Artist").map(|v| v.to_string()))
-                .unwrap_or(fallback_artist),
-            album: tags_map
-                .get("Album")
-                .map(|v| v.to_string())
-                .unwrap_or(fallback_album),
-            album_art: metadata_rev.visuals().first().and_then(|v| {
-                Some(AlbumArt {
-                    mime_type: v.media_type.to_string(),
-                    data: v.data.to_owned(),
-                })
-            }),
-            duration: tags_map
-                .get("Duration")
-                .map(|v| v.to_string())
-                .and_then(|v| v.parse::<i32>().ok())
-                .unwrap_or(0),
-            genres: tags_map
-                .get("Genre")
-                .map(|v| vec![v.to_string()])
-                .unwrap_or_default(),
-            track_num: tags_map
-                .get("TrackNumber")
-                .map(|v| v.to_string())
-                .and_then(|v| v.parse::<i32>().ok())
-                .unwrap_or(1),
-            total_tracks: tags_map
-                .get("TrackTotal")
-                .map(|v| v.to_string())
-                .and_then(|v| v.parse::<i32>().ok())
-                .unwrap_or(1),
-            disc_num: tags_map
-                .get("DiscNumber")
-                .map(|v| v.to_string())
-                .and_then(|v| v.parse::<i32>().ok())
-                .unwrap_or(1),
-            total_discs: tags_map
-                .get("DiscTotal")
-                .map(|v| v.to_string())
-                .and_then(|v| v.parse::<i32>().ok())
-                .unwrap_or(1),
-            year: tags_map
-                .get("ReleaseDate")
-                .or_else(|| tags_map.get("Date"))
-                .map(|v| {
-                    v.to_string()
-                        .split('-')
-                        .next()
-                        .unwrap_or("")
-                        .parse::<i32>()
-                        .unwrap_or(0)
-                }),
-        })
-    } else {
-        Ok(Metadata {
+        None => Ok(Metadata {
             title: fallback_title,
             artist: fallback_artist.clone(),
             album_artist: fallback_artist,
             album: fallback_album,
             album_art: None,
-            duration: 0,
+            duration: tagged_file.properties().duration().as_secs(),
             genres: vec![],
             track_num: 1,
             total_tracks: 1,
             disc_num: 1,
             total_discs: 1,
             year: None,
-        })
+        }),
     }
 }
 
@@ -396,21 +353,14 @@ pub fn update_library(
             prev_perc = new_perc;
         }
 
-        let src = std::fs::File::open(file.as_path()).unwrap();
-        let mss = MediaSourceStream::new(Box::new(src), Default::default());
-        let mut hint = Hint::new();
-        hint.with_extension(file.extension().unwrap().to_str().unwrap());
+        let tagged_file = lofty::Probe::open(file.clone())
+            .unwrap()
+            .guess_file_type()
+            .unwrap()
+            .read()
+            .unwrap();
 
-        let meta_opts: MetadataOptions = Default::default();
-        let fmt_opts: FormatOptions = Default::default();
-
-        // Probe the media source.
-        let Ok(probed) = symphonia::default::get_probe().format(&hint, mss, &fmt_opts, &meta_opts)
-        else {
-            continue;
-        };
-
-        let metadata = parse_metadata_tags(probed, file.clone());
+        let metadata = parse_metadata_tags(tagged_file.primary_tag(), file.clone(), &tagged_file);
 
         if let Ok(metadata) = metadata {
             let album_artist_id = idify(&metadata.album_artist);
