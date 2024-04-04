@@ -13,6 +13,9 @@
 			"$components/*": [
 				"../src/components/*"
 			],
+			"$packageJson": [
+				"../package.json"
+			],
 			"$lib": [
 				"../src/lib"
 			],

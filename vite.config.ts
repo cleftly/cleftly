@@ -6,6 +6,9 @@ export default defineConfig({
     plugins: [sveltekit(), nodePolyfills()],
     clearScreen: false,
     server: {
+        fs: {
+            allow: ['./package.json']
+        },
         port: 3009,
         strictPort: true
     },

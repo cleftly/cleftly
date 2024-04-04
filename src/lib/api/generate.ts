@@ -5,6 +5,7 @@
 import * as events from './events';
 import * as config from './config';
 import { audio, player, progress, queue } from '$lib/stores';
+import packageJson from '$packageJson';
 
 export type PluginAPI = {
     config: {
@@ -18,6 +19,7 @@ export type PluginAPI = {
         progress: typeof progress;
         queue: typeof queue;
     };
+    version: string;
 };
 
 export function generateAPI(pluginId: string): PluginAPI {
@@ -33,6 +35,7 @@ export function generateAPI(pluginId: string): PluginAPI {
             player,
             progress,
             queue
-        }
+        },
+        version: packageJson.version
     };
 }
