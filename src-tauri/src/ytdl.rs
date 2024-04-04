@@ -2,7 +2,18 @@ use std::process::Command;
 use which::which;
 
 #[tauri::command]
-pub async fn get_audio_url(track_url: String) -> Result<String, String> {
+pub async fn check_for_ytdl() -> Option<String> {
+    if which("yt-dlp").is_ok() {
+        return Some("yt-dlp".to_string());
+    } else if which("youtube-dl").is_ok() {
+        return Some("youtube-dl".to_string());
+    } else {
+        return None;
+    };
+}
+
+#[tauri::command]
+pub async fn get_ytdl_url(track_url: String) -> Result<String, String> {
     // yt-dlp -f "bestaudio[ext=m4a]" --get-url {url}
     let cmd = if which("yt-dlp").is_ok() {
         "yt-dlp"
@@ -18,6 +29,8 @@ pub async fn get_audio_url(track_url: String) -> Result<String, String> {
         .arg("-f")
         .arg("bestaudio[ext=m4a]")
         .arg("--get-url")
+        .arg("--extractor-args")
+        .arg("youtube:player-client=web")
         .arg(track_url)
         .output();
 

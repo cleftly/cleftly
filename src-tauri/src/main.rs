@@ -82,7 +82,8 @@ fn main() {
             discordrpc::set_activity,
             files::show_in_folder,
             library::update_library,
-            ytdl::get_audio_url
+            ytdl::get_ytdl_url,
+            ytdl::check_for_ytdl,
         ])
         .run(tauri::generate_context!())
         .expect("Error while running application");
