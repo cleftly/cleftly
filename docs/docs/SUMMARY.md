@@ -1,6 +1,6 @@
 # Docs
 
 - [Home](./index.md)
-- [Organizing Your Music Library](./library.md)
+- [Managing Your Music Library](./library.md)
 - [Known Compatibility Issues](./compatibility.md)
 - */
