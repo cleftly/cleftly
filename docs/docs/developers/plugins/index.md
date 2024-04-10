@@ -11,7 +11,9 @@ export default class MyPlugin {
  static author = 'JohnDoe123'; // The creator(s) of the plugin, can be anything as long as it's accurate
  static description = 'My awesome plugin'; // A short description of the plugin
  static version = '1.0.0'; // The version of the plugin
+ static license = 'MIT'; // The license of the plugin
  static api_version = 'v1'; // Must be v1
+ static features = []; // Advanced Cleftly features the plugin utilizes. Possible: 'searchResults', 'externalTracks'
 
  api;
 

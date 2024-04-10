@@ -1,4 +1,4 @@
-# Music Library
+# Managing Your Music Library
 
 ## Organizing your music library
 
@@ -10,7 +10,7 @@ The best way to make sure your music library is properly organized is to simply 
 
 If you do not wish to or are unable to add the proper metadata to your files, then you can use the following folder structure to store your music library.
 
-```bash
+```bash title="Music directory"
 - Artist
     - Album
         - Track
@@ -48,8 +48,14 @@ For the best compatibility and encoding, we recommend using the following audio 
 
 Cleftly will use album art from the audio file metadata or from a `cover.{png,jpg,gif}` in the same directory as the audio file, in the following order:
 
-- album art from a `cover.{png,jpg,gif}` in the same directory as the audio file
-- album art from the audio file metadata
+- Album art from a `cover.{png,jpg,gif}` in the same directory as the audio file
+- Album art from the audio file metadata
+
+## Animated Album Art
+
+You can provide an animated album art video with the name `anim.{mp4,webm,mov}` in the same directory as the audio file.
+
+This animated art will be shown in the album view and on the player.
 
 ### Caching
 

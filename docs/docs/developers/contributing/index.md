@@ -7,7 +7,7 @@ We are always looking for contributors. If you would like to contribute, this pa
 If you are looking to contribute, you can find needed contributions by checking
 
 - [Issues](https://github.com/cleftly/cleftly/issues)
-- [Roadmap](https://github.com/users/wxllow/projects/1)
+- [Roadmap](https://github.com/orgs/cleftly/projects/1)
 - [i18n](i18n.md)
 
 ## Code of Conduct
@@ -42,6 +42,7 @@ let you down
 - `[core]`: Core functionality (Optional to state)
 - `[plugins]`: Modifications to included plugins
 - `[docs]`: Documentation changes
+- `[ci]`: Changes to CI configuration
 
 ### Types
 
@@ -49,10 +50,9 @@ let you down
 
 - `feat`: A new feature
 - `fix`: A bug fix
-- `refactor`: A code change that neither fixes a bug nor adds a feature and instead improves existing functionality (e.g. making code more clean, speeding up code, etc.)
-- `test`: Adding missing tests or correcting existing tests
+- `refactor`/`ref`: A code change that neither fixes a bug nor adds a feature and instead improves existing functionality (e.g. making code more clean, speeding up code, etc.)
 - `chore`: Other changes that don't modify the code (e.g. updating dependencies, formatting, etc.)
-- `release`: Commit to release a new version, no added code
+- `tests`: Adding missing tests or correcting existing tests
 
 ### Subject
 
