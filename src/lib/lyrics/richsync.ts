@@ -2,7 +2,7 @@
  * Utilities for parsing musixmatch richsync lyrics
  */
 
-type RichSyncLyric = {
+export type RichSyncLyric = {
     timestamp: number;
     end?: number;
     line: string;
@@ -42,28 +42,16 @@ export function parseRichSyncLyrics(
             return lyric.line.length > 0;
         });
 
-    // Add gaps for any gaps >1s between end and start of lyrics
-    // for (let i = 0; i < parsed.length - 1; i++) {
-    //     if (parsed[i + 1].timestamp - parsed[i].timestamp > 1) {
-    //         parsed.splice(
-    //             i + 1,
-    //             0,
-    //             {
-    //                 timestamp: parsed[i].timestamp + 1,
-    //                 end: parsed[i].end,
-    //                 line: '',
-    //                 parts: []
-    //             },
-    //             {
-    //                 timestamp: parsed[i + 1].timestamp - 1,
-    //                 end: parsed[i + 1].end,
-    //                 line: '',
-    //                 parts: []
-    //             }
-    //         );
-    //         i += 2;
-    //     }
-    // }
+    for (let i = 0; i < parsed.length - 1; i++) {
+        if (parsed[i]?.end && parsed[i + 1].timestamp - parsed[i].end > 3) {
+            parsed.splice(i + 1, 0, {
+                timestamp: parsed[i].end,
+                end: parsed[i + 1].timestamp,
+                line: '',
+                parts: []
+            });
+        }
+    }
 
     // Add a gap at the beginning
     if (parsed[0]?.timestamp !== 0) {

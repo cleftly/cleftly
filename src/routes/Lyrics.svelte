@@ -1,35 +1,40 @@
 <script lang="ts">
     /** eslint-disable svelte/valid-compile */
     import { _ } from 'svelte-i18n';
-    import { parse } from '$lib/lyrics/lrcutils';
+    import { parse, type Lyric } from '$lib/lyrics/lrcutils';
     import {
         parseRichSyncLyrics,
         getCurrentLineIndex,
-        getCurrentWordIndex
+        getCurrentWordIndex,
+        type RichSyncLyric
     } from '$lib/lyrics/richsync';
     import { audio, front } from '$lib/stores';
 
+    let lyrics: string | RichSyncLyric[] | Lyric[] | null = null;
     let lyricContainer: HTMLDivElement;
     let lyricRefs: { [key: number]: HTMLSpanElement } = {};
-    let autoScroll = true;
-    let progScrolling = false;
+    let prevLyrics = $audio?.lyrics;
 
-    let currentSong: Date | undefined;
-
-    $: lyrics = (() => {
-        if (!$audio?.lyrics) {
-            return null;
+    audio.subscribe(async (value) => {
+        if (JSON.stringify(value?.lyrics) === JSON.stringify(prevLyrics)) {
+            return;
         }
 
-        switch ($audio?.lyrics?.format) {
-            case 'richsync':
-                return parseRichSyncLyrics(JSON.parse($audio.lyrics.lyrics));
-            case 'lrc':
-                return parse($audio.lyrics.lyrics);
-            default:
-                return `${$audio.lyrics.lyrics}`;
-        }
-    })();
+        prevLyrics = $audio?.lyrics;
+
+        lyrics = (() => {
+            switch ($audio?.lyrics?.format) {
+                case 'richsync':
+                    return parseRichSyncLyrics(
+                        JSON.parse($audio.lyrics.lyrics)
+                    );
+                case 'lrc':
+                    return parse($audio.lyrics.lyrics);
+                default:
+                    return `${$audio?.lyrics?.lyrics}`;
+            }
+        })();
+    });
 
     $: lyricIndex = lyrics
         ? (() => {
@@ -41,23 +46,6 @@
 
               for (let i = lyrics.length - 1; i >= 0; i--) {
                   if (currentTime >= lyrics[i].timestamp) {
-                      if (lyricIndex !== i && autoScroll) {
-                          progScrolling = true;
-
-                          lyricContainer.scrollTo({
-                              top: Math.max(
-                                  0,
-                                  (lyricRefs[lyricIndex + 1]?.offsetTop || 0) -
-                                      20
-                              ),
-                              behavior: 'smooth'
-                          });
-
-                          setTimeout(() => {
-                              progScrolling = false;
-                          }, 500);
-                      }
-
                       return i;
                   }
               }
@@ -65,29 +53,12 @@
               return 0;
           })()
         : 0;
-
-    function scroll() {
-        if (!progScrolling) {
-            autoScroll = false;
-        }
-    }
-
-    $: $audio?.track,
-        () => {
-            if (currentSong !== $audio?.playedAt) {
-                progScrolling = false;
-                autoScroll = true;
-            }
-
-            currentSong = $audio?.playedAt;
-        };
 </script>
 
 {#if $audio && $front.modal === 'lyrics'}
     <div
         class="overflow-y-auto p-4 bg-neutral-300 dark:bg-neutral-900 min-h-full"
         bind:this={lyricContainer}
-        on:scroll={scroll}
     >
         <div class="">
             <div class="flex flex-col py-8">
@@ -96,26 +67,12 @@
                 {:else if $audio.lyrics?.format === 'plain'}
                     <p class="whitespace-pre-line">{lyrics}</p>
                 {:else if $audio.lyrics?.format === 'richsync'}
-                    <!-- <p>
-                        getCurrentLineIndex: {getCurrentLineIndex(
-                            lyrics,
-                            $audio.currentTime
-                        )}
-                        getCurrentWordIndex: {getCurrentWordIndex(
-                            lyrics[
-                                getCurrentLineIndex(lyrics, $audio.currentTime)
-                            ],
-                            $audio.currentTime
-                        )}
-                    </p> -->
                     {#each lyrics as line, i}
                         {#if line.line.trim() || getCurrentLineIndex(lyrics, $audio.currentTime) === i}
                             <p
-                                class="whitespace-pre-line {line.line.trim()
+                                class="whitespace-pre-line mb-4 {line.line.trim()
                                     ? 'text-xl'
-                                    : 'text-2xl'} {!line.line.trim()
-                                    ? 'text-6xl text-center animate-pulse'
-                                    : ''}"
+                                    : 'text-6xl text-center animate-pulse'}"
                                 bind:this={lyricRefs[i]}
                             >
                                 {#if line.line.trim()}
@@ -154,6 +111,7 @@
                             </p>
                         {/if}
                     {/each}
+                    <p class="whitespace-pre-line">{$audio.lyrics.credits}</p>
                 {:else if $audio.lyrics?.format === 'lrc'}
                     {#each lyrics as lyric, i}
                         {#if lyric.content.trim() || i === lyricIndex}
@@ -162,7 +120,7 @@
                             <span
                                 class="{lyric.content.trim()
                                     ? 'text-xl'
-                                    : 'text-2xl text-6xl text-center animate-pulse'} mb-4 hover:brightness-90 cursor-pointer text-gray-400 whitespace-pre-line ${i ===
+                                    : 'text-6xl text-center animate-pulse'} mb-4 hover:brightness-90 cursor-pointer text-gray-400 whitespace-pre-line ${i ===
                                 lyricIndex
                                     ? 'font-extrabold text-white'
                                     : ''}"
@@ -177,11 +135,6 @@
                                         ),
                                         behavior: 'smooth'
                                     });
-
-                                    setTimeout(() => {
-                                        autoScroll = true;
-                                        progScrolling = false;
-                                    }, 500);
                                 }}
                                 on:keydown={() => {
                                     $audio.currentTime = lyric.timestamp;
@@ -193,11 +146,6 @@
                                         ),
                                         behavior: 'smooth'
                                     });
-
-                                    setTimeout(() => {
-                                        autoScroll = true;
-                                        progScrolling = false;
-                                    }, 500);
                                 }}
                             >
                                 {lyric.content.trim() || '•••'}

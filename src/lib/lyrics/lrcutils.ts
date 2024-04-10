@@ -39,10 +39,10 @@ export interface TimeLine {
     content: string;
 }
 
-export interface Lyric {
+export type Lyric = {
     timestamp: number;
     content: string;
-}
+};
 
 export function parseTags(line: string): null | [string[], string] {
     line = line.trim();
