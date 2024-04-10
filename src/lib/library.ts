@@ -146,6 +146,19 @@ export async function updateLibrary() {
                         t.albumArt = convertFileSrc(t.albumArt, 'stream');
                     }
                 }
+
+                if (t.animatedAlbumArt) {
+                    if (
+                        !['stream://', 'http://', 'https://'].some((prefix) =>
+                            t.animatedAlbumArt?.startsWith(prefix)
+                        )
+                    ) {
+                        t.animatedAlbumArt = convertFileSrc(
+                            t.animatedAlbumArt,
+                            'stream'
+                        );
+                    }
+                }
             });
 
             db.transaction('rw', db.tracks, db.artists, db.albums, async () => {

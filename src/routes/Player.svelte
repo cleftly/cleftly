@@ -26,6 +26,7 @@
     import { getTimestamp } from '$lib/utils';
     import { eventManager } from '$lib/events';
     import { openTrackMenu } from '$lib/menus';
+    import AnimArt from '$components/AnimArt.svelte';
 
     const modalStore = getModalStore();
     const toastStore = getToastStore();
@@ -188,11 +189,8 @@
             role="button"
             tabindex="0"
         >
-            <img
-                src={$audio.track.album.albumArt}
-                class="w-[4.5rem] h-[4.5rem] rounded-lg"
-                alt="Album Art"
-            />
+            <AnimArt album={$audio.track.album} size="4.5rem" />
+
             <div class="items-center">
                 <h1 class="text-sm line-clamp-2">
                     {$audio.track.title || $_('unknown')}

@@ -6,6 +6,7 @@ use lofty::{Accessor, AudioFile, Tag, TaggedFile, TaggedFileExt};
 use log::{debug, warn};
 use regex::Regex;
 use std::collections::HashMap;
+use std::ffi::OsStr;
 use std::fs::read_dir;
 use std::path::{Path, PathBuf};
 use tauri::Manager;
@@ -14,6 +15,9 @@ use time::OffsetDateTime;
 const SUPPORTED_EXTENSIONS: &[&str] = &[
     "wav", "wave", "mp3", "m4a", "aac", "ogg", "flac", "webm", "caf",
 ];
+
+const COVER_EXTENSIONS: &[&str] = &["jpg", "jpeg", "png", "gif"];
+const ANIM_COVER_EXTENSIONS: &[&str] = &["mp4", "webm", "mov"];
 
 #[derive(Clone, serde::Serialize)]
 struct ProgressUpdatePayload {
@@ -55,6 +59,7 @@ pub struct Track {
     artist_id: String,
     album_id: String,
     album_art: Option<String>,
+    animated_album_art: Option<String>,
     genres: Vec<String>,
     duration: u64,
     track_num: u32,
@@ -75,6 +80,7 @@ pub struct Album {
     genres: Vec<String>,
     artist_id: String,
     album_art: Option<String>,
+    animated_album_art: Option<String>,
     #[serde(with = "time::serde::rfc3339")]
     created_at: OffsetDateTime,
     year: Option<u32>,
@@ -318,11 +324,30 @@ pub fn update_library(
                 .to_str()
                 .unwrap(),
         ) == "cover"
-            && !(SUPPORTED_EXTENSIONS.iter().any(|ext| {
+            && COVER_EXTENSIONS.iter().any(|ext| {
                 path.extension()
-                    .map(|pext| pext.to_str().unwrap() == ext.to_string().as_str())
-                    .unwrap_or(false)
-            }))
+                    .unwrap_or(OsStr::new(""))
+                    .to_ascii_lowercase()
+                    .to_string_lossy()
+                    == ext.to_string()
+            })
+    });
+
+    let anim_cover_files = all_files.clone().into_iter().filter(|path| {
+        str::to_lowercase(
+            path.with_extension("")
+                .file_name()
+                .unwrap()
+                .to_str()
+                .unwrap(),
+        ) == "anim"
+            && ANIM_COVER_EXTENSIONS.iter().any(|ext| {
+                path.extension()
+                    .unwrap_or(OsStr::new(""))
+                    .to_ascii_lowercase()
+                    .to_string_lossy()
+                    == ext.to_string()
+            })
     });
 
     debug!(
@@ -399,6 +424,7 @@ pub fn update_library(
             if !new_library.albums.iter().any(|album| album.id == album_id) {
                 // If cover_files len > 0, use the first file
                 let mut album_art_path: Option<String> = None;
+                let mut anim_album_art_path: Option<String> = None;
 
                 // Find cover_files wiht same directory
                 let covers = cover_files
@@ -427,6 +453,21 @@ pub fn update_library(
                     }
                 }
 
+                let anim_covers = anim_cover_files
+                    .clone()
+                    .filter(|cover_file| cover_file.parent().unwrap() == file.parent().unwrap());
+
+                if anim_covers.clone().count() > 0 {
+                    anim_album_art_path = Some(
+                        anim_covers
+                            .clone()
+                            .next()
+                            .unwrap()
+                            .to_string_lossy()
+                            .to_string(),
+                    );
+                }
+
                 debug!("Album art path: {:?}", album_art_path);
 
                 new_library.albums.push(Album {
@@ -435,6 +476,7 @@ pub fn update_library(
                     artist_id: album_artist_id.clone(),
                     genres: metadata.genres.clone(),
                     album_art: album_art_path,
+                    animated_album_art: anim_album_art_path,
                     year: metadata.year,
                     created_at: OffsetDateTime::now_utc(),
                 })
@@ -455,6 +497,7 @@ pub fn update_library(
                     disc_num: metadata.disc_num,
                     total_discs: metadata.total_discs,
                     album_art: None,
+                    animated_album_art: None,
                     duration: metadata.duration,
                     genres: metadata.genres,
                     location: file.to_str().unwrap().to_string(),

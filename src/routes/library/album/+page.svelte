@@ -1,9 +1,9 @@
 <script lang="ts">
-    import { Avatar } from '@skeletonlabs/skeleton';
     import { Play, Shuffle } from 'lucide-svelte';
     import { _ } from 'svelte-i18n';
     import TrackList from '$components/TrackList.svelte';
     import { playTrack } from '$lib/player';
+    import AnimArt from '$components/AnimArt.svelte';
 
     $: album = data.album;
     $: tracks = data.tracks;
@@ -14,11 +14,8 @@
 {#if album}
     <div>
         <div class="flex md:flex-row flex-col w-full">
-            <div class="w-72 h-72">
-                <Avatar
-                    src={album.albumArt}
-                    class="rounded-lg w-72 h-72 mb-1 justify-center items-center md:justify-normal"
-                />
+            <div class="justify-center items-center md:justify-normal">
+                <AnimArt size="18rem" {album} />
             </div>
             <div class="flex m-4 items-end">
                 <div class="space-x-2">

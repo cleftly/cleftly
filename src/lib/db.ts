@@ -16,6 +16,7 @@ export interface Track {
     artistId: string;
     albumId: string;
     albumArt?: string;
+    animatedAlbumArt?: string;
     genres: string[];
 
     duration: number;
@@ -34,6 +35,7 @@ export interface Album {
     genres: string[];
     artistId: string;
     albumArt?: string;
+    animatedAlbumArt?: string;
     createdAt: Date;
     year: number | undefined;
 }
