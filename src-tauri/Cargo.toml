@@ -43,7 +43,6 @@ percent-encoding = "2.3.0"
 mime_guess = "2.0.4"
 rodio = { version = "0.17.3", features = ["symphonia-aac", "symphonia-isomp4"] }
 rand = "0.8.5"
-symphonia = { version = "0.5.3", features = ["all-codecs"] }
 declarative-discord-rich-presence = { git = "https://github.com/KPidS/declarative-discord-rich-presence" }
 tauri-plugin-context-menu = "0.7.0"
 regex = "1.10.3"
@@ -59,7 +58,6 @@ objc = "0.2.7"
 cocoa = "0.25.0"
 
 [target.'cfg(target_os = "linux")'.dependencies]
-fork = "0.1.23"
 dbus = "0.9.7"
 
 [features]
