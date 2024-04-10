@@ -231,11 +231,10 @@ export async function openTrackMenu(
                             Artist: ${track.artist.name} (${track.artistId})<br>
                             Album: ${track.album.name} (${track.albumId})<br>
                             Location: ${track.location}<br>
-                            Album Art: ${
-                                track.album.albumArt
-                            } (${decodeURIComponent(
-                            track.album.albumArt ?? ''
-                        )})<br>
+                            Album Art: ${track.album.albumArt}<br>
+                            Animated Album Art: ${
+                                track.album.animatedAlbumArt
+                            }<br>
                             Played At: ${track.lastPlayedAt}<br>
                             Created At: ${track.createdAt}<br>
                             Duration: ${getTimestamp(track.duration)} (${

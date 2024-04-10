@@ -4,7 +4,6 @@ import { plugins } from './stores';
 import { getStreamUrl } from './utils';
 import DiscordRPC from './plugins/discordrpc';
 import { getOrCreateConfig } from './config';
-import Test1 from './plugins/test';
 import { generateAPI } from './api/generate';
 
 export interface PluginInfo {
@@ -13,6 +12,8 @@ export interface PluginInfo {
     author: string;
     version: string;
     description?: string;
+    license?: string;
+    features?: string[];
     config_settings?: {
         [key: string]: {
             name: string;
@@ -33,6 +34,10 @@ export interface PluginConstructor extends PluginInfo {
 }
 
 export async function loadPlugin(constr: PluginConstructor) {
+    if (!constr.id) {
+        throw new Error(`Plugin has no id`);
+    }
+
     console.info(
         `Initializing plugin ${constr.name} v${constr.version} by ${constr.author} (${constr.id})...`
     );
@@ -54,7 +59,9 @@ export async function loadPlugin(constr: PluginConstructor) {
         name: plugin.constructor.name,
         description: plugin.constructor.description,
         version: plugin.constructor.version,
-        author: plugin.constructor.author
+        author: plugin.constructor.author,
+        license: plugin.constructor.license,
+        features: plugin.constructor.features || []
     };
 }
 
@@ -101,8 +108,7 @@ export async function loadPluginFromFile(source: string) {
 
 export async function loadPlugins() {
     const BUILT_IN: { [key: string]: PluginConstructor } = {
-        'com.cleftly.discordrpc': DiscordRPC as unknown as PluginConstructor,
-        'com.cleftly.test1': Test1 as unknown as PluginConstructor
+        'com.cleftly.discordrpc': DiscordRPC as unknown as PluginConstructor
     };
 
     const conf = await getOrCreateConfig();

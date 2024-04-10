@@ -52,7 +52,9 @@
 
         await saveConfig({
             ...conf,
-            plugins: conf.plugins.filter((p) => p !== plugin.file),
+            plugins: Object.fromEntries(
+                Object.entries(conf.plugins).filter(([k]) => k !== plugin.id)
+            ),
             enabled_plugins: conf.enabled_plugins.filter((p) => p !== plugin.id)
         });
 
@@ -115,7 +117,7 @@
                 await toggleEnabled(e, plugin);
             }}
         />
-        {#if enabled}
+        {#if enabled && plugin.config_settings && plugin.config_settings.length > 0}
             <button
                 class="btn variant-filled-primary"
                 on:click={() => (showSettings = !showSettings)}
