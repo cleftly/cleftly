@@ -37,13 +37,11 @@
 <svelte:window
     on:blur={() => {
         if (animArtElement) {
-            animArtElement.currentTime = 0;
             animArtElement.pause();
         }
     }}
     on:focus={() => {
         if (animArtElement) {
-            animArtElement.currentTime = 0;
             animArtElement.play();
         }
     }}

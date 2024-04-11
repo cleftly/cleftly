@@ -62,7 +62,7 @@
     >
         <div class="">
             <div class="flex flex-col py-8">
-                {#if !lyrics || lyrics.length === 0}
+                {#if !lyrics}
                     <p class="text-xl">{$_('no_lyrics_found')}</p>
                 {:else if $audio.lyrics?.format === 'plain'}
                     <p class="whitespace-pre-line">{lyrics}</p>
