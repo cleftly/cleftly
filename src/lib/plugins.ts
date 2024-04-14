@@ -96,8 +96,11 @@ export async function loadPluginConstrFromFile(source: string) {
             )
         ).default;
     } else {
-        constr = (await import(/* @vite-ignore */ `${src}?uuid=${Date.now()}`))
-            .default;
+        const script = await (await fetch(`${src}?uuid=${Date.now()}`)).text();
+        const scriptBlobUrl = URL.createObjectURL(
+            new Blob([script], { type: 'text/javascript' })
+        );
+        constr = (await import(/* @vite-ignore */ scriptBlobUrl)).default;
     }
 
     return constr;

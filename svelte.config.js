@@ -17,9 +17,34 @@ const config = {
         // If your environment is not supported or you settled on a specific environment, switch out the adapter.
         // See https://kit.svelte.dev/docs/adapters for more information about adapters.
         adapter: adapter(),
+        // default-src 'self' blob: stream: tauri: https://localhost https://stream.localhost 'unsafe-inline'; script-src self stream: blob: tauri: https://localhost https://stream.localhost stream://localhost/*;"
         csp: {
             mode: 'auto',
-            directives: { 'script-src': ['self'] }
+            directives: {
+                'default-src': [
+                    'self',
+                    'blob:',
+                    'stream:',
+                    'tauri:',
+                    'https://localhost',
+                    'https://stream.localhost',
+                    'unsafe-inline'
+                ],
+                'script-src': [
+                    'self',
+                    'stream:',
+                    'blob:',
+                    'https://stream.localhost'
+                ],
+                'media-src': [
+                    'self',
+                    'https://*',
+                    'blob:',
+                    'stream:',
+                    'tauri:'
+                ],
+                'img-src': ['self', 'https://*', 'blob:', 'stream:', 'tauri:']
+            }
         }
     }
 };
