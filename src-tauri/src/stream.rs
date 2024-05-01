@@ -1,3 +1,4 @@
+use log::{debug, error};
 // File streaming protocol
 use rand::Rng;
 use std::{
@@ -34,9 +35,10 @@ pub fn handle_stream_request(
         .decode_utf8_lossy()
         .to_string();
 
-    println!("Path: {}", path);
+    debug!("Requested file: {}", path);
 
     if !app.app_handle().fs_scope().is_allowed(&path) {
+        error!("Requested file not in scope: {}", path);
         return ResponseBuilder::new()
             .header(ACCESS_CONTROL_ALLOW_ORIGIN, "*")
             .status(403)

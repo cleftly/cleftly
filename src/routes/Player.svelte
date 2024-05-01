@@ -57,8 +57,8 @@
         navigator.mediaSession.setActionHandler('previoustrack', previous);
         navigator.mediaSession.setActionHandler('nexttrack', next);
         navigator.mediaSession.setActionHandler('seekto', (e) => {
-            if ($audio) {
-                $audio.currentTime = e.seekTime || 0;
+            if ($audio && $player) {
+                $player.webAudioElement.currentTime = e.seekTime || 0;
 
                 fireTrackChange().then(() => {});
             }
@@ -93,7 +93,7 @@
         if (!$audio) return;
 
         if ($audio.currentTime > 3) {
-            $audio.currentTime = 0;
+            $player.webAudioElement.currentTime = 0;
             return;
         }
 
@@ -152,6 +152,18 @@
                 console.error('Failed to fire event onTrackChange');
             });
     }
+
+    setInterval(() => {
+        if ($audio && $player) {
+            $audio.currentTime = $player.webAudioElement?.currentTime;
+        }
+    }, 100);
+
+    eventManager.onEvent('onTrackChange', async () => {
+        if ($audio && $player) {
+            $audio.currentTime = $player.webAudioElement?.currentTime;
+        }
+    });
 </script>
 
 {#if $audio}
@@ -168,7 +180,6 @@
             }}
             on:seeked={fireTrackChange}
             bind:muted={$player.muted}
-            bind:currentTime={$audio.currentTime}
             bind:duration={$audio.duration}
             bind:volume={$player.volume}
             bind:playbackRate={$player.speed}
@@ -176,6 +187,7 @@
             on:error={error}
             loop={$player.repeat === 'one'}
         />
+        <!--             bind:currentTime={$audio.currentTime} -->
     {/if}
 
     <div
@@ -223,14 +235,18 @@
             <div class="flex items-center space-x-4 w-full">
                 <p class="text-xs">{getTimestamp($audio.currentTime)}</p>
 
-                <RangeSlider
-                    name="currentTime"
-                    accent="variant-filled-primary"
-                    class="w-full"
-                    bind:value={$audio.currentTime}
-                    max={Math.floor($audio.track.duration || $audio.duration)}
-                    step={1}
-                />
+                {#if $player.webAudioElement?.currentTime}
+                    <RangeSlider
+                        name="currentTime"
+                        accent="variant-filled-primary"
+                        class="w-full"
+                        bind:value={$player.webAudioElement.currentTime}
+                        max={Math.floor(
+                            $audio.track.duration || $audio.duration
+                        )}
+                        step={1}
+                    />
+                {/if}
                 <p class="text-xs">
                     {getTimestamp($audio.track.duration || $audio.duration)}
                 </p>

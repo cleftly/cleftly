@@ -14,6 +14,8 @@
     } from '$lib/plugins';
     import DiscordRPC from '$lib/plugins/discordrpc';
     import { plugins } from '$lib/stores';
+    import MusixmatchPlugin from '$lib/plugins/musixmatch';
+    import LastFmPlugin from '$lib/plugins/lastfm';
 
     interface ExternalPluginInfo extends PluginInfo {
         file: string;
@@ -110,6 +112,8 @@
 
         allPlugins = [
             DiscordRPC,
+            MusixmatchPlugin,
+            LastFmPlugin,
             ...(await Promise.all(
                 externalPluginFiles.map(async (file) => {
                     const plug = await loadPluginConstrFromFile(file);

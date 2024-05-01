@@ -1,6 +1,7 @@
 <script lang="ts">
     /** eslint-disable svelte/valid-compile */
     import { _ } from 'svelte-i18n';
+    import { writeTextFile } from '@tauri-apps/api/fs';
     import { parse, type Lyric } from '$lib/lyrics/lrcutils';
     import {
         parseRichSyncLyrics,
@@ -8,13 +9,48 @@
         getCurrentWordIndex,
         type RichSyncLyric
     } from '$lib/lyrics/richsync';
-    import { audio, front } from '$lib/stores';
+    import { audio, front, player } from '$lib/stores';
+    import { eventManager } from '$lib/events';
+    import { getOrCreateConfig } from '$lib/config';
+    import { removeExtension } from '$lib/utils';
 
     let lyrics: string | RichSyncLyric[] | Lyric[] | null = null;
     let lyricContainer: HTMLDivElement;
     let lyricRefs: { [key: number]: HTMLSpanElement } = {};
     let prevLyrics = $audio?.lyrics;
 
+    eventManager.onEvent('onLyricsLoaded', async (lyrics) => {
+        if (!lyrics || !$audio) {
+            return;
+        }
+
+        $audio.lyrics = lyrics;
+
+        if (!(await getOrCreateConfig()).lyrics_save) {
+            return;
+        }
+
+        if (!(($audio.track.type || 'local') === 'local')) {
+            return;
+        }
+
+        try {
+            if (lyrics?.format === 'lrc') {
+                await writeTextFile(
+                    `${removeExtension($audio.track.location)}.lrc`,
+                    lyrics.lyrics
+                );
+            } else if (lyrics?.format === 'plain') {
+                await writeTextFile(
+                    `${removeExtension($audio.track.location)}.txt`,
+                    lyrics.lyrics
+                );
+            }
+        } catch (e) {
+            console.error(e);
+            console.error('Failed to save lyrics to disk');
+        }
+    });
     audio.subscribe(async (value) => {
         if (JSON.stringify(value?.lyrics) === JSON.stringify(prevLyrics)) {
             return;
@@ -98,7 +134,7 @@
                                                 ? 'font-extrabold text-white'
                                                 : ''}"
                                             on:click={() => {
-                                                $audio.currentTime =
+                                                $player.webAudioElement.currentTime =
                                                     part.timestamp;
                                             }}
                                         >
@@ -126,7 +162,8 @@
                                     : ''}"
                                 bind:this={lyricRefs[i]}
                                 on:click={() => {
-                                    $audio.currentTime = lyric.timestamp;
+                                    $player.webAudioElement.currentTime =
+                                        lyric.timestamp;
                                     lyricContainer.scrollTo({
                                         top: Math.max(
                                             0,
@@ -137,7 +174,8 @@
                                     });
                                 }}
                                 on:keydown={() => {
-                                    $audio.currentTime = lyric.timestamp;
+                                    $player.webAudioElement.currentTime =
+                                        lyric.timestamp;
                                     lyricContainer.scrollTo({
                                         top: Math.max(
                                             0,

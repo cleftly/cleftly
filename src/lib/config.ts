@@ -40,7 +40,11 @@ const DEFAULT_CONFIG = {
     lyrics_richsync: false,
     locale: null,
     plugins: {},
-    enabled_plugins: ['com.cleftly.discordrpc'],
+    enabled_plugins: [
+        'com.cleftly.discordrpc',
+        'com.cleftly.musixmatch',
+        'com.cleftly.lastfm'
+    ],
     theme: 'crimson',
     color: 'dark',
     lang: null

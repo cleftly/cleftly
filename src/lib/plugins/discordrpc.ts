@@ -33,6 +33,7 @@ export default class DiscordRPC {
         'Let your friends know what you are listening to'; // A short description
     public static version: string = '1.0.0';
     public static api_version: string = 'v1'; // Must be v1
+    public static featnote: string[] = ['network'];
 
     /*
              track: audio.track.title,
@@ -44,7 +45,7 @@ export default class DiscordRPC {
     */
 
     public static config_settings = {
-        discordRpcEnabled: {
+        _1: {
             name: 'Variables',
             description:
                 '{artist}, {album}, {track}, {albumArtUrl}, {songLinkUrl}, {duration}, {rawDuration}',

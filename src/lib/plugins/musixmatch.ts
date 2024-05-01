@@ -1,7 +1,5 @@
-/*
- Get lyrics from musixmatch
-*/
 import { getClient } from '@tauri-apps/api/http';
+import type { PluginAPI } from '$lib/api/generate';
 import type { FriendlyTrack } from '$lib/db';
 import db from '$lib/db';
 import type { Lyrics } from '$lib/stores';
@@ -48,7 +46,7 @@ async function fetchToken() {
         data?.message?.body?.user_token || (cache?.value as string | undefined);
 
     if (!tok) {
-        throw new Error('Could not get MusixMatch token');
+        throw new Error('Could not get Musixmatch token');
     }
 
     await db.kvs.bulkPut([
@@ -65,7 +63,7 @@ async function fetchToken() {
     return tok;
 }
 
-export async function getLyrics(
+async function getLyrics(
     track: FriendlyTrack,
     retry = true,
     allowRichSync = true
@@ -110,7 +108,7 @@ export async function getLyrics(
         // Rate limiting
         if (data.message?.header?.status_code === 401 && retry) {
             console.warn(
-                'MusixMatch: 401 error (possibly rate limiting), retrying'
+                'Musixmatch: 401 error (possibly rate limiting), retrying'
             );
             await db.kvs.put({
                 key: 'musixmatch_exp',
@@ -151,4 +149,42 @@ export async function getLyrics(
         format,
         credits
     };
+}
+
+export default class MusixmatchPlugin {
+    public static id: string = 'com.cleftly.musixmatch'; // Must be unique
+    public static name: string = 'Musixmatch Lyrics';
+    public static author: string = 'Cleftly'; // Anything you please, as long as it's true
+    public static description: string =
+        'Automatically fetch lyrics from Musixmatch'; // A short description
+    public static version: string = '1.0.0';
+    public static api_version: string = 'v1'; // Must be v1
+    public static featnote: string[] = ['network'];
+
+    private api: PluginAPI;
+    private eventDestroyers: (() => void)[] = [];
+
+    public constructor(api: PluginAPI) {
+        this.api = api;
+        this.init().then(() => {
+            this.setupEventListeners();
+        });
+    }
+
+    private setupEventListeners() {
+        this.eventDestroyers.push(
+            this.api.events.eventManager.onEvent(
+                'onLyricsRequested',
+                async (track: FriendlyTrack) => {
+                    // TODO: Respect config option
+                    await this.api.events.eventManager.fireEvent(
+                        'onLyricsLoaded',
+                        await getLyrics(track, true, true)
+                    );
+                }
+            )
+        );
+    }
+
+    private async init() {}
 }

@@ -3,8 +3,11 @@ import { get } from 'svelte/store';
 import { plugins } from './stores';
 import { getStreamUrl } from './utils';
 import DiscordRPC from './plugins/discordrpc';
+import MusixmatchPlugin from './plugins/musixmatch';
+
 import { getOrCreateConfig } from './config';
 import { generateAPI } from './api/generate';
+import LastFmPlugin from './plugins/lastfm';
 
 export interface PluginInfo {
     id: string;
@@ -14,6 +17,7 @@ export interface PluginInfo {
     description?: string;
     license?: string;
     features?: string[];
+    featnote?: string[];
     config_settings?: {
         [key: string]: {
             name: string;
@@ -111,7 +115,10 @@ export async function loadPluginFromFile(source: string) {
 
 export async function loadPlugins() {
     const BUILT_IN: { [key: string]: PluginConstructor } = {
-        'com.cleftly.discordrpc': DiscordRPC as unknown as PluginConstructor
+        'com.cleftly.discordrpc': DiscordRPC as unknown as PluginConstructor,
+        'com.cleftly.musixmatch':
+            MusixmatchPlugin as unknown as PluginConstructor,
+        'com.cleftly.lastfm': LastFmPlugin as unknown as PluginConstructor
     };
 
     const conf = await getOrCreateConfig();

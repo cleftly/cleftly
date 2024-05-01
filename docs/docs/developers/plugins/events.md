@@ -27,11 +27,19 @@ this.api.events.eventManager.onEvent('onTrackChange', this.handleTrackChange);
 
 - `onSearch`- Fired when a search is performed
 
+### Lyrics
+
+- `onLyricsRequested` - Fired when lyrics are requested (ex. click on lyrics button for a track)
+
 ## Sendable Events
 
 ### Search
 
 - `addSearchResult` - Add a custom search results tab to the search results list (Takes payload of `FriendlyTrack`)
+
+### Lyrics
+
+- `onLyricsLoaded` - Add lyrics to the track (Takes payload of `Lyrics`)
 
 ## Example Plugin
 

@@ -1,8 +1,8 @@
 <script lang="ts">
     import { SlideToggle, getToastStore } from '@skeletonlabs/skeleton';
-    import { Settings, Trash } from 'lucide-svelte';
+    import { Globe, Settings, Trash } from 'lucide-svelte';
     import { _ } from 'svelte-i18n';
-    import { onMount } from 'svelte';
+    import { onMount, type ComponentType } from 'svelte';
     import Option from '../Option.svelte';
     import type { PluginInfo } from '$lib/plugins';
     import { getOrCreateConfig, saveConfig } from '$lib/config';
@@ -95,18 +95,53 @@
     export let enabled: boolean;
     export let enabledPlugins: string[];
     export let refreshList: () => Promise<void>;
+
+    const featNotes: {
+        [key: string]: {
+            icon: ComponentType;
+            text: string;
+            tooltip: string;
+        };
+    } = {
+        network: {
+            icon: Globe,
+            text: 'Accesses the internet',
+            tooltip:
+                'This plugin may connect to the internet to retrieve necessary data' // TODO: i18n
+        }
+    };
+
+    console.log();
 </script>
 
 <div class="card p-4 rounded-xl space-y-2">
     <div>
         <h3 class="text-xl">{plugin.name || plugin.id}</h3>
-        <h4 class="text text-slate-400">Version {plugin.version}</h4>
-        <h4 class="text text-slate-400">By {plugin.author}</h4>
+
+        <h4 class="text-slate-400">Version {plugin.version}</h4>
+        <h4 class="text-slate-400">By {plugin.author}</h4>
     </div>
 
     <p class="text-slate-400 whitespace-break-spaces">
         {plugin.description || 'No description provided.'}
     </p>
+
+    {#if plugin.featnote}
+        <div>
+            {#each plugin.featnote
+                .map((note) => featNotes[note])
+                .filter((i) => i) as note}
+                <p class="text-primary-400 flex my-2">
+                    <svelte:component
+                        this={note.icon}
+                        class="mr-1 p-[2px] stroke-primary-500"
+                    />
+                    {note.text}
+                </p>
+            {/each}
+        </div>
+    {/if}
+
     <div class="flex items-center space-x-2">
         <SlideToggle
             name={plugin.id}
@@ -117,7 +152,7 @@
                 await toggleEnabled(e, plugin);
             }}
         />
-        {#if enabled && plugin.config_settings && plugin.config_settings.length > 0}
+        {#if enabled && plugin.config_settings && Object.keys(plugin.config_settings).length > 0}
             <button
                 class="btn variant-filled-primary"
                 on:click={() => (showSettings = !showSettings)}
