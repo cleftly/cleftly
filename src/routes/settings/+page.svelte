@@ -8,7 +8,6 @@
     import { onMount } from 'svelte';
 
     import { _ } from 'svelte-i18n';
-    import LastFmLogin from './LastFmLogin.svelte';
     import Option from './Option.svelte';
     import db from '$lib/db';
     import { getOrCreateConfig, saveConfig, type Config } from '$lib/config';
@@ -350,7 +349,7 @@
                 >{$_('reset_database')}</button
             >
         </div>
-        <div class="space-y-4">
+        <!-- <div class="space-y-4">
             <h2 class="text-2xl mt-12 mb-2">{$_('integrations')}</h2>
             <div class="space-y-1">
                 <h3 class="text-xl">{$_('lyrics')}</h3>
@@ -359,7 +358,13 @@
                         'musixmatch_details_p2'
                     )}
                 </p>
-                <!-- TODO: Local save toggle-->
+                <a href="/settings/plugins" class="btn variant-ghost">
+                    {$_('see_thing', {
+                        values: {
+                            thing: $_('plugin')
+                        }
+                    })}
+                </a>
             </div>
             <div class="space-y-1">
                 <h3 class="text-xl">Last.fm</h3>
@@ -378,7 +383,7 @@
                     })}
                 </a>
             </div>
-        </div>
+        </div> -->
     {:else}
         <Loader2 class="animate-spin " />
     {/if}

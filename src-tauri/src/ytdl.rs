@@ -31,6 +31,8 @@ pub async fn get_ytdl_url(track_url: String) -> Result<String, String> {
         .arg("--get-url")
         .arg("--extractor-args")
         .arg("youtube:player-client=web")
+        .arg("--socket-timeout")
+        .arg("10")
         .arg(track_url)
         .output();
 
