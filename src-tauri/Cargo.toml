@@ -41,7 +41,7 @@ tauri = { version = "1.5.4", features = [
 tauri-plugin-persisted-scope = { git = "https://github.com/tauri-apps/plugins-workspace", branch = "v1" }
 percent-encoding = "2.3.0"
 mime_guess = "2.0.4"
-rodio = { version = "0.17.3", features = ["symphonia-aac", "symphonia-isomp4"] }
+rodio = { version = "0.18.0", features = ["symphonia-aac", "symphonia-isomp4"] }
 rand = "0.8.5"
 declarative-discord-rich-presence = { git = "https://github.com/KPidS/declarative-discord-rich-presence" }
 tauri-plugin-context-menu = "0.7.0"

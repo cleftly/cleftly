@@ -2,9 +2,6 @@ import type * as mm from 'music-metadata-browser';
 import { platform } from '@tauri-apps/api/os';
 
 import { get } from 'svelte/store';
-import { invoke } from '@tauri-apps/api';
-import { getToastStore } from '@skeletonlabs/skeleton';
-import { _ } from 'svelte-i18n';
 import { getLyrics } from './lyrics';
 import type { FriendlyTrack } from './db';
 
@@ -13,6 +10,8 @@ import { getStreamUrl } from './utils';
 import { getOrCreateConfig } from './config';
 import db from './db';
 import { eventManager } from './events';
+import WebBackend from './backends/web';
+import NativeBackend from './backends/native';
 import { INITIAL_AUDIO, audio, player, queue } from '$lib/stores';
 
 export async function play(
@@ -23,22 +22,22 @@ export async function play(
     backend: 'native' | 'web' = 'native',
     shuffle: boolean = false
 ) {
-    if (backend == 'native') {
-        await invoke('play_audio', {
-            filePath: src
-        }).catch(() => {
-            const toastStore = getToastStore();
+    // if (backend == 'native') {
+    //     await invoke('play_audio', {
+    //         filePath: src
+    //     }).catch(() => {
+    //         const toastStore = getToastStore();
 
-            toastStore.trigger({
-                message: `<h1 class="text-lg">${get(_)(
-                    'track_play_failure'
-                )}</h1> <p class="text-sm">${get(_)('track_play_failure_at', {
-                    values: { path: src }
-                })}</p>`,
-                background: 'variant-filled-error'
-            });
-        });
-    }
+    //         toastStore.trigger({
+    //             message: `<h1 class="text-lg">${get(_)(
+    //                 'track_play_failure'
+    //             )}</h1> <p class="text-sm">${get(_)('track_play_failure_at', {
+    //                 values: { path: src }
+    //             })}</p>`,
+    //             background: 'variant-filled-error'
+    //         });
+    //     });
+    // }
 
     audio.set({
         ...INITIAL_AUDIO,
@@ -50,8 +49,21 @@ export async function play(
 
     player.set({
         ...get(player),
+        backend:
+            {
+                web: new WebBackend(),
+                native: new NativeBackend()
+            }[backend] ?? null,
         paused: false
     });
+
+    const playerVal = get(player);
+
+    await playerVal.backend.init();
+    await playerVal.backend.playTrack(track);
+    await playerVal.backend.seek(0);
+    await playerVal.backend.play();
+    await playerVal.backend.setVolume(playerVal.volume);
 
     if (shuffle && queued) {
         const shuffled = queued

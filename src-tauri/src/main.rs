@@ -75,9 +75,12 @@ fn main() {
         )
         .register_uri_scheme_protocol("stream", |app, request| handle_stream_request(app, request))
         .invoke_handler(tauri::generate_handler![
-            audio::play_audio,
-            audio::get_info,
-            audio::set_info,
+            audio::audio_play_track,
+            audio::audio_play,
+            audio::audio_pause,
+            audio::audio_seek,
+            audio::audio_current_time,
+            audio::audio_duration,
             discordrpc::clear_activity,
             discordrpc::set_activity,
             files::show_in_folder,

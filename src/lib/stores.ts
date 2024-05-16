@@ -3,6 +3,8 @@ import { writable } from 'svelte/store';
 import type { FriendlyTrack, Playlist } from './db';
 import { scrobble } from './integrations/lastfm';
 import type { Plugin } from './plugins';
+import type { BackendClass } from './backends/index';
+import WebBackend from './backends/web';
 
 export type Lyrics = {
     format: 'lrc' | 'plain' | 'richsync';
@@ -29,6 +31,7 @@ type Player = {
     repeat: false | 'one' | 'all';
     speed: number;
     webAudioElement: HTMLMediaElement | null;
+    backend: BackendClass;
 };
 
 type Queue = {
@@ -72,8 +75,9 @@ export const player = writable<Player>({
     paused: false,
     repeat: 'all',
     speed: 1,
-    webAudioElement: null
-});
+    webAudioElement: null,
+    backend: new WebBackend()
+} as Player);
 
 export const queue = writable<Queue>({
     tracks: [],

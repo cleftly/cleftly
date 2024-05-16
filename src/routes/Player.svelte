@@ -28,6 +28,8 @@
     import { openTrackMenu } from '$lib/menus';
     import AnimArt from '$components/AnimArt.svelte';
 
+    let rangeSliderValue: number = 0;
+
     const modalStore = getModalStore();
     const toastStore = getToastStore();
 
@@ -58,7 +60,7 @@
         navigator.mediaSession.setActionHandler('nexttrack', next);
         navigator.mediaSession.setActionHandler('seekto', (e) => {
             if ($audio && $player) {
-                $player.webAudioElement.currentTime = e.seekTime || 0;
+                $player.backend.seek(e.seekTime || 0);
 
                 fireTrackChange().then(() => {});
             }
@@ -93,7 +95,7 @@
         if (!$audio) return;
 
         if ($audio.currentTime > 3) {
-            $player.webAudioElement.currentTime = 0;
+            $player.backend.seek(0);
             return;
         }
 
@@ -153,16 +155,26 @@
             });
     }
 
-    setInterval(() => {
+    setInterval(async () => {
         if ($audio && $player) {
-            $audio.currentTime = $player.webAudioElement?.currentTime;
+            $audio.currentTime = await $player.backend.getTime();
+            $audio.duration = await $player.backend.getDuration();
         }
     }, 100);
 
+    setInterval(async () => {
+        if ($audio && $player) {
+            rangeSliderValue = $audio.currentTime;
+        }
+    }, 500);
+
     eventManager.onEvent('onTrackChange', async () => {
         if ($audio && $player) {
-            $audio.currentTime = $player.webAudioElement?.currentTime;
+            $audio.currentTime = await $player.backend.getTime();
+            $audio.duration = await $player.backend.getDuration();
         }
+
+        rangeSliderValue = $audio.currentTime;
     });
 </script>
 
@@ -173,16 +185,14 @@
             class="hidden"
             autoplay
             bind:this={$player.webAudioElement}
-            bind:paused={$player.paused}
+            paused={$player.paused}
             on:pause={fireTrackChange}
             on:play={async () => {
                 await fireTrackChange();
             }}
             on:seeked={fireTrackChange}
-            bind:muted={$player.muted}
-            bind:duration={$audio.duration}
-            bind:volume={$player.volume}
-            bind:playbackRate={$player.speed}
+            muted={$player.muted}
+            playbackRate={$player.speed}
             on:ended={onEnd}
             on:error={error}
             loop={$player.repeat === 'one'}
@@ -235,18 +245,22 @@
             <div class="flex items-center space-x-4 w-full">
                 <p class="text-xs">{getTimestamp($audio.currentTime)}</p>
 
-                {#if $player.webAudioElement?.currentTime}
-                    <RangeSlider
-                        name="currentTime"
-                        accent="variant-filled-primary"
-                        class="w-full"
-                        bind:value={$player.webAudioElement.currentTime}
-                        max={Math.floor(
-                            $audio.track.duration || $audio.duration
-                        )}
-                        step={1}
-                    />
-                {/if}
+                <RangeSlider
+                    name="currentTime"
+                    accent="variant-filled-primary"
+                    class="w-full"
+                    value={rangeSliderValue}
+                    on:change={async (e) => {
+                        if (!e?.target) return;
+                        rangeSliderValue = e.target.value;
+                        $audio.currentTime = e.target.value;
+                        $player.backend.seek(e.target.value);
+                        await fireTrackChange();
+                    }}
+                    max={Math.floor($audio.track.duration || $audio.duration)}
+                    step={1}
+                />
+
                 <p class="text-xs">
                     {getTimestamp($audio.track.duration || $audio.duration)}
                 </p>
@@ -286,7 +300,15 @@
                 </button>
                 <button
                     class="btn btn-sm variant-soft w-6 h-6 p-0"
-                    on:click={() => ($player.paused = !$player.paused)}
+                    on:click={async () => {
+                        if ($player.paused) {
+                            await $player.backend.play();
+                        } else {
+                            await $player.backend.pause();
+                        }
+
+                        $player.paused = !$player.paused;
+                    }}
                 >
                     {#if $player.paused}
                         <Play />

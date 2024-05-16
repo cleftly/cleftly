@@ -5,7 +5,7 @@
     - Prevent suffering from silly Webkit bugs
 */
 
-use std::{fs::File, io::BufReader, sync::Mutex};
+use std::{fs::File, io::BufReader, sync::Mutex, time::Duration};
 
 use rodio::{Decoder, Sink};
 use tauri::{Manager, State};
@@ -13,11 +13,11 @@ use tauri::{Manager, State};
 pub struct Audio(pub Mutex<Sink>);
 
 #[tauri::command]
-pub fn play_audio(
+pub fn audio_play_track(
     app_handle: tauri::AppHandle,
     file_path: &str,
     audio: State<Audio>,
-) -> Result<String, String> {
+) -> Result<(), String> {
     if !app_handle.fs_scope().is_allowed(&file_path) {
         return Err("File not in scope".into());
     }
@@ -36,66 +36,56 @@ pub fn play_audio(
         Ok(audio_lock) => {
             audio_lock.clear();
             audio_lock.append(source);
-            audio_lock.play();
-            Ok("Playing".into())
-        }
-        Err(err) => Err(format!("Failed to acquire audio lock: {}", err)),
-    }
-}
-
-#[derive(serde::Serialize)]
-pub struct AudioInfo {
-    paused: bool,
-    volume: f32,
-    current_time: f32,
-    muted: bool,
-}
-
-#[derive(serde::Deserialize)]
-pub struct AudioInfoIn {
-    paused: bool,
-    volume: f32,
-    current_time: f32,
-    muted: bool,
-}
-
-#[tauri::command]
-pub fn get_info(audio: State<Audio>) -> Result<AudioInfo, String> {
-    match audio.0.lock() {
-        Ok(audio_lock) => {
-            // Assuming you can get the necessary information from the `audio_lock`
-            let info = AudioInfo {
-                paused: audio_lock.is_paused(),
-                volume: audio_lock.volume(),
-                current_time: 0.0,
-                muted: audio_lock.volume() == 0.0,
-            };
-            Ok(info)
+            Ok(())
         }
         Err(err) => Err(format!("Failed to acquire audio lock: {}", err)),
     }
 }
 
 #[tauri::command]
-pub fn set_info(audio: State<Audio>, info: AudioInfoIn) -> Result<String, String> {
+pub fn audio_pause(audio: State<Audio>) -> Result<(), String> {
     match audio.0.lock() {
         Ok(audio_lock) => {
-            audio_lock.set_volume(info.volume);
-
-            if info.muted {
-                audio_lock.set_volume(0.0);
-            } else if audio_lock.volume() == 0.0 {
-                audio_lock.set_volume(info.volume);
-            }
-
-            if info.paused && !audio_lock.is_paused() {
+            if !audio_lock.is_paused() {
                 audio_lock.pause();
-            } else if !info.paused && audio_lock.is_paused() {
+            }
+            Ok(())
+        }
+        Err(err) => Err(format!("Failed to acquire audio lock: {}", err)),
+    }
+}
+
+#[tauri::command]
+pub fn audio_play(audio: State<Audio>) -> Result<(), String> {
+    match audio.0.lock() {
+        Ok(audio_lock) => {
+            if audio_lock.is_paused() {
                 audio_lock.play();
             }
 
-            Ok("Set".into())
+            Ok(())
         }
         Err(err) => Err(format!("Failed to acquire audio lock: {}", err)),
     }
+}
+
+#[tauri::command]
+pub fn audio_seek(audio: State<Audio>, time: f32) -> Result<(), String> {
+    match audio.0.lock() {
+        Ok(audio_lock) => match audio_lock.try_seek(Duration::from_secs_f32(time)) {
+            Ok(_) => Ok(()),
+            Err(err) => Err(format!("Failed to seek: {}", err)),
+        },
+        Err(err) => Err(format!("Failed to acquire audio lock: {}", err)),
+    }
+}
+
+#[tauri::command]
+pub fn audio_current_time() -> Result<f32, String> {
+    Ok(0.0)
+}
+
+#[tauri::command]
+pub fn audio_duration() -> Result<f32, String> {
+    Ok(0.0)
 }
