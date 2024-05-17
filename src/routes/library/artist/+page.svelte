@@ -2,6 +2,7 @@
     import { Play, Shuffle } from 'lucide-svelte';
     import { _ } from 'svelte-i18n';
     import Album from '$components/Album.svelte';
+    import { playTrack } from '$lib/player.js';
 
     $: artist = data.artist;
     // Sum of all track durations > 30 or > 6 songs
@@ -40,18 +41,35 @@
                         ? 's'
                         : ''}
                 </p>
-                <div class="mx2 space-x-1">
-                    <!-- TODO-->
-                    <button class="btn btn-sm variant-filled-primary">
-                        <Play class="fill-white mr-2" />
-                        {$_('play')}
-                    </button>
-                    <!-- TODO -->
-                    <button class="btn btn-sm variant-filled-primary">
-                        <Shuffle class="mr-2" />
-                        {$_('shuffle')}
-                    </button>
-                </div>
+                {#if tracks && tracks.length > 0}
+                    <div class="mx2 space-x-1">
+                        <button
+                            class="btn btn-sm variant-filled-primary"
+                            on:click={() =>
+                                playTrack(tracks[0], tracks, undefined, true)}
+                        >
+                            <Play class="fill-white mr-2" />
+                            {$_('play')}
+                        </button>
+                        <button
+                            class="btn btn-sm variant-filled-primary"
+                            on:click={() =>
+                                playTrack(
+                                    tracks[
+                                        Math.floor(
+                                            Math.random() * tracks.length
+                                        )
+                                    ],
+                                    tracks,
+                                    undefined,
+                                    true
+                                )}
+                        >
+                            <Shuffle class="mr-2" />
+                            {$_('shuffle')}
+                        </button>
+                    </div>
+                {/if}
             </div>
         </div>
     </div>

@@ -51,11 +51,20 @@
                             <Play class="fill-white mr-2" />
                             {$_('play')}
                         </button>
-                        <!-- TODO -->
                         <button
                             class="btn btn-sm variant-filled-primary"
                             on:click={() =>
-                                playTrack(playlist.tracks[0], playlist.tracks)}
+                                playTrack(
+                                    playlist.tracks[
+                                        Math.floor(
+                                            Math.random() *
+                                                playlist.tracks.length
+                                        )
+                                    ],
+                                    playlist.tracks,
+                                    undefined,
+                                    true
+                                )}
                         >
                             <Shuffle class="mr-2" />
                             {$_('shuffle')}

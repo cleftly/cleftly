@@ -9,6 +9,7 @@
 
     import { _ } from 'svelte-i18n';
     import Option from './Option.svelte';
+    import LastFmLogin from './LastFmLogin.svelte';
     import db from '$lib/db';
     import { getOrCreateConfig, saveConfig, type Config } from '$lib/config';
     import {
@@ -349,7 +350,14 @@
                 >{$_('reset_database')}</button
             >
         </div>
+        <div class="space-y-4">
+            <div class="space-y-1">
+                <h3 class="text-xl">Last.fm</h3>
+                <LastFmLogin />
+            </div>
+        </div>
         <!-- <div class="space-y-4">
+                    
             <h2 class="text-2xl mt-12 mb-2">{$_('integrations')}</h2>
             <div class="space-y-1">
                 <h3 class="text-xl">{$_('lyrics')}</h3>
@@ -366,10 +374,7 @@
                     })}
                 </a>
             </div>
-            <div class="space-y-1">
-                <h3 class="text-xl">Last.fm</h3>
-                <LastFmLogin />
-            </div>
+  
             <div class="space-y-1">
                 <h3 class="text-xl">{$_('discord_rpc')}</h3>
                 <p class="text-slate-400">

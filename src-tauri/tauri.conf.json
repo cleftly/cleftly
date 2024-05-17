@@ -55,6 +55,12 @@
                 "startDragging": true,
                 "unmaximize": true,
                 "unminimize": true
+            },
+            "process": {
+                "all": false,
+                "exit": false,
+                "relaunch": true,
+                "relaunchDangerousAllowSymlinkMacos": false
             }
         },
         "bundle": {
