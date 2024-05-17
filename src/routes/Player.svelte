@@ -21,6 +21,8 @@
     } from 'lucide-svelte';
 
     import { _ } from 'svelte-i18n';
+    import { onMount } from 'svelte';
+    import { platform } from '@tauri-apps/api/os';
     import { playTrack } from '$lib/player';
     import { audio, front, player, queue } from '$lib/stores';
     import { getTimestamp } from '$lib/utils';
@@ -175,6 +177,37 @@
         }
 
         rangeSliderValue = $audio.currentTime;
+    });
+
+    // Media playback keys
+    onMount(async () => {
+        if ((await platform()) === 'linux') {
+            window.addEventListener('keydown', async (e) => {
+                switch (e.key) {
+                    case 'MediaPlay': {
+                        if ($player.paused) {
+                            await $player.backend.play();
+                        } else {
+                            await $player.backend.pause();
+                        }
+
+                        $player.paused = !$player.paused;
+
+                        break;
+                    }
+
+                    case 'MediaTrackNext': {
+                        await next();
+                        break;
+                    }
+
+                    case 'MediaTrackPrevious': {
+                        await previous();
+                        break;
+                    }
+                }
+            });
+        }
     });
 </script>
 
@@ -354,6 +387,9 @@
             <RangeSlider
                 name="volume"
                 bind:value={$player.volume}
+                on:change={async (e) => {
+                    $player.backend.setVolume(e.target.value);
+                }}
                 min={0}
                 max={1}
                 step={0.01}

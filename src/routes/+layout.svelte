@@ -18,6 +18,7 @@
     import { RotateCw } from 'lucide-svelte';
     import type { AfterNavigate } from '@sveltejs/kit';
     import { onMount } from 'svelte';
+    import { relaunch } from '@tauri-apps/api/process';
     import Player from './Player.svelte';
     import Sidebar from './Sidebar.svelte';
     import MobileNav from './MobileNav.svelte';
@@ -116,10 +117,14 @@
     }
 
     // Global shortcuts
-    window.addEventListener('keydown', (e) => {
+    window.addEventListener('keydown', async (e) => {
         // Ctrl + R - Reload
         if (e.ctrlKey && e.key === 'r') {
             reload();
+        }
+        // Ctrl + Option + Shift + R - Relaunch
+        else if (e.ctrlKey && e.altKey && e.key === 'R') {
+            await relaunch();
         }
         // Ctrl + Shift + R - Full reload
         else if (e.ctrlKey && e.key === 'R') {

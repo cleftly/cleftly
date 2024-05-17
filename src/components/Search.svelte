@@ -93,6 +93,14 @@
         (cleanRes = res.filter((obj, index, self) => {
             return self.findIndex((item) => item.id === obj.id) === index;
         }));
+
+    // Search shortcut (Ctrl + k)
+    window.addEventListener('keydown', async (e) => {
+        if (e.ctrlKey && e.key === 'k') {
+            console.log('FOCUS');
+            inputRef?.focus();
+        }
+    });
 </script>
 
 <div class="flex flex-col w-2/4 items-center justify-center">
