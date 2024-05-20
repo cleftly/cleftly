@@ -4,53 +4,22 @@ on:
     push:
         branches:
             - release
-concurrency:
-    group: ${{ github.ref }}
-    cancel-in-progress: true
-env:
-    ARCH: x86_64
-    DEPENDENCIES_ARCH: "'libappindicator-gtk3' 'webkit2gtk' 'gtk3' 'xdotool'"
-    DEPENDENCIES_RPM: 'javascriptcoregtk4.0, webkit2gtk4.0, libxdo, libappindicator-gtk3, xdotool'
-jobs:
-    setup:
-        runs-on: ubuntu-latest
-        outputs:
-            name: ${{ steps.get-package.outputs.name }}
-            name_bin: ${{ steps.get-package.outputs.name }}-bin
-            version: ${{ steps.get-package.outputs.version }}
-            description: ${{ steps.get-package.outputs.description }}
-            license: ${{ steps.get-package.outputs.license }}
-            deb_pkg_name: ${{ steps.get-package.outputs.name }}_${{ steps.get-package.outputs.version }}_amd64.deb
-            deb_pkg_path: ./src-tauri/target/release/bundle/deb/
-            deb_pkg_renamed: ${{ steps.get-package.outputs.name }}-${{ steps.get-package.outputs.version }}-${{ env.ARCH }}.deb
-            arch_pkg_name: ${{ steps.get-package.outputs.name }}-bin-${{ steps.get-package.outputs.version }}-${{ env.ARCH }}.pkg.tar.zst
-            rpm_pkg_name: RPMS/${{ steps.get-package.outputs.name }}-${{ steps.get-package.outputs.version }}.${{ env.ARCH }}.rpm
-            tag_name: v${{ steps.get-package.outputs.version }}
-        steps:
-            - uses: actions/checkout@v4
-            - name: setup node
-              uses: actions/setup-node@v4
-              with:
-                  node-version: 20
-            - name: get package info
-              id: get-package
-              run: |
-                  echo "name=cleftly" >> $GITHUB_OUTPUT
-                  echo "version=$(node -p "require('./package.json').version")" >> $GITHUB_OUTPUT
-                  echo "description=Simple music player focused on aesthetics, speed, and extensibility." >> $GITHUB_OUTPUT
-                  echo "license=$(node -p "require('./package.json').license")" >> $GITHUB_OUTPUT
 
-    build-tauri:
-        needs: [setup]
+jobs:
+    publish-tauri:
         permissions:
             contents: write
         strategy:
             fail-fast: false
             matrix:
-                platform: [macos-latest, ubuntu-latest, windows-latest]
-                settings:
+                include:
                     - platform: 'macos-latest'
                       args: '--target universal-apple-darwin'
+                    - platform: 'ubuntu-22.04'
+                      args: ''
+                    - platform: 'windows-latest'
+                      args: ''
+
         runs-on: ${{ matrix.platform }}
         steps:
             - uses: actions/checkout@v4
@@ -59,17 +28,19 @@ jobs:
               uses: actions/setup-node@v4
               with:
                   node-version: 20
+                  cache: 'pnpm'
 
-            - name: install rust stable
+            - name: install Rust stable
               uses: dtolnay/rust-toolchain@stable
+              with:
+                  # Those targets are only used on macos runners so it's in an `if` to slightly speed up windows and linux builds.
+                  targets: ${{ matrix.platform == 'macos-latest' && 'aarch64-apple-darwin,x86_64-apple-darwin' || '' }}
 
             - name: install dependencies (ubuntu only)
-              if: matrix.platform == 'ubuntu-latest'
+              if: matrix.platform == 'ubuntu-22.04' # This must match the platform value defined above.
               run: |
                   sudo apt-get update
-                  # wget http://nz2.archive.ubuntu.com/ubuntu/pool/main/o/openssl/libssl1.1_1.1.1f-1ubuntu2.20_amd64.deb
-                  # sudo dpkg -i libssl1.1_1.1.1f-1ubuntu2.20_amd64.deb
-                  sudo apt-get install -y libgtk-3-dev libwebkit2gtk-4.0-dev libappindicator3-dev librsvg2-dev libxcb-shape0-dev libxcb-xfixes0-dev libxdo-dev alsa-tools libasound2-dev libudev-dev librust-alsa-sys-dev
+                  sudo apt-get install -y libwebkit2gtk-4.0-dev libappindicator3-dev librsvg2-dev patchelf libgtk-3-dev libxcb-shape0-dev libxcb-xfixes0-dev libxdo-dev alsa-tools libasound2-dev libudev-dev librust-alsa-sys-dev
 
             - name: Install pnpm
               uses: pnpm/action-setup@v2
@@ -77,15 +48,8 @@ jobs:
                   version: 8
                   run_install: false
 
-            - name: Sync node version and setup cache
-              uses: actions/setup-node@v3
-              with:
-                  node-version: 20
-                  cache: 'pnpm' # Set this to npm, yarn or pnpm.
-
-            - name: Install frontend dependencies
-              # If you don't have `beforeBuildCommand` configured you may want to build your frontend here too.
-              run: pnpm install # Change this to npm, yarn or pnpm.
+            - name: install frontend dependencies
+              run: pnpm install
 
             - uses: tauri-apps/tauri-action@v0
               env:
@@ -93,97 +57,9 @@ jobs:
                   TAURI_PRIVATE_KEY: ${{ secrets.TAURI_PRIVATE_KEY }}
                   TAURI_KEY_PASSWORD: ${{ secrets.TAURI_KEY_PASSWORD }}
               with:
-                  tagName: ${{ needs.setup.outputs.tag_name }}
-                  releaseName: ${{ needs.setup.outputs.tag_name  }}
-                  releaseBody: 'See the assets to download and install this version.'
+                  tagName: v__VERSION__ # the action automatically replaces \_\_VERSION\_\_ with the app version.
+                  releaseName: 'Cleftly v__VERSION__'
+                  releaseBody: ''
                   releaseDraft: true
                   prerelease: false
-
-            - name: copy deb package && create PKGBUILD file (ubuntu only)
-              if: matrix.platform == 'ubuntu-latest'
-              run: |
-                  mkdir -p ${{ needs.setup.outputs.name_bin }}
-                  cp -fr ${{ needs.setup.outputs.deb_pkg_path }}${{ needs.setup.outputs.deb_pkg_name }} ${{ needs.setup.outputs.name_bin }}/${{ needs.setup.outputs.deb_pkg_renamed }} 
-                  cat <<EOF > ./${{ needs.setup.outputs.name_bin }}/PKGBUILD
-                    pkgname=${{ needs.setup.outputs.name_bin }}
-                    pkgver=${{ needs.setup.outputs.version }}
-                    md5sums=('$(md5sum ${{ needs.setup.outputs.name_bin }}/${{ needs.setup.outputs.deb_pkg_renamed }}  | awk '{print $1}')')
-                    pkgrel=1
-                    depends=(${{ env.DEPENDENCIES_ARCH }})
-                    pkgdesc='${{ needs.setup.outputs.description }}'
-                    arch=('${{ env.ARCH }}')
-                    url="https://github.com/${{ github.repository }}"
-                    license=('${{ needs.setup.outputs.license }}')
-                    source=("\$url/releases/download/${{ needs.setup.outputs.tag_name }}/${{ needs.setup.outputs.deb_pkg_renamed }}")
-
-                    build() {
-                        rm control.tar.gz
-                        tar xvf data.tar.gz
-                    }
-
-                    package() {
-                        cp -fr usr/ \${pkgdir}
-                    }
-                  EOF
-                  cat ${{ needs.setup.outputs.name_bin }}/PKGBUILD
-
-            - name: create arch package (ubuntu only)
-              if: matrix.platform == 'ubuntu-latest'
-              uses: 2m/arch-pkgbuild-builder@v1.17
-              with:
-                  debug: true
-                  target: pkgbuild
-                  pkgname: ${{ needs.setup.outputs.name_bin }}/
-
-            - name: copy deb package && create rpm.spec file (ubuntu only)
-              if: matrix.platform == 'ubuntu-latest'
-              run: |
-                  mkdir -p ${{ needs.setup.outputs.name_bin }}
-                  cp -fr ${{ needs.setup.outputs.deb_pkg_path }}/${{ needs.setup.outputs.deb_pkg_name }} ${{ needs.setup.outputs.name_bin }}/${{ needs.setup.outputs.deb_pkg_renamed }} 
-                  cat <<EOF > ./${{ needs.setup.outputs.name_bin }}/rpm.spec
-                  Name: ${{ needs.setup.outputs.name }}
-                  Version: ${{ needs.setup.outputs.version }}
-                  BuildArch: ${{ env.ARCH }}
-                  Release: 1
-                  Summary: ${{ needs.setup.outputs.description }}
-                  Requires: ${{ env.DEPENDENCIES_RPM }}
-                  License: ${{ needs.setup.outputs.license }}
-                  Source0: ${{ needs.setup.outputs.deb_pkg_renamed }}
-
-                  %description
-                  ${{ needs.setup.outputs.description }}
-
-                  %prep
-                  ar x %{SOURCE0}
-
-                  %build
-                  rm -rf control.tar.gz
-                  tar xvf data.tar.gz
-                              
-                  %install
-                  cp -fr usr/ %{buildroot}
-
-                  %files
-                  %{_bindir}/${{ needs.setup.outputs.name }}
-                  /usr/share/applications/${{ needs.setup.outputs.name }}.desktop
-                  /usr/share/icons/hicolor/**/*
-                  EOF
-                  cat ${{ needs.setup.outputs.name_bin }}/rpm.spec
-
-            - name: createa rpm package (ubuntu only)
-              if: matrix.platform == 'ubuntu-latest'
-              uses: Antikythera/build-rpm@latest
-              with:
-                  spec_file: ${{ needs.setup.outputs.name_bin }}/rpm.spec
-                  sources: ${{ needs.setup.outputs.name_bin }}/${{ needs.setup.outputs.deb_pkg_renamed }}
-
-            - name: upload arch && rpm release (ubuntu only)
-              if: matrix.platform == 'ubuntu-latest'
-              uses: softprops/action-gh-release@v1
-              with:
-                  token: ${{ secrets.GITHUB_TOKEN }}
-                  tag_name: ${{ needs.setup.outputs.tag_name  }}
-                  files: |
-                      ${{ needs.setup.outputs.name_bin }}/${{ needs.setup.outputs.arch_pkg_name }}
-                      ${{ needs.setup.outputs.rpm_pkg_name }}
-                  draft: true
+                  args: ${{ matrix.args }}
