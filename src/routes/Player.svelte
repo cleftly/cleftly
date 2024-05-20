@@ -157,30 +157,29 @@
             });
     }
 
-    setInterval(async () => {
-        if ($audio && $player) {
-            $audio.currentTime = await $player.backend.getTime();
-            $audio.duration = await $player.backend.getDuration();
-        }
-    }, 100);
-
-    setInterval(async () => {
-        if ($audio && $player) {
-            rangeSliderValue = $audio.currentTime;
-        }
-    }, 500);
-
-    eventManager.onEvent('onTrackChange', async () => {
-        if ($audio && $player) {
-            $audio.currentTime = await $player.backend.getTime();
-            $audio.duration = await $player.backend.getDuration();
-        }
-
-        rangeSliderValue = $audio.currentTime;
-    });
-
-    // Media playback keys
     onMount(async () => {
+        setInterval(async () => {
+            if ($audio && $player) {
+                $audio.currentTime = await $player.backend.getTime();
+                $audio.duration = await $player.backend.getDuration();
+            }
+        }, 100);
+
+        setInterval(async () => {
+            if ($audio && $player) {
+                rangeSliderValue = $audio.currentTime;
+            }
+        }, 500);
+
+        eventManager.onEvent('onTrackChange', async () => {
+            if ($audio && $player) {
+                $audio.currentTime = await $player.backend.getTime();
+                $audio.duration = await $player.backend.getDuration();
+                rangeSliderValue = $audio.currentTime;
+            }
+        });
+
+        // Media playback keys
         if ((await platform()) === 'linux') {
             window.addEventListener('keydown', async (e) => {
                 switch (e.key) {
