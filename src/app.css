@@ -24,3 +24,15 @@ body[data-theme='crimson'] {
     background: #000000 !important;
     --bg-neutral-900: #000000;
 }
+
+@media (min-width: 512px) {
+    .xs\:hidden {
+        display: none;
+    }
+}
+
+@media (max-width: 512px) {
+    .xs\:showme {
+        display: none;
+    }
+}

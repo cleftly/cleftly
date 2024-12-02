@@ -1,8 +1,8 @@
 <script lang="ts">
     import { onMount } from 'svelte';
     import { Loader2 } from 'lucide-svelte';
-    import { open } from '@tauri-apps/api/shell';
-    import { getClient } from '@tauri-apps/api/http';
+    import { open } from '@tauri-apps/plugin-shell';
+    import { fetch } from '@tauri-apps/plugin-http';
     import { BASE_URL, signCall } from '$lib/integrations/lastfm';
     import { getOrCreateConfig, saveConfig } from '$lib/config';
     import LastFm from '$components/icons/LastFm.svelte';
@@ -10,9 +10,7 @@
     let status = 'not_started';
 
     async function initiateLogin() {
-        const client = await getClient();
-
-        const res = await client.request({
+        const res = await fetch({
             url: BASE_URL,
             method: 'POST',
             query: {
@@ -50,42 +48,40 @@
                 format: 'json'
             };
 
-            await client
-                .request({
-                    url: BASE_URL,
-                    method: 'POST',
-                    query: {
-                        ...params,
-                        api_sig: await signCall(
-                            import.meta.env.PUBLIC_LASTFM_API_SECRET,
-                            params
-                        )
-                    },
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Content-Length': '0'
-                    }
-                })
-                .then(async (res) => {
-                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                    const data = res.data as any;
+            await fetch({
+                url: BASE_URL,
+                method: 'POST',
+                query: {
+                    ...params,
+                    api_sig: await signCall(
+                        import.meta.env.PUBLIC_LASTFM_API_SECRET,
+                        params
+                    )
+                },
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Content-Length': '0'
+                }
+            }).then(async (res) => {
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                const data = res.data as any;
 
-                    if (res.status !== 200) {
-                        if (data?.error !== 14) {
-                            clearInterval(poll);
-                            throw res;
-                        }
-
-                        return;
+                if (res.status !== 200) {
+                    if (data?.error !== 14) {
+                        clearInterval(poll);
+                        throw res;
                     }
 
-                    await saveConfig({
-                        ...(await getOrCreateConfig()),
-                        lastfm_token: data.session.key
-                    });
-                    status = 'complete';
-                    clearInterval(poll);
+                    return;
+                }
+
+                await saveConfig({
+                    ...(await getOrCreateConfig()),
+                    lastfm_token: data.session.key
                 });
+                status = 'complete';
+                clearInterval(poll);
+            });
 
             // const { status } = res.data;
 

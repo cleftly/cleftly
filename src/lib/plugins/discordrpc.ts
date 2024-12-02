@@ -1,8 +1,8 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import { invoke } from '@tauri-apps/api';
-import { getClient } from '@tauri-apps/api/http';
+import { invoke } from '@tauri-apps/api/core';
+import { fetch } from '@tauri-apps/plugin-http';
 import { get } from 'svelte/store';
 import { getTimestamp } from '$lib/utils';
 import type { FriendlyTrack } from '$lib/db';
@@ -196,9 +196,7 @@ export default class DiscordRPC {
                 .replace('(deluxe)', '')
                 .replace('(single)', '');
 
-            const client = await getClient();
-
-            const res = await client.get(`https://itunes.apple.com/search`, {
+            const res = await fetch(`https://itunes.apple.com/search`, {
                 query: {
                     term: `${track.title} ${track.artist.name} ${normAlbumName}`.replace(
                         /[@~`!@#$%^&()_=+\\';:"/?>.<,-]/g,

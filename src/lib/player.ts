@@ -1,5 +1,5 @@
 import type * as mm from 'music-metadata-browser';
-import { platform } from '@tauri-apps/api/os';
+import { platform } from '@tauri-apps/plugin-os';
 
 import { get } from 'svelte/store';
 import { getLyrics } from './lyrics';

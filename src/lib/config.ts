@@ -1,17 +1,5 @@
-import {
-    sep,
-    BaseDirectory,
-    appConfigDir,
-    appCacheDir
-} from '@tauri-apps/api/path';
-import {
-    readDir,
-    readTextFile,
-    writeTextFile,
-    createDir,
-    type FileEntry,
-    exists
-} from '@tauri-apps/api/fs';
+import { BaseDirectory, appConfigDir, appCacheDir } from '@tauri-apps/api/path';
+import { writeTextFile, mkdir, exists, readFile } from '@tauri-apps/plugin-fs';
 
 export type Config = {
     version: number;
@@ -52,74 +40,50 @@ const DEFAULT_CONFIG = {
 
 export async function getOrCreateConfig() {
     // Make sure config dir and file exist
-    if (!(await exists('config.json', { dir: BaseDirectory.AppConfig }))) {
+    if (!(await exists('config.json', { baseDir: BaseDirectory.AppConfig }))) {
         if (!(await exists(await appConfigDir()))) {
-            await createDir('', {
-                dir: BaseDirectory.AppConfig,
+            await mkdir('', {
+                baseDir: BaseDirectory.AppConfig,
                 recursive: true
             });
         }
 
         await writeTextFile('config.json', JSON.stringify(DEFAULT_CONFIG), {
-            dir: BaseDirectory.AppConfig
+            baseDir: BaseDirectory.AppConfig
         });
     }
 
-    const configTxt = await readTextFile('config.json', {
-        dir: BaseDirectory.AppConfig
-    });
+    const configTxt = new TextDecoder().decode(
+        await readFile('config.json', {
+            baseDir: BaseDirectory.AppConfig
+        })
+    );
 
     if (!configTxt.trim()) {
         await writeTextFile('config.json', JSON.stringify(DEFAULT_CONFIG), {
-            dir: BaseDirectory.AppConfig
+            baseDir: BaseDirectory.AppConfig
         });
     }
 
     return {
-        ...DEFAULT_CONFIG, // In case we added new properties
-        ...JSON.parse(configTxt)
+        ...DEFAULT_CONFIG,
+        ...(configTxt.trim() ? JSON.parse(configTxt) : {})
     } as Config;
 }
 
 export async function saveConfig(config: Config) {
     await writeTextFile('config.json', JSON.stringify(config), {
-        dir: BaseDirectory.AppConfig
+        baseDir: BaseDirectory.AppConfig
     });
-}
-
-export function splitPath(path: string) {
-    return path.split(sep);
-}
-
-export async function walkDir(path: string) {
-    const entries = await readDir(path, {
-        recursive: true
-    });
-
-    const files: string[] = [];
-
-    async function walk(entries: FileEntry[]) {
-        for (const entry of entries) {
-            if (entry.children) {
-                await walk(entry.children);
-            } else {
-                files.push(entry.path);
-            }
-        }
-    }
-
-    await walk(entries);
-
-    return files;
 }
 
 export async function getOrCreateCacheDir() {
     const dir = await appCacheDir();
 
-    // Make sure config dir and file exist
+    // // Make sure config dir and file exist
     if (!(await exists(dir))) {
-        await createDir('', {
-            dir: BaseDirectory.AppCache,
+        await mkdir('', {
+            baseDir: BaseDirectory.AppCache,
             recursive: true
         });
     }

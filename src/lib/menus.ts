@@ -2,9 +2,9 @@
  * Context menus
  */
 
-import { showMenu } from 'tauri-plugin-context-menu';
+// import { showMenu } from 'tauri-plugin-context-menu';
 import { join } from '@tauri-apps/api/path';
-import { invoke } from '@tauri-apps/api';
+import { invoke } from '@tauri-apps/api/core';
 import { get } from 'svelte/store';
 import { _ } from 'svelte-i18n';
 import {
@@ -12,7 +12,7 @@ import {
     type getToastStore,
     type getModalStore
 } from '@skeletonlabs/skeleton';
-import { platform } from '@tauri-apps/api/os';
+import { platform } from '@tauri-apps/plugin-os';
 import type { FriendlyPlaylist, FriendlyTrack, Playlist } from './db';
 import { playlists, queue } from './stores';
 import db from './db';

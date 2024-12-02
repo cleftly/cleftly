@@ -1,19 +1,19 @@
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
-mod audio;
+// mod audio;
 mod discordrpc;
 mod files;
 mod library;
-mod stream;
+// mod stream;
 mod ytdl;
-use audio::Audio;
+// use audio::Audio;
 use declarative_discord_rich_presence::DeclarativeDiscordIpcClient;
 use rodio::{OutputStream, Sink};
 use std::sync::Mutex;
-use stream::handle_stream_request;
+// use stream::handle_stream_request;
 use tauri::Manager;
-use tauri_plugin_log::LogTarget;
+use tauri_plugin_log::{Target, TargetKind};
 
 #[cfg(target_os = "linux")]
 pub struct DbusState(Mutex<Option<dbus::blocking::SyncConnection>>);
@@ -37,6 +37,13 @@ fn main() {
     let (_stream, stream_handle) = OutputStream::try_default().unwrap();
 
     tauri::Builder::default()
+        .plugin(tauri_plugin_updater::Builder::new().build())
+        .plugin(tauri_plugin_process::init())
+        .plugin(tauri_plugin_shell::init())
+        .plugin(tauri_plugin_fs::init())
+        .plugin(tauri_plugin_http::init())
+        .plugin(tauri_plugin_os::init())
+        .plugin(tauri_plugin_dialog::init())
         .setup(|app| {
             #[cfg(target_os = "linux")]
             app.manage(DbusState(Mutex::new(
@@ -58,29 +65,33 @@ fn main() {
 
             Ok(())
         })
-        .on_window_event(|_e| {
+        .on_window_event(|_e, _| {
             #[cfg(target_os = "macos")]
             if let WindowEvent::Resized(..) = _e.event() {
                 let win = _e.window();
                 win.position_traffic_lights(15.0, 20.0);
             }
         })
-        .manage(Audio(Mutex::new(Sink::try_new(&stream_handle).unwrap())))
+        // .manage(Audio(Mutex::new(Sink::try_new(&stream_handle).unwrap())))
         .plugin(tauri_plugin_persisted_scope::init())
-        .plugin(tauri_plugin_context_menu::init())
+        // .plugin(tauri_plugin_context_menu::init())
         .plugin(
-            tauri_plugin_log::Builder::default()
-                .targets([LogTarget::LogDir, LogTarget::Stdout, LogTarget::Webview])
+            tauri_plugin_log::Builder::new()
+                .targets([
+                    Target::new(TargetKind::Stdout),
+                    Target::new(TargetKind::LogDir { file_name: None }),
+                    Target::new(TargetKind::Webview),
+                ])
                 .build(),
         )
-        .register_uri_scheme_protocol("stream", |app, request| handle_stream_request(app, request))
+        // .register_uri_scheme_protocol("stream", |app, request| handle_stream_request(app, request))
         .invoke_handler(tauri::generate_handler![
-            audio::audio_play_track,
-            audio::audio_play,
-            audio::audio_pause,
-            audio::audio_seek,
-            audio::audio_current_time,
-            audio::audio_duration,
+            // audio::audio_play_track,
+            // audio::audio_play,
+            // audio::audio_pause,
+            // audio::audio_seek,
+            // audio::audio_current_time,
+            // audio::audio_duration,
             discordrpc::clear_activity,
             discordrpc::set_activity,
             files::show_in_folder,

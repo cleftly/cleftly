@@ -1,11 +1,10 @@
 /* 
 Access and management of user library (Music directories, playlists, etc.)
 */
-import { BaseDirectory, writeBinaryFile } from '@tauri-apps/api/fs';
-import { convertFileSrc } from '@tauri-apps/api/tauri';
+import { BaseDirectory, writeFile } from '@tauri-apps/plugin-fs';
+import { invoke, convertFileSrc } from '@tauri-apps/api/core';
 import { get } from 'svelte/store';
 import { join } from '@tauri-apps/api/path';
-import { invoke } from '@tauri-apps/api';
 import { md5 } from 'js-md5';
 import db, {
     type Artist,
@@ -90,13 +89,9 @@ export async function saveArt(id: string, art: Blob | null) {
 
     await getOrCreateCacheDir();
 
-    await writeBinaryFile(
-        `${id}.jpg`,
-        new Uint8Array(await art.arrayBuffer()),
-        {
-            dir: BaseDirectory.AppCache
-        }
-    );
+    await writeFile(`${id}.jpg`, new Uint8Array(await art.arrayBuffer()), {
+        dir: BaseDirectory.AppCache
+    });
 
     return convertFileSrc(
         await join(await getOrCreateCacheDir(), `${id}.jpg`),
@@ -118,7 +113,6 @@ export async function updateLibrary() {
         return;
     }
 
-    // Call the Rust update_library function
     await invoke('update_library', {
         musicDirectories: config.music_directories,
         library: {
@@ -236,7 +230,6 @@ export async function toggleFavorite(trackId: string) {
     const updatedPlaylist = await db.playlists.get(FAVORITES_PLAYLIST);
 
     if (updatedPlaylist) {
-        console.log('Updated', updatedPlaylist);
         playlists.set([
             ...get(playlists).filter((p) => p.id !== FAVORITES_PLAYLIST),
             updatedPlaylist

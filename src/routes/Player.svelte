@@ -22,7 +22,7 @@
 
     import { _ } from 'svelte-i18n';
     import { onMount } from 'svelte';
-    import { platform } from '@tauri-apps/api/os';
+    import { platform } from '@tauri-apps/plugin-os';
     import { playTrack } from '$lib/player';
     import { audio, front, player, queue } from '$lib/stores';
     import { getTimestamp } from '$lib/utils';

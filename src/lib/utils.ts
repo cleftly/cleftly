@@ -1,5 +1,5 @@
 /* General utilities to make life easier and code more readable */
-import { convertFileSrc } from '@tauri-apps/api/tauri';
+import { convertFileSrc } from '@tauri-apps/api/core';
 
 export const supportedExtensions = [
     'wav',

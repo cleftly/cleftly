@@ -9,7 +9,7 @@ use std::collections::HashMap;
 use std::ffi::OsStr;
 use std::fs::read_dir;
 use std::path::{Path, PathBuf};
-use tauri::Manager;
+use tauri::{Emitter, Manager};
 use time::OffsetDateTime;
 
 const SUPPORTED_EXTENSIONS: &[&str] = &[
@@ -365,7 +365,7 @@ pub fn update_library(
 
         if (new_perc - prev_perc) > 0.01 {
             app_handle
-                .emit_all(
+                .emit(
                     "progressUpdate",
                     ProgressUpdatePayload {
                         id: "updateLibrary".to_string(),
@@ -440,7 +440,7 @@ pub fn update_library(
 
                     if let Some(album_art) = album_art {
                         album_art_path = match get_or_add_album_art(
-                            app_handle.path_resolver().app_cache_dir().unwrap(),
+                            app_handle.path().app_cache_dir().unwrap(),
                             album_id.clone(),
                             album_art,
                         ) {

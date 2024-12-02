@@ -1,4 +1,4 @@
-import { readTextFile } from '@tauri-apps/api/fs';
+import { readTextFile } from '@tauri-apps/plugin-fs';
 import { get } from 'svelte/store';
 import type { FriendlyTrack } from '../db';
 import { audio } from '../stores';

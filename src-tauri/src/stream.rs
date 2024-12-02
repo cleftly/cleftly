@@ -9,6 +9,7 @@ use std::{
 use tauri::http::Request;
 use tauri::http::{header::*, status::StatusCode, HttpRange, ResponseBuilder};
 use tauri::{AppHandle, Manager};
+use tauri_plugin_fs::FsExt;
 
 const URI_SCHEME_PREFIX: &str = "stream://localhost/";
 
@@ -37,7 +38,7 @@ pub fn handle_stream_request(
 
     debug!("Requested file: {}", path);
 
-    if !app.app_handle().fs_scope().is_allowed(&path) {
+    if !app.app_handle().try_fs_scope().unwrap().is_allowed(&path) {
         error!("Requested file not in scope: {}", path);
         return ResponseBuilder::new()
             .header(ACCESS_CONTROL_ALLOW_ORIGIN, "*")

@@ -26,6 +26,7 @@ const config = {
                     'blob:',
                     'stream:',
                     'tauri:',
+                    'ipc:',
                     'https://localhost',
                     'https://stream.localhost',
                     'unsafe-inline'

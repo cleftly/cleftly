@@ -1,5 +1,5 @@
 import { md5 } from 'js-md5';
-import { getClient } from '@tauri-apps/api/http';
+import { fetch } from '@tauri-apps/plugin-http';
 import type { FriendlyTrack } from '$lib/db';
 import { getOrCreateConfig } from '$lib/config';
 
@@ -41,8 +41,7 @@ export async function nowPlaying(track: FriendlyTrack) {
         sk
     };
 
-    const client = await getClient();
-    return await client.request({
+    return await fetch({
         method: 'POST',
         url: 'https://ws.audioscrobbler.com/2.0/',
         query: {
@@ -76,9 +75,7 @@ export async function scrobble(track: FriendlyTrack, played_at: Date) {
         sk
     };
 
-    const client = await getClient();
-
-    return await client.request({
+    return await fetch({
         method: 'POST',
         url: 'https://ws.audioscrobbler.com/2.0/',
         query: {

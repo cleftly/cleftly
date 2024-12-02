@@ -3,7 +3,7 @@
     import { Plus } from 'lucide-svelte';
     import { onMount } from 'svelte';
     import { _ } from 'svelte-i18n';
-    import { open } from '@tauri-apps/api/dialog';
+    import { open } from '@tauri-apps/plugin-dialog';
     import PluginCard from './PluginCard.svelte';
     import { getOrCreateConfig, saveConfig } from '$lib/config';
     import {

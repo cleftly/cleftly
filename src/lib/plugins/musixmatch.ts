@@ -1,4 +1,4 @@
-import { getClient } from '@tauri-apps/api/http';
+import { fetch } from '@tauri-apps/plugin-http';
 import type { PluginAPI } from '$lib/api/generate';
 import type { FriendlyTrack } from '$lib/db';
 import db from '$lib/db';
@@ -21,9 +21,8 @@ async function fetchToken() {
     }
 
     // https://apic-desktop.musixmatch.com/ws/1.1/token.get?app_id=web-desktop-app-v1.0
-    const client = await getClient();
 
-    const res = await client.request({
+    const res = await fetch({
         method: 'GET',
         url: `${BASE_URL}/token.get`,
         query: {
@@ -70,9 +69,7 @@ async function getLyrics(
 ): Promise<Lyrics | null> {
     const token = await fetchToken();
 
-    const client = await getClient();
-
-    const res = await client.request({
+    const res = await fetch({
         method: 'GET',
         url: `${BASE_URL}/macro.subtitles.get`,
         query: {

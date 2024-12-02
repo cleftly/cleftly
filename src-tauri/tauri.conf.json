@@ -1,128 +1,79 @@
 {
-    "$schema": "../node_modules/@tauri-apps/cli/schema.json",
-    "build": {
-        "beforeBuildCommand": "pnpm run build",
-        "beforeDevCommand": "pnpm run dev",
-        "devPath": "http://localhost:3009",
-        "distDir": "../build"
+  "$schema": "../node_modules/@tauri-apps/cli/schema.json",
+    
+  "build": {
+    "beforeBuildCommand": "pnpm run build",
+    "beforeDevCommand": "pnpm run dev",
+    "devUrl": "http://localhost:3009",
+      "frontendDist": "../build"
+  },
+  "bundle": {
+    "active": true,
+    "category": "Music",
+    "copyright": "MIT License",
+    "targets": "all",
+    "externalBin": [],
+    "icon": [
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/128x128@2x.png",
+      "icons/icon.icns",
+      "icons/icon.ico"
+    ],
+    "windows": {
+      "certificateThumbprint": null,
+      "digestAlgorithm": "sha256",
+      "timestampUrl": ""
     },
-    "package": {
-        "productName": "Cleftly",
-        "version": "0.1.0"
+    "longDescription": "",
+    "macOS": {
+      "entitlements": null,
+      "exceptionDomain": "",
+      "frameworks": [],
+      "providerShortName": null,
+      "signingIdentity": null
     },
-    "tauri": {
-        "allowlist": {
-            "all": false,
-            "os": {
-                "all": true
-            },
-            "shell": {
-                "all": false,
-                "open": ".*" 
-            },
-            "fs": {
-                "all": true,
-                "scope": [
-                    "$APPCONFIG",
-                    "$APPCONFIG/*",
-                    "$APPCACHE",
-                    "$APPCACHE/*"
-                ]
-            },
-            "path": {
-                "all": true
-            },
-            "http": {
-                "all": true,
-                "request": true,
-                "scope": ["https://*"]
-            },
-            "dialog": {
-                "all": true
-            },
-            "protocol": {
-                "all": true
-            },
-            "window": {
-                "all": false,
-                "hide": true,
-                "maximize": true,
-                "minimize": true,
-                "print": false,
-                "requestUserAttention": true,
-                "setTitle": true,
-                "show": true,
-                "startDragging": true,
-                "unmaximize": true,
-                "unminimize": true
-            },
-            "process": {
-                "all": false,
-                "exit": false,
-                "relaunch": true,
-                "relaunchDangerousAllowSymlinkMacos": false
-            }
-        },
-        "bundle": {
-            "active": true,
-            "category": "Music",
-            "copyright": "MIT License",
-            "deb": {
-                "depends": []
-            },
-            "externalBin": [],
-            "icon": [
-                "icons/32x32.png",
-                "icons/128x128.png",
-                "icons/128x128@2x.png",
-                "icons/icon.icns",
-                "icons/icon.ico"
-            ],
-            "identifier": "com.cleftly",
-            "longDescription": "",
-            "macOS": {
-                "entitlements": null,
-                "exceptionDomain": "",
-                "frameworks": [],
-                "providerShortName": null,
-                "signingIdentity": null
-            },
-            "resources": [],
-            "shortDescription": "",
-            "targets": "all",
-            "windows": {
-                "certificateThumbprint": null,
-                "digestAlgorithm": "sha256",
-                "timestampUrl": ""
-            }
-        },
-        "security": {
-            "csp": "default-src 'self' blob: stream: tauri: https://localhost https://stream.localhost 'unsafe-inline'; script-src self stream: blob: tauri: https://localhost https://stream.localhost; media-src 'self' https://* blob: stream: tauri:; img-src 'self' https://* blob: stream: tauri:"
-        },
-        "updater": {
-            "active": true,
-            "endpoints": [
-                "https://github.com/cleftly/cleftly/releases/download/latest/latest.json"
-            ],
-            "windows": {
-                "installMode": "basicUi"
-            },
-            "dialog": true,
-            "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDhBOUFERjZFOEQwNENCRkYKUldUL3l3U05idCthaWtNNFgrY1F3SGFVUHhPNGhhWUZsRGgyWlJTN2lnbDM3SUVTeDlzM3hZT3cK"
-        },
-        "windows": [
-            {
-                "fullscreen": false,
-                "height": 600,
-                "resizable": true,
-                "title": "Cleftly",
-                "width": 800,
-                "titleBarStyle": "Overlay",
-                "hiddenTitle": true,
-                "theme": "Dark",
-                "minWidth": 400,
-                "minHeight": 200
-            }
-        ]
+    "resources": [],
+    "shortDescription": "",
+    "linux": {
+      "deb": {
+        "depends": []
+      }
+    },
+    "createUpdaterArtifacts": "v1Compatible"
+  },
+  "productName": "Cleftly",
+  "mainBinaryName": "Cleftly",
+  "version": "0.1.0",
+  "identifier": "com.cleftly",
+  "plugins": {
+    "updater": {
+      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDhBOUFERjZFOEQwNENCRkYKUldUL3l3U05idCthaWtNNFgrY1F3SGFVUHhPNGhhWUZsRGgyWlJTN2lnbDM3SUVTeDlzM3hZT3cK",
+      "endpoints": [
+        "https://github.com/cleftly/cleftly/releases/download/latest/latest.json"
+      ],
+      "windows": {
+        "installMode": "basicUi"
+      }
     }
+  },
+  "app": {
+    "windows": [
+      {
+        "fullscreen": false,
+        "height": 600,
+        "resizable": true,
+        "title": "Cleftly",
+        "width": 800,
+        "titleBarStyle": "Overlay",
+        "hiddenTitle": true,
+        "theme": "Dark",
+        "minWidth": 400,
+        "minHeight": 200
+      }
+    ],
+    "security": {
+      "csp": "default-src 'self' blob: stream: tauri: ipc: https://localhost https://stream.localhost 'unsafe-inline'; script-src self stream: blob: tauri: https://localhost https://stream.localhost; media-src 'self' https://* blob: stream: tauri:; img-src 'self' https://* blob: stream: tauri:; connect-src ipc: http://ipc.localhost"
+    }
+  }
 }

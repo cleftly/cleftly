@@ -12,46 +12,33 @@ rust-version = "1.60"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [build-dependencies]
-tauri-build = { version = "1.5.0", features = [] }
+tauri-build = { version = "2", features = [] }
 
 [dependencies]
 serde_json = "1.0"
 serde = { version = "1.0", features = ["derive"] }
-tauri = { version = "1.5.4", features = [ "process-relaunch",
-    "window-maximize",
-    "window-unminimize",
-    "window-start-dragging",
-    "window-request-user-attention",
-    "window-unmaximize",
-    "window-show",
-    "window-set-title",
-    "window-minimize",
-    "window-hide",
-    "updater",
-    "os-all",
-    "protocol-all",
-    "dialog-all",
-    "http-all",
-    "path-all",
-    "fs-all",
-    "shell-open",
-    "linux-protocol-headers",
+tauri = { version = "2", features = [
     "devtools",
 ] }
-tauri-plugin-persisted-scope = { git = "https://github.com/tauri-apps/plugins-workspace", branch = "v1" }
+tauri-plugin-persisted-scope = { version = "2" }
 percent-encoding = "2.3.0"
 mime_guess = "2.0.4"
 rodio = { version = "0.18.0", features = ["symphonia-aac", "symphonia-isomp4"] }
 rand = "0.8.5"
 declarative-discord-rich-presence = { git = "https://github.com/KPidS/declarative-discord-rich-presence" }
-tauri-plugin-context-menu = "0.7.0"
 regex = "1.10.3"
 md5 = "0.7.0"
 which = "6.0.0"
-tauri-plugin-log = { git = "https://github.com/tauri-apps/plugins-workspace", branch = "v1" }
+tauri-plugin-log = { version = "2" }
 log = { version = "0.4.20", features = ["release_max_level_info"] }
 time = { version = "0.3.34", features = ["serde"] }
 lofty = "0.18.2"
+tauri-plugin-dialog = "2"
+tauri-plugin-os = "2"
+tauri-plugin-http = "2"
+tauri-plugin-fs = "2"
+tauri-plugin-shell = "2"
+tauri-plugin-process = "2"
 
 [target.'cfg(target_os = "macos")'.dependencies]
 objc = "0.2.7"
@@ -59,6 +46,9 @@ cocoa = "0.25.0"
 
 [target.'cfg(target_os = "linux")'.dependencies]
 dbus = "0.9.7"
+
+[target."cfg(not(any(target_os = \"android\", target_os = \"ios\")))".dependencies]
+tauri-plugin-updater = "2"
 
 [features]
 # this feature is used for production builds or when `devPath` points to the filesystem and the built-in dev server is disabled.

@@ -1,7 +1,7 @@
 <script lang="ts">
     import { SlideToggle } from '@skeletonlabs/skeleton';
     import { Trash } from 'lucide-svelte';
-    import { open } from '@tauri-apps/api/dialog';
+    import { open } from '@tauri-apps/plugin-dialog';
     import { _ } from 'svelte-i18n';
 
     export let i: {

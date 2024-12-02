@@ -18,7 +18,7 @@
     import { RotateCw } from 'lucide-svelte';
     import type { AfterNavigate } from '@sveltejs/kit';
     import { onMount } from 'svelte';
-    import { relaunch } from '@tauri-apps/api/process';
+    import { relaunch } from '@tauri-apps/plugin-process';
     import Player from './Player.svelte';
     import Sidebar from './Sidebar.svelte';
     import MobileNav from './MobileNav.svelte';
@@ -193,17 +193,3 @@
         </div>
     </svelte:fragment>
 </AppShell>
-
-<style>
-    @media (min-width: 512px) {
-        .xs\:hidden {
-            display: none;
-        }
-    }
-
-    @media (max-width: 512px) {
-        .xs\:showme {
-            display: none;
-        }
-    }
-</style>

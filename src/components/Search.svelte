@@ -97,7 +97,6 @@
     // Search shortcut (Ctrl + k)
     window.addEventListener('keydown', async (e) => {
         if (e.ctrlKey && e.key === 'k') {
-            console.log('FOCUS');
             inputRef?.focus();
         }
     });

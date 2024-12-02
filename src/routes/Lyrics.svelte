@@ -1,7 +1,7 @@
 <script lang="ts">
     /** eslint-disable svelte/valid-compile */
     import { _ } from 'svelte-i18n';
-    import { writeTextFile } from '@tauri-apps/api/fs';
+    import { writeTextFile } from '@tauri-apps/plugin-fs';
     import { parse, type Lyric } from '$lib/lyrics/lrcutils';
     import {
         parseRichSyncLyrics,
