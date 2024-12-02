@@ -134,14 +134,14 @@ export default class DiscordRPC {
         const conf = (await this.api.config.getConfig()) as DiscordRPCConfig;
         const updatedConf = {
             discordRpcDetails: conf.discordRpcDetails ?? '{track}',
-            discordRpcState: conf.discordRpcState ?? '{album} - {artist}',
+            discordRpcState: conf.discordRpcState ?? '{artist}',
             discordRpcShowElapsed: conf.discordRpcShowElapsed ?? true,
             discordRpcLargeImage: conf.discordRpcLargeImage ?? '{albumArtUrl}',
             discordRpcLargeText: conf.discordRpcLargeText ?? '{album}',
             discordRpcSmallText: conf.discordRpcSmallText ?? '',
             discordRpcExternal: conf.discordRpcExternal ?? true,
             discordRpcButtons: conf.discordRpcButtons ?? true,
-            discordRpcHideOnPause: conf.discordRpcHideOnPause ?? false,
+            discordRpcHideOnPause: conf.discordRpcHideOnPause ?? true,
             discordRpcListeningType: conf.discordRpcListeningType ?? true
         };
 
