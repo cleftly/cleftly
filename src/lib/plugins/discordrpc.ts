@@ -23,6 +23,7 @@ interface DiscordRPCConfig {
     discordRpcExternal: boolean;
     discordRpcButtons: boolean;
     discordRpcHideOnPause: boolean;
+    discordRpcListeningType: boolean;
 }
 
 export default class DiscordRPC {
@@ -98,6 +99,11 @@ export default class DiscordRPC {
             description:
                 'Show the song.link button allowing people to see where to listen to the song',
             type: 'bool'
+        },
+        discordRpcListeningType: {
+            name: 'Listening Type',
+            description: 'Show "Listening to" instead of "Playing"',
+            type: 'bool'
         }
     };
 
@@ -135,7 +141,8 @@ export default class DiscordRPC {
             discordRpcSmallText: conf.discordRpcSmallText ?? '',
             discordRpcExternal: conf.discordRpcExternal ?? true,
             discordRpcButtons: conf.discordRpcButtons ?? true,
-            discordRpcHideOnPause: conf.discordRpcHideOnPause ?? false
+            discordRpcHideOnPause: conf.discordRpcHideOnPause ?? false,
+            discordRpcListeningType: conf.discordRpcListeningType ?? true
         };
 
         if (JSON.stringify(conf) !== JSON.stringify(updatedConf)) {
@@ -336,7 +343,8 @@ export default class DiscordRPC {
                 buttons:
                     conf.discordRpcButtons && externalInfo.songLinkUrl
                         ? [{ label: 'Listen', url: externalInfo.songLinkUrl }]
-                        : undefined
+                        : undefined,
+                listeningType: conf.discordRpcListeningType
             }
         }).then(() => {
             console.info(

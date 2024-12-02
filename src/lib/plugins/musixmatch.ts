@@ -39,7 +39,7 @@ async function fetchToken() {
     }
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const data = res.data as any;
+    const data = await res.json();
 
     const tok =
         data?.message?.body?.user_token || (cache?.value as string | undefined);
@@ -105,7 +105,7 @@ async function getLyrics(
 
     /* Unknown object */
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const data = res.data as any;
+    const data = await res.json();
 
     if (data.message?.header?.status_code !== 200) {
         // Rate limiting
