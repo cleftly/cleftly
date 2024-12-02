@@ -5,13 +5,14 @@
 mod discordrpc;
 mod files;
 mod library;
-// mod stream;
+mod stream;
 mod ytdl;
 // use audio::Audio;
 use declarative_discord_rich_presence::DeclarativeDiscordIpcClient;
-use rodio::{OutputStream, Sink};
+use http::{header::CONTENT_TYPE, response::Builder as ResponseBuilder, StatusCode};
+use rodio::OutputStream;
 use std::sync::Mutex;
-// use stream::handle_stream_request;
+use stream::handle_stream_request;
 use tauri::Manager;
 use tauri_plugin_log::{Target, TargetKind};
 
@@ -84,7 +85,18 @@ fn main() {
                 ])
                 .build(),
         )
-        // .register_uri_scheme_protocol("stream", |app, request| handle_stream_request(app, request))
+        .register_asynchronous_uri_scheme_protocol("stream", move |_ctx, request, responder| {
+            match handle_stream_request(_ctx.app_handle(), request) {
+                Ok(http_response) => responder.respond(http_response),
+                Err(e) => responder.respond(
+                    ResponseBuilder::new()
+                        .status(StatusCode::INTERNAL_SERVER_ERROR)
+                        .header(CONTENT_TYPE, "text/plain")
+                        .body(e.to_string().as_bytes().to_vec())
+                        .unwrap(),
+                ),
+            }
+        })
         .invoke_handler(tauri::generate_handler![
             // audio::audio_play_track,
             // audio::audio_play,

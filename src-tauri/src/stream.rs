@@ -1,13 +1,13 @@
+// File streaming protocol handler
+use http::{header::*, response::Builder as ResponseBuilder, status::StatusCode};
+use http_range::HttpRange;
 use log::{debug, error};
-// File streaming protocol
 use rand::Rng;
 use std::{
     io::{Read, Seek, SeekFrom, Write},
     path::PathBuf,
     sync::{Arc, Mutex},
 };
-use tauri::http::Request;
-use tauri::http::{header::*, status::StatusCode, HttpRange, ResponseBuilder};
 use tauri::{AppHandle, Manager};
 use tauri_plugin_fs::FsExt;
 
@@ -15,11 +15,12 @@ const URI_SCHEME_PREFIX: &str = "stream://localhost/";
 
 pub fn handle_stream_request(
     app: &AppHandle,
-    request: &Request,
-) -> Result<tauri::http::Response, Box<(dyn std::error::Error + 'static)>> {
+    request: http::Request<Vec<u8>>,
+) -> Result<http::Response<Vec<u8>>, Box<dyn std::error::Error>> {
     // get the file path
     let path = request
         .uri()
+        .to_string()
         .strip_prefix(URI_SCHEME_PREFIX)
         .expect("Invalid URI format")
         .split_once("?uuid=")
@@ -27,6 +28,7 @@ pub fn handle_stream_request(
         .unwrap_or_else(|| {
             request
                 .uri()
+                .to_string()
                 .strip_prefix(URI_SCHEME_PREFIX)
                 .expect("Invalid URI format")
                 .to_string()
@@ -40,10 +42,11 @@ pub fn handle_stream_request(
 
     if !app.app_handle().try_fs_scope().unwrap().is_allowed(&path) {
         error!("Requested file not in scope: {}", path);
-        return ResponseBuilder::new()
+        let response = ResponseBuilder::new()
             .header(ACCESS_CONTROL_ALLOW_ORIGIN, "*")
             .status(403)
             .body("File not in scope".as_bytes().to_vec());
+        return response.map_err(Into::into);
     }
 
     let mut file = std::fs::File::open(PathBuf::from(&path))?;
@@ -81,7 +84,7 @@ pub fn handle_stream_request(
                 .map(|r| (r.start, r.start + r.length - 1))
                 .collect::<Vec<_>>()
         } else {
-            return not_satisfiable();
+            return Ok(not_satisfiable()?);
         };
 
         /// The Maximum bytes we send in one range
@@ -95,7 +98,7 @@ pub fn handle_stream_request(
             // this should be already taken care of by HttpRange::parse
             // but checking here again for extra assurance
             if start >= len || end >= len || end < start {
-                return not_satisfiable();
+                return Ok(not_satisfiable()?);
             }
 
             // adjust end byte for MAX_LEN
@@ -185,5 +188,5 @@ pub fn handle_stream_request(
         resp.body(buf)
     };
 
-    return response;
+    response.map_err(Into::into)
 }

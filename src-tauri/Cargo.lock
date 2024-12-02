@@ -119,6 +119,8 @@ dependencies = [
  "cocoa 0.25.0",
  "dbus",
  "declarative-discord-rich-presence",
+ "http",
+ "http-range",
  "lofty",
  "log",
  "md5",
@@ -993,7 +995,7 @@ dependencies = [
 [[package]]
 name = "declarative-discord-rich-presence"
 version = "0.1.0"
-source = "git+https://github.com/KPidS/declarative-discord-rich-presence#bbe5f1193c595f195e8b61c055a552bf65d70eef"
+source = "git+https://github.com/wxllow/declarative-discord-rich-presence#526be55979e57517f753673165a353140901651b"
 dependencies = [
  "discord-rich-presence",
 ]
@@ -1066,11 +1068,12 @@ dependencies = [
 [[package]]
 name = "discord-rich-presence"
 version = "0.2.3"
-source = "git+https://github.com/KPidS/declarative-discord-rich-presence#bbe5f1193c595f195e8b61c055a552bf65d70eef"
+source = "git+https://github.com/wxllow/declarative-discord-rich-presence#526be55979e57517f753673165a353140901651b"
 dependencies = [
  "serde",
  "serde_derive",
  "serde_json",
+ "serde_repr",
  "uuid 0.8.2",
 ]
 
@@ -1899,6 +1902,12 @@ dependencies = [
  "http-body",
  "pin-project-lite",
 ]
+
+[[package]]
+name = "http-range"
+version = "0.1.5"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "21dec9db110f5f872ed9699c3ecf50cf16f423502706ba5c72462e28d3157573"
 
 [[package]]
 name = "httparse"
