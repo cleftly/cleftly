@@ -10,25 +10,19 @@
     let status = 'not_started';
 
     async function initiateLogin() {
-        const res = await fetch({
-            url: BASE_URL,
-            method: 'POST',
-            query: {
-                method: 'auth.getToken',
-                api_key: import.meta.env.PUBLIC_LASTFM_API_KEY,
-                format: 'json'
-            },
-            headers: {
-                'Content-Type': 'application/json',
-                'Content-Length': '0'
+        const res = await fetch(
+            `https://ws.audioscrobbler.com/2.0/?method=auth.getToken&api_key=${
+                import.meta.env.PUBLIC_LASTFM_API_KEY
+            }&format=json`,
+            {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
             }
-        });
+        );
 
-        if (res.status !== 200) {
-            throw res;
-        }
-
-        const { token } = res.data as { [key: string]: unknown };
+        const { token } = (await res.json()) as { [key: string]: string };
 
         open(
             'http://www.last.fm/api/auth/?api_key=' +
@@ -41,30 +35,33 @@
 
         // Until successful, keep polling every 1 second
         const poll = setInterval(async () => {
-            const params = {
+            let params: { [key: string]: string } = {
                 method: 'auth.getSession',
                 api_key: import.meta.env.PUBLIC_LASTFM_API_KEY,
                 token,
                 format: 'json'
             };
 
-            await fetch({
-                url: BASE_URL,
-                method: 'POST',
-                query: {
-                    ...params,
-                    api_sig: await signCall(
-                        import.meta.env.PUBLIC_LASTFM_API_SECRET,
-                        params
-                    )
-                },
+            params = {
+                ...params,
+                api_sig: await signCall(
+                    import.meta.env.PUBLIC_LASTFM_API_SECRET,
+                    params
+                )
+            };
+
+            const url = new URL(BASE_URL);
+            Object.keys(params).forEach((key) =>
+                url.searchParams.append(key, params[key])
+            );
+
+            await fetch(url, {
                 headers: {
-                    'Content-Type': 'application/json',
-                    'Content-Length': '0'
+                    'Content-Type': 'application/json'
                 }
             }).then(async (res) => {
                 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                const data = res.data as any;
+                const data = await res.json();
 
                 if (res.status !== 200) {
                     if (data?.error !== 14) {
@@ -82,12 +79,6 @@
                 status = 'complete';
                 clearInterval(poll);
             });
-
-            // const { status } = res.data;
-
-            // if (status === 'ok') {
-            //     clearInterval(poll);
-            // }
         }, 1000);
     }
 

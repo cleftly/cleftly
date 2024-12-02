@@ -22,17 +22,17 @@ async function fetchToken() {
 
     // https://apic-desktop.musixmatch.com/ws/1.1/token.get?app_id=web-desktop-app-v1.0
 
-    const res = await fetch({
-        method: 'GET',
-        url: `${BASE_URL}/token.get`,
-        query: {
-            app_id: 'web-desktop-app-v1.0'
-        },
-        headers: {
-            Cookie: `AWSELBCORS=0; AWSELB=0;`,
-            Authority: 'apic-desktop.musixmatch.com'
+    const res = await fetch(
+        `${BASE_URL}/token.get?app_id=web-desktop-app-v1.0`,
+        {
+            method: 'GET',
+
+            headers: {
+                Cookie: `AWSELBCORS=0; AWSELB=0;`,
+                Authority: 'apic-desktop.musixmatch.com'
+            }
         }
-    });
+    );
 
     if (res.status !== 200) {
         throw res;
@@ -69,24 +69,30 @@ async function getLyrics(
 ): Promise<Lyrics | null> {
     const token = await fetchToken();
 
-    const res = await fetch({
+    const params: { [key: string]: string } = {
+        format: 'json',
+        namespace: 'lyrics_richsynched',
+        subtitle_format: 'lrc',
+        app_id: 'web-desktop-app-v1.0',
+        usertoken: token,
+        q_track: track.title,
+        q_artist: track.artist.name,
+        q_album: track.album.name,
+        track_spotify_id: '',
+        q_duration: `${Math.round(track.duration)}`,
+        f_subtitle_length: `${Math.round(track.duration)}`,
+        f_subtitle_length_max_deviation: `40`,
+        optional_calls: allowRichSync ? 'track.richsync' : ''
+    };
+
+    const url = new URL(`${BASE_URL}/macro.subtitles.get`);
+
+    Object.keys(params).forEach((key) =>
+        url.searchParams.append(key, params[key])
+    );
+
+    const res = await fetch(url, {
         method: 'GET',
-        url: `${BASE_URL}/macro.subtitles.get`,
-        query: {
-            format: 'json',
-            namespace: 'lyrics_richsynched',
-            subtitle_format: 'lrc',
-            app_id: 'web-desktop-app-v1.0',
-            usertoken: token,
-            q_track: track.title,
-            q_artist: track.artist.name,
-            q_album: track.album.name,
-            track_spotify_id: '',
-            q_duration: `${Math.round(track.duration)}`,
-            f_subtitle_length: `${Math.round(track.duration)}`,
-            f_subtitle_length_max_deviation: `40`,
-            optional_calls: allowRichSync ? 'track.richsync' : ''
-        },
         headers: {
             Cookie: `AWSELBCORS=0; AWSELB=0; x-mxm-token-guid=${token};`,
             Authority: 'apic-desktop.musixmatch.com'

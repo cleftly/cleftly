@@ -29,7 +29,7 @@ export async function nowPlaying(track: FriendlyTrack) {
 
     if (!sk) return;
 
-    const params = {
+    const params: { [key: string]: string } = {
         method: 'track.updateNowPlaying',
         track: track.title,
         artist: track.artist.name,
@@ -41,19 +41,16 @@ export async function nowPlaying(track: FriendlyTrack) {
         sk
     };
 
-    return await fetch({
-        method: 'POST',
-        url: 'https://ws.audioscrobbler.com/2.0/',
-        query: {
-            ...params,
-            api_sig: await signCall(
-                import.meta.env.PUBLIC_LASTFM_API_SECRET,
-                params
-            )
-        },
-        headers: {
-            'Content-Length': '0'
-        }
+    const url = new URL(BASE_URL);
+    Object.keys(params).forEach((key) =>
+        url.searchParams.append(key, params[key])
+    );
+    url.searchParams.append(
+        'api_sig',
+        await signCall(import.meta.env.PUBLIC_LASTFM_API_SECRET, params)
+    );
+    return await fetch(url, {
+        method: 'POST'
     });
 }
 
@@ -62,7 +59,7 @@ export async function scrobble(track: FriendlyTrack, played_at: Date) {
 
     if (!sk) return;
 
-    const params = {
+    const params: { [key: string]: string } = {
         method: 'track.scrobble',
         track: track.title,
         artist: track.artist.name,
@@ -75,18 +72,16 @@ export async function scrobble(track: FriendlyTrack, played_at: Date) {
         sk
     };
 
-    return await fetch({
-        method: 'POST',
-        url: 'https://ws.audioscrobbler.com/2.0/',
-        query: {
-            ...params,
-            api_sig: await signCall(
-                import.meta.env.PUBLIC_LASTFM_API_SECRET,
-                params
-            )
-        },
-        headers: {
-            'Content-Length': '0'
-        }
+    const url = new URL(BASE_URL);
+    Object.keys(params).forEach((key) =>
+        url.searchParams.append(key, params[key])
+    );
+    url.searchParams.append(
+        'api_sig',
+        await signCall(import.meta.env.PUBLIC_LASTFM_API_SECRET, params)
+    );
+
+    return await fetch(url, {
+        method: 'POST'
     });
 }

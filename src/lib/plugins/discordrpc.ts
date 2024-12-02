@@ -196,16 +196,19 @@ export default class DiscordRPC {
                 .replace('(deluxe)', '')
                 .replace('(single)', '');
 
-            const res = await fetch(`https://itunes.apple.com/search`, {
-                query: {
-                    term: `${track.title} ${track.artist.name} ${normAlbumName}`.replace(
-                        /[@~`!@#$%^&()_=+\\';:"/?>.<,-]/g,
-                        ''
-                    ),
-                    entity: 'song',
-                    limit: '5'
-                }
-            });
+            const url = new URL('https://itunes.apple.com/search');
+
+            url.searchParams.set(
+                'term',
+                `${track.title} ${track.artist.name} ${normAlbumName}`.replace(
+                    /[@~`!@#$%^&()_=+\\';:"/?>.<,-]/g,
+                    ''
+                )
+            );
+            url.searchParams.set('entity', 'song');
+            url.searchParams.set('limit', '5');
+
+            const res = await fetch(url);
 
             if (res.status !== 200) {
                 console.error(
@@ -213,22 +216,22 @@ export default class DiscordRPC {
                 );
             }
 
-            let data = res.data as any;
+            let data = await res.json();
 
             if ((data.results?.length || 0) < 1) {
-                const res = await client.get(
-                    `https://itunes.apple.com/search`,
-                    {
-                        query: {
-                            term: `${normAlbumName} ${track.artist.name}`.replace(
-                                /[@~`!@#$%^&()_=+\\';:"/?>.<,-]/g,
-                                ''
-                            ),
-                            entity: 'song',
-                            limit: '5'
-                        }
-                    }
+                const url = new URL('https://itunes.apple.com/search');
+
+                url.searchParams.set(
+                    'term',
+                    `${normAlbumName} ${track.artist.name}`.replace(
+                        /[@~`!@#$%^&()_=+\\';:"/?>.<,-]/g,
+                        ''
+                    )
                 );
+                url.searchParams.set('entity', 'song');
+                url.searchParams.set('limit', '5');
+
+                const res = await fetch(url);
 
                 if (res.status !== 200) {
                     console.error(
@@ -236,7 +239,7 @@ export default class DiscordRPC {
                     );
                 }
 
-                data = res.data as any;
+                data = await res.json();
             }
 
             if (data.resultCount) {
