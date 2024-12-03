@@ -12,6 +12,7 @@
         AppShell,
         Modal,
         Toast,
+        getToastStore,
         initializeStores,
         storePopup
     } from '@skeletonlabs/skeleton';
@@ -19,23 +20,28 @@
     import type { AfterNavigate } from '@sveltejs/kit';
     import { onMount } from 'svelte';
     import { relaunch } from '@tauri-apps/plugin-process';
+    import { check } from '@tauri-apps/plugin-updater';
+    import { _ } from 'svelte-i18n';
     import Player from './Player.svelte';
     import Sidebar from './Sidebar.svelte';
     import MobileNav from './MobileNav.svelte';
     import Lyrics from './Lyrics.svelte';
     import Queue from './Queue.svelte';
     import PlayerSettings from './PlayerSettings.svelte';
-    import { afterNavigate, onNavigate } from '$app/navigation';
+    import { afterNavigate, goto, onNavigate } from '$app/navigation';
     import db from '$lib/db';
     import { front, playlists } from '$lib/stores';
     import Search from '$components/Search.svelte';
     import Progress from '$components/Progress.svelte';
     import { loadPlugins } from '$lib/plugins';
     import { getOrCreateConfig } from '$lib/config';
-
     initializeStores();
 
+    let updateNotified: boolean = false;
+
     storePopup.set({ computePosition, autoUpdate, offset, shift, flip, arrow });
+
+    const toastStore = getToastStore();
 
     // Scroll to the top on navigation
     afterNavigate((params: AfterNavigate) => {
@@ -81,6 +87,34 @@
             theme: config.theme,
             color: config.color
         });
+
+        async function checkForUpdate() {
+            if (updateNotified) return;
+
+            await check()
+                .then((update) => {
+                    if (update) {
+                        toastStore.trigger({
+                            message: $_('update_available'),
+                            background: 'variant-filled-success',
+                            action: {
+                                label: 'Update',
+                                response: () => goto('/settings#updates')
+                            }
+                        });
+                        updateNotified = true;
+                        return;
+                    }
+
+                    setInterval(checkForUpdate, 1000 * 60 * 30);
+                })
+                .catch(() => {})
+                .finally(() => {
+                    updateNotified = true;
+                });
+        }
+
+        checkForUpdate();
     });
 
     /* View transition (Chromium only for now :/) */

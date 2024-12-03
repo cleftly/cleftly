@@ -121,5 +121,7 @@
     "see_thing": "See {thing}",
     "setting_language": "Language",
     "settings_language_system_default": "System Default",
-    "setting_needs_reload": "Full reload required to fully apply. (Ctrl + Shift + R)"
+    "setting_needs_reload": "Full reload required to fully apply. (Ctrl + Shift + R)",
+    "updates": "Updates",
+    "update_available": "An update is available"
 }

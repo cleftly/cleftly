@@ -10,6 +10,7 @@
     import { _ } from 'svelte-i18n';
     import Option from './Option.svelte';
     import LastFmLogin from './LastFmLogin.svelte';
+    import Updater from './Updater.svelte';
     import db from '$lib/db';
     import { getOrCreateConfig, saveConfig, type Config } from '$lib/config';
     import {
@@ -18,6 +19,7 @@
     } from '$lib/playlists';
     import { front, playlists } from '$lib/stores';
     import init_i18n from '$lib/i18n';
+    import { onNavigate } from '$app/navigation';
 
     const toastStore = getToastStore();
     const modalStore = getModalStore();
@@ -171,6 +173,17 @@
             .then((res) => {
                 oldConfig = structuredClone(res);
                 config = structuredClone(res);
+
+                // if #updates, scroll to it
+                if (window.location.hash) {
+                    const elem = document.getElementById(
+                        window.location.hash.slice(1)
+                    );
+
+                    if (elem) {
+                        elem.scrollIntoView();
+                    }
+                }
             })
             .catch((err) => {
                 console.error(err);
@@ -179,6 +192,17 @@
                     background: 'variant-filled-error'
                 });
             });
+    });
+
+    onNavigate(() => {
+        // if #updates, scroll to it
+        if (window.location.hash) {
+            const elem = document.getElementById(window.location.hash.slice(1));
+
+            if (elem) {
+                elem.scrollIntoView();
+            }
+        }
     });
 
     async function cancelChanges() {
@@ -350,14 +374,8 @@
                 >{$_('reset_database')}</button
             >
         </div>
+
         <div class="space-y-4">
-            <div class="space-y-1">
-                <h3 class="text-xl">Last.fm</h3>
-                <LastFmLogin />
-            </div>
-        </div>
-        <!-- <div class="space-y-4">
-                    
             <h2 class="text-2xl mt-12 mb-2">{$_('integrations')}</h2>
             <div class="space-y-1">
                 <h3 class="text-xl">{$_('lyrics')}</h3>
@@ -374,7 +392,7 @@
                     })}
                 </a>
             </div>
-  
+
             <div class="space-y-1">
                 <h3 class="text-xl">{$_('discord_rpc')}</h3>
                 <p class="text-slate-400">
@@ -388,7 +406,17 @@
                     })}
                 </a>
             </div>
-        </div> -->
+
+            <div class="space-y-1">
+                <h3 class="text-xl">Last.fm</h3>
+                <LastFmLogin />
+            </div>
+        </div>
+
+        <div class="space-y-4" id="updates">
+            <h2 class="text-2xl mt-12 mb-2">{$_('updates')}</h2>
+            <Updater />
+        </div>
     {:else}
         <Loader2 class="animate-spin " />
     {/if}

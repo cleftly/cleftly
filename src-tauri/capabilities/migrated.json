@@ -64,6 +64,7 @@
     "http:default",
     "fs:default",
     "shell:default",
-    "process:default"
+    "process:default",
+    "updater:default"
   ]
 }

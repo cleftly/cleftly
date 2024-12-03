@@ -98,17 +98,20 @@
 </script>
 
 {#if status === 'not_started'}
-    <button on:click={initiateLogin} class="btn variant-filled-primary">
+    <button
+        on:click={initiateLogin}
+        class="btn variant-filled-primary text-slate-400"
+    >
         <div class="w-6 h-6 mr-2"><LastFm /></div>
         Login to Last.fm
     </button>
 {:else if status === 'started'}
-    <div class="flex items-center space-x-2">
+    <div class="flex items-center space-x-2 text-slate-400">
         <span>Waiting for login...</span>
     </div>
     <Loader2 class="animate-spin" />
 {:else}
-    <p>Logged in to Last.fm</p>
+    <p class="text-slate-400">Logged in to Last.fm</p>
     <button on:click={remove} class="btn variant-filled-error">
         <div class="w-6 h-6 mr-2"><LastFm /></div>
         Remove Last.fm
