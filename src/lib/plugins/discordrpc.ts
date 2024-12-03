@@ -207,7 +207,7 @@ export default class DiscordRPC {
 
             url.searchParams.set(
                 'term',
-                `${track.title} ${track.artist.name} ${normAlbumName}`.replace(
+                `${track.title} ${normAlbumName} ${track.artist.name}`.replace(
                     /[@~`!@#$%^&()_=+\\';:"/?>.<,-]/g,
                     ''
                 )
@@ -235,7 +235,8 @@ export default class DiscordRPC {
                         ''
                     )
                 );
-                url.searchParams.set('entity', 'song');
+
+                url.searchParams.set('entity', 'album');
                 url.searchParams.set('limit', '5');
 
                 const res = await fetch(url);
@@ -256,8 +257,10 @@ export default class DiscordRPC {
                     if (
                         res.artistName.toLowerCase() ===
                             track.artist.name.toLowerCase() &&
-                        res.trackName.toLowerCase() ===
-                            track.title.toLowerCase()
+                        (res.trackName
+                            ? res.trackName.toLowerCase() ===
+                              track.title.toLowerCase()
+                            : true)
                     ) {
                         result = res;
                         break;
@@ -270,8 +273,10 @@ export default class DiscordRPC {
                             track.artist.name.toLowerCase() &&
                         res.collectionName.toLowerCase() ===
                             track.album.name.toLowerCase() &&
-                        res.trackName.toLowerCase() ===
-                            track.title.toLowerCase()
+                        (res.trackName
+                            ? res.trackName.toLowerCase() ===
+                              track.title.toLowerCase()
+                            : true)
                     ) {
                         result = res;
                         break;
