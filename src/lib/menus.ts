@@ -2,7 +2,7 @@
  * Context menus
  */
 
-// import { showMenu } from 'tauri-plugin-context-menu';
+import { Menu, Submenu } from '@tauri-apps/api/menu';
 import { join } from '@tauri-apps/api/path';
 import { invoke } from '@tauri-apps/api/core';
 import { get } from 'svelte/store';
@@ -19,10 +19,6 @@ import db from './db';
 import { getTimestamp } from './utils';
 import { playTrack } from './player';
 import { goto } from '$app/navigation';
-
-const MENU_SEPERATOR = {
-    is_separator: true
-};
 
 async function _add(
     playlist: Playlist,
@@ -75,12 +71,11 @@ export async function openPlaylistMenu(
 ) {
     e?.preventDefault();
 
-    await showMenu({
-        pos: { x: e?.clientX || 0, y: e?.clientY || 0 },
+    const menu = await Menu.new({
         items: [
             {
-                label: 'Play',
-                event: async () => {
+                text: 'Play',
+                action: async () => {
                     const friendly = (await db.friendlyPlaylist(
                         playlist
                     )) as FriendlyPlaylist;
@@ -89,17 +84,20 @@ export async function openPlaylistMenu(
                 }
             },
             {
-                label: 'Shuffle',
-                event: () => {}
+                text: 'Shuffle',
+                action: () => {} // TODO
             },
-            MENU_SEPERATOR,
+            { item: 'Separator' },
             {
-                label: 'Delete',
-                event: () => {}
+                text: 'Delete',
+                action: () => {} // TODO
             }
         ]
     });
+
+    menu.popup();
 }
+
 export async function openTrackMenu(
     e: MouseEvent | undefined,
     track: FriendlyTrack,
@@ -108,15 +106,19 @@ export async function openTrackMenu(
 ) {
     e?.preventDefault();
 
-    await showMenu({
-        pos: { x: e?.clientX || 0, y: e?.clientY || 0 },
+    const menu = await Menu.new({
         items: [
             {
-                label: 'Add to Playlist',
-                subitems: [
+                text: get(_)('play_now'),
+                action: () => playTrack(track, [track])
+            },
+            { item: 'Separator' },
+            await Submenu.new({
+                text: get(_)('add_to_playlist'),
+                items: [
                     {
-                        label: get(_)('create_playlist'),
-                        event: () => {
+                        text: get(_)('create_playlist'),
+                        action: () => {
                             const createPlaylistModal: ModalSettings = {
                                 type: 'prompt',
                                 title: get(_)('create_playlist'),
@@ -147,20 +149,20 @@ export async function openTrackMenu(
                             modalStore.trigger(createPlaylistModal);
                         }
                     },
-                    MENU_SEPERATOR,
+                    { item: 'Separator' },
                     ...get(playlists).map((playlist) => ({
-                        label: playlist.name,
-                        event: () => {
+                        text: playlist.name,
+                        action: () => {
                             add(playlist, [track], modalStore, toastStore);
                         }
                     }))
                 ]
-            },
-            MENU_SEPERATOR,
+            }),
+
+            { item: 'Separator' },
             {
-                label: 'Play Next',
-                disabled: false,
-                event: () => {
+                text: get(_)('play_next'),
+                action: () => {
                     queue.update((q) => {
                         q.tracks.splice(q.index + 1, 0, track);
                         return q;
@@ -173,9 +175,8 @@ export async function openTrackMenu(
                 }
             },
             {
-                label: 'Play Later',
-                disabled: false,
-                event: () => {
+                text: get(_)('play_later'),
+                action: () => {
                     queue.update((q) => {
                         q.tracks.push(track);
                         return q;
@@ -187,18 +188,20 @@ export async function openTrackMenu(
                     });
                 }
             },
-            MENU_SEPERATOR,
+            { item: 'Separator' },
             {
-                label: `Go to Album`,
-                event: () => {
+                text: get(_)('go_to_foo', { values: { foo: get(_)('album') } }),
+                action: () => {
                     goto(
                         `/library/album?id=${encodeURIComponent(track.albumId)}`
                     );
                 }
             },
             {
-                label: `Go to Artist`,
-                event: () => {
+                text: get(_)('go_to_foo', {
+                    values: { foo: get(_)('artist') }
+                }),
+                action: () => {
                     goto(
                         `/library/artist?id=${encodeURIComponent(
                             track.artistId
@@ -206,48 +209,56 @@ export async function openTrackMenu(
                     );
                 }
             },
-            MENU_SEPERATOR,
+            { item: 'Separator' },
+
             {
-                label: `Open in ${
-                    (await platform()) === 'darwin' ? 'Finder' : 'File Explorer'
-                }`,
-                disabled: false,
-                event: async () => {
+                text: get(_)('open_in_foo', {
+                    values: {
+                        foo:
+                            (await platform()) === 'macos'
+                                ? 'Finder'
+                                : 'File Explorer'
+                    }
+                }),
+                action: async () => {
                     await invoke('show_in_folder', {
                         path: await join(track.location)
                     });
                 }
             },
             {
-                label: `Properties`,
-                disabled: false,
-                event: async () => {
+                text: get(_)('properties'),
+                action: async () => {
                     const propertiesModal: ModalSettings = {
                         type: 'alert',
-                        title: 'Properties',
+                        title: get(_)('properties'),
                         body: `
-                        <div class="overflow-y-auto text-sm">
-                            <p>Title: ${track.title} (${track.id})<br>
-                            Artist: ${track.artist.name} (${track.artistId})<br>
-                            Album: ${track.album.name} (${track.albumId})<br>
-                            Location: ${track.location}<br>
-                            Album Art: ${track.album.albumArt}<br>
-                            Animated Album Art: ${
-                                track.album.animatedAlbumArt
-                            }<br>
-                            Played At: ${track.lastPlayedAt}<br>
-                            Created At: ${track.createdAt}<br>
-                            Duration: ${getTimestamp(track.duration)} (${
-                            track.duration
+                    <div class="overflow-auto text-sm">
+                        <p>${get(_)('title')}: ${track.title} (${track.id})<br>
+                        ${get(_)('artist')}: ${track.artist.name} (${
+                            track.artistId
                         })<br>
-                            Track Number: ${track.trackNum}<br>
-                            Total Tracks: ${track.totalTracks}<br>
-                            Disc Number: ${track.discNum}<br>
-                            Total Discs: ${track.totalDiscs}<br>
-                            Genres: ${track.genres.join(', ')}
-                            </p>
-                        </div>
-                            `
+                        ${get(_)('album')}: ${track.album.name} (${
+                            track.albumId
+                        })<br>
+                        ${get(_)('location')}: ${track.location}<br>
+                        ${get(_)('album_art')}: ${track.album.albumArt}<br>
+                        ${get(_)('animated_album_art')}: ${
+                            track.album.animatedAlbumArt
+                        }<br>
+                        ${get(_)('last_played_at')}: ${track.lastPlayedAt}<br>
+                        ${get(_)('created_at')}: ${track.createdAt}<br>
+                        ${get(_)('duration')}: ${getTimestamp(
+                            track.duration
+                        )} (${track.duration})<br>
+                        Track Number: ${track.trackNum}<br>
+                        Total Tracks: ${track.totalTracks}<br>
+                        Disc Number: ${track.discNum}<br>
+                        Total Discs: ${track.totalDiscs}<br>
+                        ${get(_)('genres')}: ${track.genres.join(', ')}
+                        </p>
+                    </div>
+                        `
                     };
 
                     modalStore.trigger(propertiesModal);
@@ -255,4 +266,6 @@ export async function openTrackMenu(
             }
         ]
     });
+
+    menu.popup();
 }

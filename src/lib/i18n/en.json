@@ -123,5 +123,22 @@
     "settings_language_system_default": "System Default",
     "setting_needs_reload": "Full reload required to fully apply. (Ctrl + Shift + R)",
     "updates": "Updates",
-    "update_available": "An update is available"
+    "update_available": "An update is available",
+    "play_now": "Play Now",
+    "add_to_playlist": "Add to Playlist",
+    "play_next": "Play Next",
+    "play_later": "Play Later",
+    "go_to_foo": "Go to {foo}",
+    "album": "Album",
+    "artist": "Artist",
+    "open_in_foo": "Open in {foo}",
+    "properties": "Properties",
+    "title": "Title",
+    "location": "Location",
+    "album_art": "Album Art",
+    "animated_album_art": "Animated Album Art",
+    "last_played_at": "Last Played At",
+    "created_at": "Created At",
+    "duration": "Duration",
+    "genres": "Genres"
 }
