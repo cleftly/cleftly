@@ -268,8 +268,6 @@
         response: (r: boolean) => {
             if (!r) return;
 
-            // TODO: Export playlists
-
             resetDB().catch((err) => {
                 console.error(err);
 

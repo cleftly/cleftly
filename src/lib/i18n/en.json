@@ -107,6 +107,7 @@
     "built_in": "Built-in",
     "custom": "Custom",
     "third_party": "Third-party",
+    "third_party_disclaimer": "Use third-party plugins with caution. Although they are sandboxed to an extent, they may have some access to your system and data. Only install trusted plugins from reputable sources.",
     "plugins_reload_required": "Reload to apply",
     "plugins_reload_required_desc": "A reload is required to apply your changes",
     "reload": "Reload",

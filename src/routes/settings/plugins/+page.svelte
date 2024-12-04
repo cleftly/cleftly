@@ -169,6 +169,9 @@
     <h2 class="text-xl">
         {$_('third_party')}
     </h2>
+    <div class="text-warning-400">
+        <span>{$_('third_party_disclaimer')}</span>
+    </div>
     <button class="btn variant-ghost" on:click={importPlugin}>
         <Plus class="mr-2" />
         {$_('import')}
