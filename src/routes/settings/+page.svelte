@@ -2,6 +2,7 @@
     import {
         getModalStore,
         getToastStore,
+        SlideToggle,
         type ModalSettings
     } from '@skeletonlabs/skeleton';
     import { Loader2 } from 'lucide-svelte';
@@ -24,6 +25,7 @@
     const toastStore = getToastStore();
     const modalStore = getModalStore();
 
+    let showAdvanced = false;
     let oldConfig: Config | null = null;
     let config: Config | null = null;
 
@@ -141,28 +143,32 @@
                 type: 'bool'
             },
             lyrics_richsync: {
-                name: $_('thing_is_experimental', {
-                    values: {
-                        thing: $_('lyrics_karaoke')
-                    }
-                }),
+                name: $_('lyrics_karaoke'),
                 description: $_('setting_lyrics_richsync_desc'),
                 type: 'bool'
+            },
+            /* Advanced */
+            window_decorations: {
+                name: $_('native_window_titlebar'), // TODO: i18n
+                description: 'Show the system window decorations.',
+                type: 'bool',
+                advanced: true
+            },
+            audio_backend: {
+                name: 'Audio Backend',
+                type: 'enum',
+                options: [
+                    {
+                        label: 'Web',
+                        value: 'web'
+                    },
+                    {
+                        label: 'Native (Not Implemented)',
+                        value: 'native'
+                    }
+                ],
+                advanced: true
             }
-            // audio_backend: {
-            //     name: 'Audio Backend',
-            //     type: 'enum',
-            //     options: [
-            //         {
-            //             label: 'Web',
-            //             value: 'web'
-            //         },
-            //         {
-            //             label: 'Native (Not Implemented)',
-            //             value: 'native'
-            //         }
-            //     ]
-            // }
         };
     }
 
@@ -302,10 +308,23 @@
         </aside>
     {/if}
     <h1 class="text-3xl">{$_('settings')}</h1>
+    <div class="text-sm">
+        <SlideToggle
+            name="slide"
+            bind:checked={showAdvanced}
+            size="sm"
+            active="bg-primary-500"
+        >
+            {$_('settings_show_advanced')}
+        </SlideToggle>
+    </div>
     {#if config}
         {#each Object.entries(SETTINGS) as [k, i]}
-            <Option key={k} bind:value={config[k]} {i} />
+            {#if showAdvanced || !i.advanced}
+                <Option key={k} bind:value={config[k]} {i} />
+            {/if}
         {/each}
+
         <div>
             <button class="mt-4 btn variant-ghost" on:click={cancelChanges}>
                 {$_('cancel')}

@@ -1,5 +1,7 @@
 import { BaseDirectory, appConfigDir, appCacheDir } from '@tauri-apps/api/path';
+import { getCurrentWindow } from '@tauri-apps/api/window';
 import { writeTextFile, mkdir, exists, readFile } from '@tauri-apps/plugin-fs';
+import { platform } from '@tauri-apps/plugin-os';
 
 export type Config = {
     version: number;
@@ -15,6 +17,7 @@ export type Config = {
     theme: string;
     color: 'light' | 'dark' | 'oled';
     lang: string | null;
+    window_decorations: boolean;
     [key: string]: unknown;
 };
 
@@ -25,7 +28,7 @@ const DEFAULT_CONFIG = {
     lastfm_token: '',
     audio_backend: 'web',
     lyrics_save: false,
-    lyrics_richsync: false,
+    lyrics_richsync: true,
     locale: null,
     plugins: {},
     enabled_plugins: [
@@ -35,7 +38,8 @@ const DEFAULT_CONFIG = {
     ],
     theme: 'crimson',
     color: 'dark',
-    lang: null
+    lang: null,
+    window_decorations: platform() === 'macos' ? true : false
 };
 
 export async function getOrCreateConfig() {
@@ -75,6 +79,13 @@ export async function saveConfig(config: Config) {
     await writeTextFile('config.json', JSON.stringify(config), {
         baseDir: BaseDirectory.AppConfig
     });
+
+    await getCurrentWindow()
+        .setDecorations(config.window_decorations)
+        .catch((e) => {
+            console.error(e);
+            console.error('Failed to set window decorations');
+        });
 }
 
 export async function getOrCreateCacheDir() {

@@ -116,7 +116,7 @@
     "plugin_already_added": "Plugin already added",
     "added_to_queue": "Added to Queue",
     "singles_ep": "Singles/EP",
-    "setting_lyrics_richsync_desc": "Enable Rich Sync (Karaoke) lyrics when available. This feature is currently experimental and has a higher rate of lyrics being out of sync.",
+    "setting_lyrics_richsync_desc": "Enable Rich Sync (Karaoke) lyrics when available. This feature is has a higher rate of out of sync lyrics.",
     "lyrics_karaoke": "Karaoke Lyrics",
     "thing_is_experimental": "{thing} (Experimental)",
     "see_thing": "See {thing}",
@@ -141,5 +141,8 @@
     "last_played_at": "Last Played At",
     "created_at": "Created At",
     "duration": "Duration",
-    "genres": "Genres"
+    "genres": "Genres",
+    "native_window_decorations": "Native Window Decorations",
+    "native_window_titlebar": "Native Window Titlebar",
+    "settings_show_advanced": "Show Advanced Settings"
 }

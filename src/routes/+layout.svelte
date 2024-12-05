@@ -16,12 +16,14 @@
         initializeStores,
         storePopup
     } from '@skeletonlabs/skeleton';
-    import { RotateCw } from 'lucide-svelte';
+    import { LucideX, Maximize, Minus, RotateCw } from 'lucide-svelte';
     import type { AfterNavigate } from '@sveltejs/kit';
     import { onMount } from 'svelte';
     import { relaunch } from '@tauri-apps/plugin-process';
     import { check } from '@tauri-apps/plugin-updater';
     import { _ } from 'svelte-i18n';
+    import { getCurrentWindow } from '@tauri-apps/api/window';
+    import { platform } from '@tauri-apps/plugin-os';
     import Player from './Player.svelte';
     import Sidebar from './Sidebar.svelte';
     import MobileNav from './MobileNav.svelte';
@@ -35,6 +37,7 @@
     import Progress from '$components/Progress.svelte';
     import { loadPlugins } from '$lib/plugins';
     import { getOrCreateConfig } from '$lib/config';
+    import { isMobile } from '$lib/utils';
     initializeStores();
 
     let updateNotified: boolean = false;
@@ -87,6 +90,8 @@
             theme: config.theme,
             color: config.color
         });
+
+        await getCurrentWindow().setDecorations(config.window_decorations);
 
         async function checkForUpdate() {
             if (updateNotified) return;
@@ -173,7 +178,7 @@
 <AppShell scrollbarGutter="auto">
     <svelte:fragment slot="header">
         <nav
-            class="{import.meta.env.TAURI_PLATFORM === 'darwin'
+            class="{platform() === 'macos'
                 ? 'pl-[4.75rem] pr-4'
                 : 'px-4'} navbar h-11 bg-neutral-300 dark:bg-neutral-900 flex w-full select-none"
             data-tauri-drag-region={true}
@@ -198,8 +203,41 @@
                     <RotateCw class="p-1" />
                 </button>
             </div>
+
             <Search />
             <Progress />
+            {#if !isMobile()}
+                <div class="w-1/4 flex justify-end">
+                    <button
+                        class="btn btn-sm variant-soft !bg-transparent px-2"
+                        on:click={async () => {
+                            await getCurrentWindow().minimize();
+                        }}
+                    >
+                        <Minus class="p-1" />
+                    </button>
+                    <button
+                        class="btn btn-sm variant-soft !bg-transparent px-2"
+                        on:click={async () => {
+                            const window = getCurrentWindow();
+
+                            if (await window.isMaximized()) {
+                                await window.unmaximize();
+                            } else {
+                                await window.maximize();
+                            }
+                        }}
+                    >
+                        <Maximize class="p-1" />
+                    </button>
+                    <button
+                        class="btn btn-sm variant-soft !bg-transparent px-2"
+                        on:click={async () => await getCurrentWindow().close()}
+                    >
+                        <LucideX class="p-1" />
+                    </button>
+                </div>
+            {/if}
         </nav>
     </svelte:fragment>
     <svelte:fragment slot="sidebarLeft">

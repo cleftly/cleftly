@@ -1,5 +1,6 @@
 /* General utilities to make life easier and code more readable */
 import { convertFileSrc } from '@tauri-apps/api/core';
+import { platform } from '@tauri-apps/plugin-os';
 
 export const supportedExtensions = [
     'wav',
@@ -40,4 +41,8 @@ export function removeExtension(path: string): string {
 
 export async function getStreamUrl(path: string) {
     return convertFileSrc(path, 'stream');
+}
+
+export function isMobile() {
+    return platform() === 'android' || platform() === 'ios';
 }
