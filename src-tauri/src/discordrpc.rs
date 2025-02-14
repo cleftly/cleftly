@@ -21,7 +21,7 @@ pub struct Activity<'a> {
     pub start: Option<i64>,
     pub end: Option<i64>,
     pub buttons: Option<Vec<But>>,
-    pub listeningType: Option<bool>,
+    pub listening_type: Option<bool>,
 }
 
 #[tauri::command]
@@ -89,7 +89,7 @@ pub fn set_activity(
         act = act.buttons(buttons);
     }
 
-    if activity.listeningType.is_some() {
+    if activity.listening_type.is_some() {
         act = act.activity_type(activity::ActivityType::Listening);
     }
 

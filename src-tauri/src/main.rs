@@ -10,7 +10,6 @@ mod ytdl;
 // use audio::Audio;
 use declarative_discord_rich_presence::DeclarativeDiscordIpcClient;
 use http::{header::CONTENT_TYPE, response::Builder as ResponseBuilder, StatusCode};
-use rodio::OutputStream;
 use std::sync::Mutex;
 use stream::handle_stream_request;
 use tauri::Manager;
@@ -35,8 +34,6 @@ use window_ext::WindowExt;
 const DISCORD_RPC_CLIENT_ID: &str = "1175267910818742353";
 
 fn main() {
-    let (_stream, stream_handle) = OutputStream::try_default().unwrap();
-
     tauri::Builder::default()
         .plugin(tauri_plugin_updater::Builder::new().build())
         .plugin(tauri_plugin_process::init())
