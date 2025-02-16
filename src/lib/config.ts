@@ -33,8 +33,8 @@ const DEFAULT_CONFIG = {
     plugins: {},
     enabled_plugins: [
         'com.cleftly.discordrpc',
-        'com.cleftly.musixmatch',
-        'com.cleftly.lastfm'
+        'com.cleftly.musixmatch'
+        //      'com.cleftly.lastfm'
     ],
     theme: 'crimson',
     color: 'dark',
