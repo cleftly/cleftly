@@ -23,12 +23,13 @@
     role="button"
     tabindex="0"
 >
-    <Avatar
-        src={track.album.albumArt}
-        class="rounded-lg w-44 h-44 hover:brightness-90 hover:cursor-pointer mb-1"
-        initials={track.album.name.slice(0, 2)}
-        on:click={() => playTrack(track, [track])}
-    />
+    <button on:click={() => playTrack(track, [track])}>
+        <Avatar
+            src={track.album.albumArt}
+            class="rounded-lg w-44 h-44 hover:brightness-90 hover:cursor-pointer mb-1"
+            initials={track.album.name.slice(0, 2)}
+        />
+    </button>
 
     <button class="" on:click={() => playTrack(track, [track])}>
         <span
